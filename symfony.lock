@@ -1,0 +1,161 @@
+{
+    "mformono/continue-ai": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "f210c5329b44035d44810aa627a2a39fcfeb505c"
+        },
+        "files": [
+            ".continue/rules/configuration-management.md",
+            ".continue/rules/dependency-injection.md",
+            ".continue/rules/modern-php-features.md",
+            ".continue/rules/php-coding-standards.md",
+            ".continue/rules/symfony-project-structure.md",
+            ".continue/rules/testing-structure.md",
+            "docs/agent/.gitignore",
+            "docs/ai-agent-best-practices.md"
+        ]
+    },
+    "mformono/docker": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "1cc3112b75d052db40bfc2f3bd6077a974b4ae8b"
+        },
+        "files": [
+            ".continue/rules/docker-php-best-practices.md",
+            "etc/docker/entrypoints/app-entrypoint",
+            "etc/docker/entrypoints/app-php-entrypoint",
+            "etc/docker/php/conf.d/app.dev.ini",
+            "etc/docker/php/conf.d/xdebug.ini",
+            "etc/docker/php/fpm.d/www.dev.conf",
+            ".dockerignore",
+            "compose.yaml",
+            "Dockerfile"
+        ]
+    },
+    "mformono/editorconfig": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "3998a0ec300996d8f083516ead7e49c43579401f"
+        },
+        "files": [
+            ".editorconfig"
+        ]
+    },
+    "symfony/console": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "1781ff40d8a17d87cf53f8d4cf0c8346ed2bb461"
+        },
+        "files": [
+            "bin/console"
+        ]
+    },
+    "symfony/debug-bundle": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "31687d470bd812209d9da6b673ed2aba38521547"
+        },
+        "files": [
+            "config/packages/debug.php"
+        ]
+    },
+    "symfony/flex": {
+        "version": "2.8",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "2.4",
+            "ref": "52e9754527a15e2b79d9a610f98185a1fe46622a"
+        },
+        "files": [
+            ".env",
+            ".env.dev"
+        ]
+    },
+    "symfony/framework-bundle": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "7.2",
+            "ref": "4b2c5cb7644a5b93e79ee873b4b56612d3558a12"
+        },
+        "files": [
+            "config/packages/cache.php",
+            "config/packages/framework.php",
+            "config/preload.php",
+            "config/routes/framework.php",
+            "config/services.php",
+            "config/services/.gitignore",
+            "public/index.php",
+            "src/ExampleContext/UI/Controller/.gitignore",
+            "src/Kernel.php"
+        ]
+    },
+    "symfony/monolog-bundle": {
+        "version": "3.10",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "3.7",
+            "ref": "18c2baf637fa9704bffd49f441df9644bf769b56"
+        },
+        "files": [
+            "config/packages/monolog.php"
+        ]
+    },
+    "symfony/routing": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "7.0",
+            "ref": "4b0a7aa835b350e77c126bca5190a0a3e4e34f65"
+        },
+        "files": [
+            "config/packages/routing.php",
+            "config/routes.php"
+        ]
+    },
+    "symfony/twig-bundle": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "6.4",
+            "ref": "d9cb983fb8721ffa58c08a3420e9104e072c8573"
+        },
+        "files": [
+            "config/packages/twig.php",
+            "templates/base.html.twig"
+        ]
+    },
+    "symfony/web-profiler-bundle": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "7.3",
+            "ref": "ceff5b1abaa7bdc91f9b865ec171298944a4846a"
+        },
+        "files": [
+            "config/packages/web_profiler.php",
+            "config/routes/web_profiler.php"
+        ]
+    }
+}
