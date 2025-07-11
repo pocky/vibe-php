@@ -1,0 +1,23 @@
+{
+  "name": "PHP App",
+  "dockerComposeFile": [
+    "../compose.yaml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "Continue.continue",
+        "EditorConfig.EditorConfig",
+        "bierner.markdown-mermaid",
+        "MehediDracula.php-namespace-resolver",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}
