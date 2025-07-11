@@ -17,3 +17,5 @@ vendor/
 .php*
 .twig*
 auth.json
+
+.ecs_cache/

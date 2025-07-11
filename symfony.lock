@@ -31,6 +31,66 @@
             ".editorconfig"
         ]
     },
+    "phpstan/phpstan": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "5e490cc197fb6bb1ae22e5abbc531ddc633b6767"
+        },
+        "files": [
+            "phpstan.dist.neon"
+        ]
+    },
+    "phpstan/phpstan-symfony": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "19f8a2f369367b7bf74b3736e7f2fa29b55dff96"
+        },
+        "files": [
+            "phpstan.neon"
+        ]
+    },
+    "phpunit/phpunit": {
+        "version": "12.2",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "11.1",
+            "ref": "c6658a60fc9d594805370eacdf542c3d6b5c0869"
+        },
+        "files": [
+            ".env.test",
+            "phpunit.dist.xml",
+            "tests/bootstrap.php",
+            "bin/phpunit"
+        ]
+    },
+    "rector/rector": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "fc625c6d30e8a9cb29ea338e98eb1007e5f12fe6"
+        },
+        "files": [
+            "rector.php"
+        ]
+    },
+    "spaze/phpstan-disallowed-calls": {
+        "version": "4.5",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "4.0",
+            "ref": "af8d06901c897a459321b935cf8f6d227c3e3a12"
+        }
+    },
     "symfony/console": {
         "version": "7.3",
         "recipe": {
@@ -137,6 +197,30 @@
         "files": [
             "config/packages/web_profiler.php",
             "config/routes/web_profiler.php"
+        ]
+    },
+    "symplify/easy-coding-standard": {
+        "version": "12.5",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "12.0",
+            "ref": "42767154d3d50f3b752319ec4a26251b2ec53477"
+        },
+        "files": [
+            "ecs.php"
+        ]
+    },
+    "vincentlanglet/twig-cs-fixer": {
+        "version": "3.8",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "e508f7e1f5744a644168090c5f1540a0da208193"
+        },
+        "files": [
+            ".twig-cs-fixer.dist.php"
         ]
     }
 }

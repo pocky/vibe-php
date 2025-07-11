@@ -1,14 +1,12 @@
 {
     "type": "project",
     "license": "proprietary",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.3",
+        "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "mformono/docker": "*",
-        "mformono/editorconfig": "*",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
@@ -20,6 +18,7 @@
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
+            "phpstan/extension-installer": true,
             "symfony/flex": true,
             "symfony/runtime": true
         },
@@ -56,6 +55,27 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "qa": [
+            "@qa:tests",
+            "@qa:ecs",
+            "@qa:phpstan",
+            "@qa:rector",
+            "@qa:twig"
+        ],
+        "qa:tests": "bin/phpunit",
+        "qa:ecs": "vendor/bin/ecs",
+        "qa:ecs:fix": "vendor/bin/ecs --fix",
+        "qa:phpstan": "vendor/bin/phpstan analyse",
+        "qa:rector": "vendor/bin/rector --dry-run",
+        "qa:rector:fix": "vendor/bin/rector process",
+        "qa:twig": "vendor/bin/twig-cs-fixer lint templates",
+        "qa:twig:fix": "vendor/bin/twig-cs-fixer lint templates --fix",
+        "qa:fix": [
+            "@qa:ecs:fix",
+            "@qa:rector:fix",
+            "@qa:twig:fix",
+            "@qa:phpstan"
         ]
     },
     "conflict": {
@@ -74,8 +94,21 @@
         }
     },
     "require-dev": {
+        "mformono/docker": "*",
+        "mformono/editorconfig": "*",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpstan/phpstan-webmozart-assert": "^2.0",
+        "phpunit/phpunit": "^12.2",
+        "rector/rector": "^2.1",
+        "spaze/phpstan-disallowed-calls": "^4.5",
+        "symfony/browser-kit": "7.3.*",
+        "symfony/css-selector": "7.3.*",
         "symfony/debug-bundle": "7.3.*",
         "symfony/stopwatch": "7.3.*",
-        "symfony/web-profiler-bundle": "7.3.*"
+        "symfony/web-profiler-bundle": "7.3.*",
+        "symplify/easy-coding-standard": "^12.5",
+        "vincentlanglet/twig-cs-fixer": "^3.8"
     }
 }

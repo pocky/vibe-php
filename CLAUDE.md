@@ -6,6 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Follow global instructions in @docs/agent/instructions/global.md
 - Follow cognitive preservation principles in @docs/agent/instructions/cognitive-preservation.md
+- Follow Git workflow standards in @docs/agent/instructions/git-workflow.md
+- Follow PR management standards in @docs/agent/instructions/pr-management.md
+- Follow QA tools standards in @docs/agent/instructions/qa-tools.md
 - Follow Docker best practices in @docs/agent/instructions/docker.md
 - Follow Symfony best practices in @docs/agent/instructions/symfony.md
 - External documentation references in @docs/reference/external-docs.md
@@ -37,13 +40,15 @@ etc/docker/           # Docker configurations
 
 - **Services**: `app` (dev) and `app_test` (test environment)
 - **Xdebug**: Disabled by default, enable with `XDEBUG_MODE=debug`
-- **Profiler**: Available in dev/test environments
+- **Web Profiler**: Available in dev environment with toolbar enabled
+- **Profiler**: Collects performance data and debug information
 
-## Current Limitations
+## Current Status
 
-- No testing framework (PHPUnit needs installation)
-- No code quality tools (PHPStan, PHP-CS-Fixer)
-- Uses custom mformono packages
+- ✅ **Testing**: PHPUnit 12.2 configured and integrated
+- ✅ **Code Quality**: ECS, PHPStan, Rector, Twig CS Fixer integrated
+- ✅ **Development Tools**: Web Profiler, Debug Bundle available
+- ℹ️ **Dependencies**: Uses custom mformono packages
 
 ## AI Agent Best Practices
 

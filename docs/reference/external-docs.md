@@ -32,6 +32,15 @@ This file contains links to important external documentation that Claude should 
 - **Scripts**: https://getcomposer.org/doc/articles/scripts.md
 - **Versions & Constraints**: https://getcomposer.org/doc/articles/versions.md
 
+### GitHub CLI
+- **Official Documentation**: https://cli.github.com/
+- **Manual**: https://cli.github.com/manual/
+- **Command Reference**: https://cli.github.com/manual/gh
+- **PR Management**: https://cli.github.com/manual/gh_pr
+- **Issue Management**: https://cli.github.com/manual/gh_issue
+- **Workflow Commands**: https://cli.github.com/manual/gh_workflow
+- **API Access**: https://cli.github.com/manual/gh_api
+
 ## Framework Documentation
 
 ### Symfony 7.3
