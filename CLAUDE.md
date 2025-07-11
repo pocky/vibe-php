@@ -1,0 +1,102 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Instructions
+
+- Follow global instructions in @docs/agent/instructions/global.md
+- Follow cognitive preservation principles in @docs/agent/instructions/cognitive-preservation.md
+- Follow Docker best practices in @docs/agent/instructions/docker.md
+- Follow Symfony best practices in @docs/agent/instructions/symfony.md
+- External documentation references in @docs/reference/external-docs.md
+- Available commands are in @composer.json scripts section
+
+## Project Overview
+
+PHP 8.3+ application with Domain-Driven Design structure running in Docker.
+
+### Key Components
+- **Framework**: Symfony 7.3
+- **Architecture**: Domain-Driven Design with bounded contexts
+- **Environment**: Docker (development and test services)
+- **Development URL**: http://localhost (port 80)
+
+### Directory Structure
+```
+src/                    # Business contexts (DDD)
+├── ExampleContext/     # Example bounded context
+│   └── UI/Controller/  # Controllers for this context
+└── Kernel.php         # Application kernel
+
+etc/docker/           # Docker configurations
+├── entrypoints/      # Container entrypoints
+└── php/conf.d/       # PHP configurations
+```
+
+## Development Environment
+
+- **Services**: `app` (dev) and `app_test` (test environment)
+- **Xdebug**: Disabled by default, enable with `XDEBUG_MODE=debug`
+- **Profiler**: Available in dev/test environments
+
+## Current Limitations
+
+- No testing framework (PHPUnit needs installation)
+- No code quality tools (PHPStan, PHP-CS-Fixer)
+- Uses custom mformono packages
+
+## AI Agent Best Practices
+
+When working with AI agents in this codebase, follow the two-step approach documented in `docs/ai-agent-best-practices.md`:
+
+1. **Suggestion Phase**: Use a reasoning model to analyze and plan
+2. **Implementation Phase**: Use a coding model to execute the plan
+
+This separation ensures better control, higher quality results, and easier debugging.
+
+## Error Handling
+
+- Follow error handling protocol in @docs/agent/instructions/error-handling.md
+- Maximum 3 attempts for any failing operation
+- Document persistent errors in @docs/agent/errors.md
+
+## Coding Standards and Best Practices
+
+### PHP Coding Standards
+- Follow PSR-12 coding standard
+- Use strict typing: `declare(strict_types=1);` at the beginning of each PHP file
+- Naming conventions:
+  - PascalCase for classes and interfaces
+  - camelCase for methods and variables
+  - UPPER_CASE_SNAKE_CASE for constants
+- Classes should be `final` by default
+- Use `private` visibility by default for properties and methods
+
+### Modern PHP Features
+- Use PHP 8.3+ features: typed properties, constructor property promotion, attributes
+- Prefer immutability when possible
+
+### Project Structure (DDD/Hexagonal Architecture)
+- Organize code by business contexts following Domain-Driven Design
+- **Never** create Controller/, Entity/, Repository/ directories at the root of src/
+- **Always** organize code within context directories:
+  ```
+  src/
+  ├── UserContext/
+  │   ├── Application/
+  │   ├── Domain/
+  │   ├── Infrastructure/
+  │   └── UI/
+  └── BillingContext/
+      ├── Application/
+      ├── Domain/
+      ├── Infrastructure/
+      └── UI/
+  ```
+
+
+
+### Testing Structure
+- Tests should be in the `tests/` directory
+- The structure of `tests/` should mirror that of `src/`
+- Use PHPUnit for testing (needs to be installed)

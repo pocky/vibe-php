@@ -1,23 +1,4 @@
 {
-    "mformono/continue-ai": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/MforMono/recipes",
-            "branch": "main",
-            "version": "1.0",
-            "ref": "f210c5329b44035d44810aa627a2a39fcfeb505c"
-        },
-        "files": [
-            ".continue/rules/configuration-management.md",
-            ".continue/rules/dependency-injection.md",
-            ".continue/rules/modern-php-features.md",
-            ".continue/rules/php-coding-standards.md",
-            ".continue/rules/symfony-project-structure.md",
-            ".continue/rules/testing-structure.md",
-            "docs/agent/.gitignore",
-            "docs/ai-agent-best-practices.md"
-        ]
-    },
     "mformono/docker": {
         "version": "1.0",
         "recipe": {
