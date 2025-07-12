@@ -20,7 +20,7 @@ return RectorConfig::configure()
     )
     ->withAttributesSets()
     ->withPreparedSets(
-        codeQuality: true,
+        codeQuality: true
     )
     ->withSets([
         SetList::BEHAT_ANNOTATIONS_TO_ATTRIBUTES,

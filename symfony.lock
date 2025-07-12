@@ -1,4 +1,39 @@
 {
+    "doctrine/deprecations": {
+        "version": "1.1",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "87424683adc81d7dc305eefec1fced883084aab9"
+        }
+    },
+    "doctrine/doctrine-bundle": {
+        "version": "2.15",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.13",
+            "ref": "60085f7d55460f4884c99370eedf61a9171eca3d"
+        },
+        "files": [
+            "config/packages/doctrine.php",
+            "src/ExampleContext/Infrastructure/Persistence/Doctrine/ORM/Entity/.gitignore"
+        ]
+    },
+    "doctrine/doctrine-migrations-bundle": {
+        "version": "3.4",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "3.1",
+            "ref": "cfb536f3fe7994c4177bee66f7f95fcc4b78209f"
+        },
+        "files": [
+            "config/packages/doctrine_migrations.php",
+            "migrations/.gitignore"
+        ]
+    },
     "mformono/docker": {
         "version": "1.0",
         "recipe": {
@@ -148,6 +183,24 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/messenger": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "eee6c9752b019c36884ad5ed48e7d58f948c2882"
+        },
+        "files": [
+            "config/packages/messenger.php",
+            "src/Shared/Infrastructure/MessageBus/AsyncEventBus.php",
+            "src/Shared/Infrastructure/MessageBus/CommandBusInterface.php",
+            "src/Shared/Infrastructure/MessageBus/EventBusInterface.php",
+            "src/Shared/Infrastructure/MessageBus/QueryBusInterface.php",
+            "src/Shared/Infrastructure/MessageBus/SyncCommandBus.php",
+            "src/Shared/Infrastructure/MessageBus/SyncQueryBus.php"
+        ]
+    },
     "symfony/monolog-bundle": {
         "version": "3.10",
         "recipe": {
@@ -185,6 +238,15 @@
             "config/packages/twig.php",
             "templates/base.html.twig"
         ]
+    },
+    "symfony/uid": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "7.0",
+            "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
+        }
     },
     "symfony/web-profiler-bundle": {
         "version": "7.3",

@@ -39,9 +39,9 @@ Domain/
 
 #### Dependency Rules (MANDATORY)
 - **Domain**: Zero dependencies on other layers
-- **Application**: Depends only on Domain
-- **Infrastructure**: Implements Domain interfaces
-- **UI**: Uses Application through Gateways
+- **Application**: Depends only on Domain, uses Gateway pattern for entry points
+- **Infrastructure**: Implements Domain interfaces, contains concrete implementations
+- **UI**: Uses Application through Gateways exclusively
 
 #### Port Definition
 - Repository interfaces in `Domain/Shared/Repository/`
@@ -89,26 +89,38 @@ Application/Operation/Query/[UseCase]/
 
 #### Purpose
 - Technology-agnostic entry points to Application layer
-- Transform primitive arrays to/from domain objects
-- Handle cross-cutting concerns via middleware
+- Transform primitive arrays to/from domain objects via GatewayRequest/GatewayResponse
+- Handle cross-cutting concerns via middleware pipeline
+- Orchestrate use case execution with instrumentation
 
 #### Implementation Rules
 ```php
 // Gateway signature (MANDATORY)
-public function __invoke(array $data): array
+public function __invoke(GatewayRequest $request): GatewayResponse
 
-// Internal structure
-├── Gateway.php         # Main orchestration
-├── Request.php         # Input transformation
-├── Response.php        # Output transformation
-└── Middleware/         # Cross-cutting concerns
+// Internal structure in src/Shared/Application/Gateway/
+├── DefaultGateway.php          # Main orchestration class
+├── GatewayRequest.php          # Input interface
+├── GatewayResponse.php         # Output interface
+├── GatewayException.php        # Error handling
+├── Attribute/
+│   └── AsGateway.php          # Configuration attribute
+├── Middleware/                 # Pipeline components
+│   ├── Pipe.php               # Middleware orchestrator
+│   ├── DefaultLogger.php      # Logging middleware
+│   └── DefaultErrorHandler.php # Error handling middleware
+└── Instrumentation/           # Observability
+    ├── GatewayInstrumentation.php
+    ├── AbstractGatewayInstrumentation.php
+    └── DefaultGatewayInstrumentation.php
 ```
 
 #### Middleware Pipeline
-- **Validation**: Input data validation
-- **Authorization**: Access control
-- **Rate Limiting**: Request throttling  
-- **Audit**: Action logging
+- **DefaultLogger**: Start/success instrumentation
+- **DefaultErrorHandler**: Exception handling and GatewayException wrapping
+- **Validation**: Input data validation (custom)
+- **Authorization**: Access control (custom)
+- **Audit**: Action logging via instrumentation
 
 ## Implementation Rules
 
@@ -148,15 +160,24 @@ public function __invoke(array $data): array
 
 #### Gateways
 - One gateway per use case or related group
-- Handle primitive array input/output
-- Use middleware for cross-cutting concerns
+- Implement GatewayRequest/GatewayResponse pattern
+- Use middleware pipeline for cross-cutting concerns
+- Orchestrate command/query handlers execution
+- Provide instrumentation and error handling
 
 ### Infrastructure Layer
+
+#### Generator Pattern
+- Identity generation abstraction in `Infrastructure/Generator/`
+- GeneratorInterface defines the contract
+- UuidGenerator implements Symfony UID v7 generation
+- Used for entity identity creation in Domain layer
 
 #### Doctrine Integration
 - Entities in `Infrastructure/Persistence/Doctrine/ORM/Entity/`
 - Repositories implement domain interfaces
 - Separate from domain models (no shared inheritance)
+- Use Symfony UID types for UUID storage
 
 #### Security Integration
 - Symfony Security components
@@ -168,12 +189,19 @@ public function __invoke(array $data): array
 - Async processing via Symfony Messenger
 - Event listeners in Infrastructure layer
 
+#### Instrumentation Infrastructure
+- LoggerInstrumentation in `Infrastructure/Instrumentation/`
+- Implements base Instrumentation interface
+- Provides PSR-3 logger integration for Gateway instrumentation
+
 ## Code Organization Rules
 
 ### File Naming
 - Entry points: Use business terms (Creator, Authenticator, Updater)
 - Value objects: Business concepts (Email, UserId, UserStatus)
 - Events: Past tense (UserCreated, AuthenticationFailed)
+- Generators: Descriptive purpose (UuidGenerator, SequentialGenerator)
+- Gateways: Action-oriented (CreateUserGateway, AuthenticateUserGateway)
 
 ### Class Structure
 - All classes should be `final` by default

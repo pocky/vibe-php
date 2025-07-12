@@ -92,6 +92,9 @@ install-php-extensions \
 EOF
 
 ###> recipes ###
+###> doctrine/doctrine-bundle ###
+RUN install-php-extensions pdo_pgsql
+###< doctrine/doctrine-bundle ###
 ###< recipes ###
 
 # Set working directory

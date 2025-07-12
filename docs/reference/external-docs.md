@@ -51,8 +51,10 @@ This file contains links to important external documentation that Claude should 
 
 ### PHP
 - **PHP Manual**: https://www.php.net/manual/en/
+- **PHP 8.4 Features**: https://www.php.net/releases/8.4/en.php
 - **PHP 8.3 Features**: https://www.php.net/releases/8.3/en.php
 - **PSR Standards**: https://www.php-fig.org/psr/
+- **PHP RFCs**: https://wiki.php.net/rfc
 
 ## Common Tasks References
 
@@ -109,7 +111,7 @@ When you need specific information:
 
 ### For PHP Features
 ```
-"What's the syntax for [feature] in PHP 8.3?"
+"What's the syntax for [feature] in PHP 8.4?"
 → Check: https://www.php.net/manual/en/[feature]
 ```
 

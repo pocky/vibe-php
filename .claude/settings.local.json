@@ -10,7 +10,10 @@
       }]
     },
     "allow": [
-      "WebFetch(domain:cli.github.com)"
+      "WebFetch(domain:cli.github.com)",
+      "Bash(git checkout:*)",
+      "WebFetch(domain:symfony.com)",
+      "WebFetch(domain:www.doctrine-project.org)"
     ],
     "deny": []
   }

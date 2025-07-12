@@ -7,13 +7,23 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/dbal": "^3",
+        "doctrine/doctrine-bundle": "^2.15",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/orm": "^3.5",
+        "pagerfanta/doctrine-orm-adapter": "^4.7",
+        "pagerfanta/pagerfanta": "^2.0",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.3.*",
+        "symfony/messenger": "7.3.*",
         "symfony/monolog-bundle": "*",
         "symfony/runtime": "7.3.*",
-        "symfony/yaml": "7.3.*"
+        "symfony/serializer": "7.3.*",
+        "symfony/uid": "7.3.*",
+        "symfony/yaml": "7.3.*",
+        "webmozart/assert": "^1.11"
     },
     "config": {
         "allow-plugins": {

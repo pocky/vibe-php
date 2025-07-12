@@ -24,6 +24,7 @@ use PhpCsFixer\Fixer\PhpUnit\PhpUnitTestClassRequiresCoversFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\Strict\StrictComparisonFixer;
 use PhpCsFixer\Fixer\StringNotation\SimpleToComplexStringVariableFixer;
+use PhpCsFixer\Fixer\Whitespace\TypeDeclarationSpacesFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
@@ -77,6 +78,7 @@ return static function (ECSConfig $ecsConfig): void {
     ]);
 
     $ecsConfig->skip([
+        __DIR__.'/src/Shared/Infrastructure/Persistence/Doctrine/ORMRepository.php',
         PhpUnitTestClassRequiresCoversFixer::class => ['*Test.php'],
         PhpUnitInternalClassFixer::class => ['*Test.php'],
         PhpUnitMethodCasingFixer::class => ['*Test.php'],

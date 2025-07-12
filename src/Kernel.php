@@ -43,7 +43,7 @@ class Kernel extends BaseKernel
             $routes->import($configDir . '/{routes}.yaml');
         }
 
-        $fileName = (new \ReflectionObject($this))->getFileName();
+        $fileName = new \ReflectionObject($this)->getFileName();
         if (false !== $fileName) {
             $routes->import($fileName, 'attribute');
         }
