@@ -79,6 +79,7 @@ I follow these principles:
 3. **Technical Stack** - Recommended technologies and justifications
 4. **Implementation Phases** - Broken down into manageable deliverables
 5. **Risk Assessment** - Technical risks and mitigation strategies
+6. **PRD Integration** - Automatic integration of technical plan into corresponding PRD
 
 ### Plan Documentation
 
@@ -88,6 +89,8 @@ I will create a comprehensive plan document in `docs/plan/` with:
 - Technical specifications
 - Implementation roadmap
 - Risk analysis
+
+**PRD Integration**: After creating the technical plan, I will automatically integrate the technical sections into the corresponding PRD document in `docs/prd/` to ensure consistency and completeness of the product documentation.
 
 <function_calls>
 <invoke name="Bash">
@@ -103,7 +106,8 @@ Once you provide the requirements, I'll:
 2. Design appropriate architecture patterns
 3. Create detailed technical specifications
 4. **Save the complete plan to `docs/plan/[descriptive-name]-plan.md`**
-5. Provide a phased implementation roadmap
+5. **Integrate technical sections into corresponding PRD** in `docs/prd/`
+6. Provide a phased implementation roadmap
 
 Please share your requirements and any existing documentation or constraints I should consider.
 
@@ -112,6 +116,7 @@ After gathering requirements, I will create a complete plan document in the `doc
 1. **Generate descriptive filename** based on the feature/context name
 2. **Create structured plan document** with all sections populated
 3. **Save only in docs/plan/ directory** - no files created elsewhere
+4. **Automatically integrate technical sections into the corresponding PRD**
 
 ### Plan Document Template
 
@@ -151,3 +156,45 @@ The generated plan will include:
 ```
 
 **Note**: All planning artifacts will be saved in the `docs/plan/` directory structure to ensure proper documentation and traceability. No files will be created outside of the documentation structure.
+
+## PRD Integration Process
+
+After creating the technical plan, I will automatically:
+
+1. **Identify corresponding PRD**: Locate the matching PRD document in `docs/prd/` 
+2. **Extract technical sections**: Pull relevant technical details from the plan
+3. **Create Technical Implementation section**: Add a comprehensive technical section to the PRD
+4. **Maintain consistency**: Ensure technical details align with business requirements
+5. **Update both documents**: Keep plan and PRD synchronized
+
+### Technical Sections Added to PRD
+
+The following sections will be integrated into the PRD:
+
+```markdown
+## Technical Implementation Plan
+
+### Architecture Overview
+- [Technical approach and patterns from plan]
+- [Key technology decisions and justifications]
+
+### Implementation Roadmap
+- [Phased delivery timeline from plan]
+- [Technical milestones and dependencies]
+
+### Technical Specifications
+- [Component designs and interfaces]
+- [Database schema and migrations strategy]
+- [Performance and security considerations]
+
+### Development Standards
+- [Code quality requirements]
+- [Testing strategy and coverage targets]
+- [Documentation and review processes]
+
+### Risk Assessment & Mitigation
+- [Technical risks identified in plan]
+- [Mitigation strategies and contingency plans]
+```
+
+This integration ensures that business stakeholders have complete visibility into both the requirements AND the technical implementation strategy in a single, comprehensive document.

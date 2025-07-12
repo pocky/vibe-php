@@ -49,8 +49,7 @@ Infrastructure Layer (Persistence)
 ```php
 Application/Operation/Command/[UseCase]/
 ├── Command.php          # Data transfer object
-├── Handler.php          # Business logic orchestration
-└── Event.php            # Domain event emitted after success
+└── Handler.php          # Business logic orchestration with EventBus
 ```
 
 ### Command Implementation
@@ -64,11 +63,17 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Command\CreateArticle;
 
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+
 final readonly class Command
 {
     public function __construct(
+        public ArticleId $articleId,
         public string $title,
         public string $content,
+        public string $slug,
+        public string $status,
+        public \DateTimeImmutable $createdAt,
         public ?string $authorId = null,
     ) {}
 }
@@ -80,6 +85,7 @@ final readonly class Command
 - Public properties for simplicity
 - No business logic, pure data container
 - Validation happens in Gateway layer
+- Contains all data needed for the operation
 
 #### 2. Command Handler
 
@@ -90,50 +96,39 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\Article\{Article, ArticleId, Title, Content, Slug};
-use App\BlogContext\Domain\Article\Repository\ArticleRepository;
-use App\Shared\Infrastructure\Generator\GeneratorInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use App\BlogContext\Domain\CreateArticle\CreatorInterface;
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
+use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 
 final readonly class Handler
 {
     public function __construct(
-        private ArticleRepository $repository,
-        private GeneratorInterface $generator,
-        private EventDispatcherInterface $eventDispatcher,
+        private CreatorInterface $creator,
+        private EventBusInterface $eventBus,
     ) {}
 
-    public function __invoke(Command $command): Result
+    public function __invoke(Command $command): void
     {
-        // 1. Create domain objects from command data
-        $articleId = new ArticleId($this->generator->generate());
+        // Convert string values to domain value objects
         $title = new Title($command->title);
         $content = new Content($command->content);
-        $slug = Slug::fromTitle($command->title);
+        $slug = new Slug($command->slug);
+        $status = ArticleStatus::fromString($command->status);
 
-        // 2. Create aggregate via domain factory method
-        $article = Article::create($articleId, $title, $content, $slug);
-
-        // 3. Add author if provided
-        if ($command->authorId !== null) {
-            $article->assignAuthor(new AuthorId($command->authorId));
-        }
-
-        // 4. Persist aggregate
-        $this->repository->save($article);
-
-        // 5. Dispatch domain events
-        foreach ($article->releaseEvents() as $event) {
-            $this->eventDispatcher->dispatch($event);
-        }
-
-        // 6. Return result for Gateway
-        return new Result(
-            articleId: $articleId->toString(),
-            slug: $slug->toString(),
-            status: $article->status()->toString(),
-            createdAt: $article->createdAt(),
+        // Call domain creator to get article with domain events
+        $article = ($this->creator)(
+            articleId: $command->articleId,
+            title: $title,
+            content: $content,
+            slug: $slug,
+            status: $status,
+            createdAt: $command->createdAt,
         );
+
+        // Dispatch domain events via EventBus
+        foreach ($article->releaseEvents() as $event) {
+            ($this->eventBus)($event);
+        }
     }
 }
 ```
@@ -141,58 +136,74 @@ final readonly class Handler
 **Handler Rules**:
 - Orchestrates business operations only
 - No direct business logic (delegate to Domain)
-- Always return a Result object
-- Dispatch all domain events
-- Handle transactions at infrastructure level
+- Returns void (pure Command pattern)
+- Uses EventBus for event dispatching
+- Domain Creator handles business logic and persistence
 
-#### 3. Command Result
+#### 3. Domain Events
+
+Domain events are emitted by the aggregate (Article) and dispatched by the Handler via EventBus:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\BlogContext\Domain\CreateArticle\Event;
 
-final readonly class Result
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+
+final readonly class ArticleCreated
 {
     public function __construct(
-        public string $articleId,
-        public string $slug,
-        public string $status,
-        public \DateTimeImmutable $createdAt,
+        private ArticleId $articleId,
+        private Title $title,
+        private \DateTimeImmutable $createdAt,
     ) {}
-}
-```
 
-#### 4. Domain Event
+    public function articleId(): ArticleId
+    {
+        return $this->articleId;
+    }
 
-```php
-<?php
+    public function title(): Title
+    {
+        return $this->title;
+    }
 
-declare(strict_types=1);
+    public function createdAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+    public function eventType(): string
+    {
+        return 'BlogContext.Article.Created';
+    }
 
-use App\BlogContext\Domain\Article\Event\ArticleCreated;
+    public function aggregateId(): string
+    {
+        return $this->articleId->getValue();
+    }
 
-final readonly class Event
-{
-    public static function createArticleCreated(
-        string $articleId,
-        string $title,
-        \DateTimeImmutable $createdAt,
-        ?string $authorId = null
-    ): ArticleCreated {
-        return new ArticleCreated(
-            articleId: $articleId,
-            title: $title,
-            createdAt: $createdAt,
-            authorId: $authorId
-        );
+    public function toArray(): array
+    {
+        return [
+            'articleId' => $this->articleId->getValue(),
+            'title' => $this->title->getValue(),
+            'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
+            'eventType' => $this->eventType(),
+        ];
     }
 }
 ```
+
+**Domain Event Rules**:
+- Defined in Domain layer (pure business events)
+- Emitted by aggregates during business operations
+- Immutable readonly classes
+- Include eventType() and aggregateId() for event processing
+- No Application or Infrastructure dependencies
 
 ## Query Side (Read Operations)
 
@@ -251,12 +262,12 @@ final readonly class Handler
         }
 
         return new View(
-            id: $article->id()->toString(),
-            title: $article->title()->toString(),
-            content: $article->content()->toString(),
-            slug: $article->slug()->toString(),
-            status: $article->status()->toString(),
-            authorId: $article->authorId()?->toString(),
+            id: $article->id()->getValue(),
+            title: $article->title()->getValue(),
+            content: $article->content()->getValue(),
+            slug: $article->slug()->getValue(),
+            status: $article->status()->getValue(),
+            authorId: $article->authorId()?->getValue(),
             createdAt: $article->createdAt(),
             publishedAt: $article->publishedAt(),
             updatedAt: $article->updatedAt(),
@@ -400,11 +411,11 @@ final readonly class ArticleListItem
     public static function fromArticle(Article $article): self
     {
         return new self(
-            id: $article->id()->toString(),
-            title: $article->title()->toString(),
-            slug: $article->slug()->toString(),
-            status: $article->status()->toString(),
-            authorName: $article->author()?->displayName()->toString(),
+            id: $article->id()->getValue(),
+            title: $article->title()->getValue(),
+            slug: $article->slug()->getValue(),
+            status: $article->status()->getValue(),
+            authorName: $article->author()?->displayName()->getValue(),
             createdAt: $article->createdAt(),
             publishedAt: $article->publishedAt(),
         );
@@ -567,6 +578,28 @@ services:
         tags: ['kernel.event_listener']
 ```
 
+### EventBus Pattern
+
+Our architecture uses EventBus for clean event dispatching:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shared\Infrastructure\MessageBus;
+
+use Symfony\Component\Messenger\Envelope;
+
+interface EventBusInterface
+{
+    /**
+     * @param Envelope|object $event
+     */
+    public function __invoke($event): mixed;
+}
+```
+
 ### Gateway Integration with CQRS
 
 ```php
@@ -576,45 +609,44 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Gateway\CreateArticle\Middleware;
 
-use App\Shared\Application\Gateway\{GatewayRequest, GatewayResponse};
-use App\BlogContext\Application\Gateway\CreateArticle\{Request, Response};
-use App\BlogContext\Application\Operation\Command\CreateArticle\{Command, Handler};
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
+use App\BlogContext\Application\Gateway\CreateArticle\Request;
+use App\BlogContext\Application\Gateway\CreateArticle\Response;
+use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
+use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
+use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
 
 final readonly class Processor
 {
     public function __construct(
-        private MessageBusInterface $commandBus,
+        private Handler $commandHandler,
+        private ArticleIdGenerator $articleIdGenerator,
     ) {}
 
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    public function __invoke(Request $request, callable|null $next = null): Response
     {
-        if (!$request instanceof Request) {
-            throw new \InvalidArgumentException('Invalid request type');
-        }
+        // Generate unique article ID
+        $articleId = $this->articleIdGenerator->nextIdentity();
 
-        // Create CQRS Command
+        // Create CQRS Command from Gateway Request
         $command = new Command(
-            title: $request->title(),
-            content: $request->content(),
-            authorId: $request->authorId(),
+            articleId: $articleId,
+            title: $request->title,
+            content: $request->content,
+            slug: $request->slug,
+            status: $request->status,
+            createdAt: $request->createdAt,
+            authorId: $request->authorId,
         );
 
-        // Dispatch via Command Bus
-        $envelope = $this->commandBus->dispatch($command);
+        // Execute via Command Handler - no return needed
+        ($this->commandHandler)($command);
 
-        // Get result from handler
-        /** @var HandledStamp $handledStamp */
-        $handledStamp = $envelope->last(HandledStamp::class);
-        $result = $handledStamp->getResult();
-
-        // Transform to Gateway Response
+        // Transform to Gateway Response using command data
         return new Response(
-            articleId: $result->articleId,
-            slug: $result->slug,
-            status: $result->status,
-            createdAt: $result->createdAt,
+            articleId: $articleId->getValue(),
+            slug: $request->slug,
+            status: $request->status,
+            createdAt: $request->createdAt,
         );
     }
 }
@@ -870,10 +902,12 @@ final readonly class OptimizedArticleQueryHandler
 
 1. **Immutable DTOs**: Always use `readonly` classes for Commands
 2. **Single Responsibility**: One Command per business operation
-3. **Event Emission**: Commands MUST emit domain events
-4. **No Return Values**: Commands return void or simple confirmation objects
-5. **Validation**: Business validation in Domain, format validation in Gateway
-6. **Idempotency**: Design commands to be safely retryable
+3. **Event Emission**: Commands MUST emit domain events via aggregates
+4. **Void Return**: Commands return void (pure CQRS)
+5. **EventBus Integration**: Use EventBus for event dispatching in Handler
+6. **Domain Delegation**: Delegate business logic to Domain Creators
+7. **Validation**: Business validation in Domain, format validation in Gateway
+8. **Idempotency**: Design commands to be safely retryable
 
 ### ✅ Query Best Practices
 
@@ -887,19 +921,22 @@ final readonly class OptimizedArticleQueryHandler
 ### ✅ Handler Best Practices
 
 1. **Orchestration Only**: Handlers orchestrate, don't implement business logic
-2. **Single Bus**: Commands and Queries use separate buses
-3. **Error Handling**: Let domain exceptions bubble up
-4. **Transactions**: Handle transactions at infrastructure level
-5. **Events**: Dispatch all domain events after successful operations
+2. **EventBus Integration**: Use EventBus for clean event dispatching
+3. **Domain Creators**: Delegate to Domain Creators for business logic
+4. **Error Handling**: Let domain exceptions bubble up
+5. **Transactions**: Handle transactions at infrastructure level
+6. **Events**: Dispatch all domain events after successful operations
+7. **Void Returns**: Commands return void, Queries return Views
 
 ### 🚫 Anti-Patterns to Avoid
 
 1. **Mixed Operations**: Never combine Commands and Queries
 2. **Business Logic in Handlers**: Keep business logic in Domain layer
 3. **State in Handlers**: Handlers should be stateless
-4. **Direct Database Access**: Use repositories, not direct connections
-5. **Synchronous Dependencies**: Commands should not depend on external systems
-6. **Complex Return Types**: Keep Command results simple
+4. **Direct Event Dispatching**: Use EventBus, not direct EventDispatcher in Domain
+5. **Command Results**: Commands should return void, not complex objects
+6. **Event Factories in Application**: Domain events should be emitted by aggregates
+7. **Synchronous Dependencies**: Commands should not depend on external systems
 
 ## Directory Structure Reference
 
@@ -908,9 +945,7 @@ src/BlogContext/Application/Operation/
 ├── Command/                     # Write operations
 │   ├── CreateArticle/
 │   │   ├── Command.php          # DTO
-│   │   ├── Handler.php          # Orchestrator
-│   │   ├── Result.php           # Return data
-│   │   └── Event.php            # Domain event factory
+│   │   └── Handler.php          # Orchestrator with EventBus
 │   ├── UpdateArticle/
 │   ├── PublishArticle/
 │   └── ArchiveArticle/
@@ -922,6 +957,19 @@ src/BlogContext/Application/Operation/
     ├── ListArticles/
     ├── SearchArticles/
     └── GetArticleStatistics/
+
+src/BlogContext/Domain/CreateArticle/
+├── Creator.php                  # Business logic
+├── CreatorInterface.php         # Contract
+├── DataPersister/
+│   └── Article.php             # Aggregate with events
+├── Event/
+│   └── ArticleCreated.php      # Domain event
+└── Exception/
+    └── ArticleAlreadyExists.php
+
+src/Shared/Infrastructure/MessageBus/
+└── EventBusInterface.php       # Event dispatching contract
 ```
 
 ## Integration with Other Patterns

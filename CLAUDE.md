@@ -90,7 +90,7 @@ This separation ensures better control, higher quality results, and easier debug
 - Use PHP 8.4+ features: property hooks, asymmetric visibility, readonly classes
 - Use PHP 8.3+ features: typed properties, constructor property promotion, attributes, #[\Override]
 - Prefer immutability when possible (use readonly keyword)
-- See @docs/reference/php-8.4-features-best-practices.md for comprehensive guidelines
+- See @docs/reference/php-features-best-practices.md for comprehensive guidelines
 
 ### Project Structure (DDD/Hexagonal Architecture)
 - Organize code by business contexts following Domain-Driven Design
@@ -109,8 +109,6 @@ This separation ensures better control, higher quality results, and easier debug
       ├── Infrastructure/
       └── UI/
   ```
-
-
 
 ### Testing Structure
 - Tests should be in the `tests/` directory

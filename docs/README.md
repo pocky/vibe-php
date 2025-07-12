@@ -4,6 +4,37 @@ This directory contains all project documentation organized by type and purpose.
 
 ## Directory Structure
 
+```mermaid
+graph TD
+    docs[📁 docs/] --> agent[🤖 agent/]
+    docs --> architecture[🏗️ architecture/]
+    docs --> examples[💡 examples/]
+    docs --> plan[📋 plan/]
+    docs --> prd[🎯 prd/]
+    docs --> reference[📚 reference/]
+    
+    agent --> instructions[📋 instructions/]
+    agent --> workflows[🔄 workflows/]
+    agent --> errors[❌ errors.md]
+    
+    instructions --> arch_inst[architecture.md]
+    instructions --> git_inst[git-workflow.md]
+    instructions --> qa_inst[qa-tools.md]
+    instructions --> more_inst[...]
+    
+    reference --> patterns[Pattern docs]
+    reference --> external[External links]
+    reference --> frameworks[Framework refs]
+    
+    style docs fill:#e1f5fe
+    style agent fill:#f3e5f5
+    style architecture fill:#e8f5e8
+    style examples fill:#fff3e0
+    style plan fill:#f1f8e9
+    style prd fill:#fce4ec
+    style reference fill:#e0f2f1
+```
+
 ```
 docs/
 ├── agent/           # AI agent instructions and workflows

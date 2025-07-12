@@ -3,75 +3,49 @@ name: act
 description: Begin implementation with TDD approach and implementation checklist
 ---
 
-I'll guide you through a Test-Driven Development implementation following the Red-Green-Refactor cycle. Let me set up our workflow and checklist.
+I'll guide you through a Test-Driven Development implementation following the Red-Green-Refactor cycle.
 
-<function_calls>
-<invoke name="TodoWrite">
-<parameter name="todos">[
-  {
-    "id": "1",
-    "content": "🔴 RED: Write failing test for the first requirement",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "2", 
-    "content": "🟢 GREEN: Implement minimal code to pass the test",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "3",
-    "content": "♻️ REFACTOR: Improve code quality while keeping tests green",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "id": "4",
-    "content": "🔄 REPEAT: Continue cycle for next requirement",
-    "status": "pending",
-    "priority": "medium"
-  }
-]</parameter>
-</invoke>
-</function_calls>
+## Implementation Process
 
-## TDD Implementation Guide
+### Architecture & Patterns
+I follow established patterns from our documentation:
+- **@docs/reference/php-implementation-patterns.md** - Modern PHP patterns and best practices
+- **@docs/agent/workflows/tdd-implementation-guide.md** - Complete TDD workflow
+- **@docs/reference/domain-layer-pattern.md** - Domain modeling guidelines
+- **@docs/reference/cqrs-pattern.md** - Command/query separation patterns
+- **@docs/reference/gateway-pattern.md** - Entry point implementation
+- **@docs/agent/workflows/act-checklist.md** - Implementation checklist
 
-### Current Phase: 🔴 RED - Write a Failing Test
+### TDD Workflow
 
-I'll help you follow Test-Driven Development principles:
+```mermaid
+graph LR
+    A[🔴 RED<br/>Write Failing Test] --> B[🟢 GREEN<br/>Make Test Pass]
+    B --> C[♻️ REFACTOR<br/>Improve Code]
+    C --> A
+```
 
-1. **Write a test that fails** - Define the expected behavior
-2. **Run the test** - Confirm it fails for the right reason
-3. **Write minimal code** - Just enough to make the test pass
-4. **Refactor** - Improve the code while keeping tests green
-
-### Key Principles I'll Follow:
-
-**Architecture Reference**: Follow patterns from @docs/reference/ including:
-- @docs/reference/domain-layer-pattern.md for domain modeling
-- @docs/reference/cqrs-pattern.md for command/query separation  
-- @docs/reference/gateway-pattern.md for entry point implementation
-- @docs/reference/doctrine-orm.md for persistence patterns
-
-### Implementation Principles:
-
-- **Test First**: Always write the test before the implementation
+#### Core Principles:
+- **Test First**: Always write the test before implementation
 - **Small Steps**: One test, one feature at a time
-- **Clear Intent**: Tests should describe what the code should do
-- **Fast Feedback**: Run tests frequently to validate changes
-- **Clean Code**: Refactor only when tests are passing
+- **Clear Intent**: Tests describe expected behavior
+- **Fast Feedback**: Run tests frequently
+- **Clean Code**: Refactor only when tests are green
 
-### Before We Start:
+### Quality Standards
+- **PHP 8.4 Features**: Property hooks, asymmetric visibility, enums
+- **Architecture Compliance**: DDD, Hexagonal, Clean Architecture
+- **Code Quality**: ECS, PHPStan, Rector, PHPUnit
 
-Please tell me:
-1. What feature or functionality do you want to implement?
-2. Do you have a specific testing framework preference (PHPUnit, Pest, etc.)?
-3. Any specific requirements or constraints I should know about?
+## Starting Implementation
 
-I'll then guide you through each phase of the TDD cycle, ensuring we:
-- Write meaningful, focused tests
-- Implement only what's needed
-- Keep our code clean and maintainable
-- Commit at appropriate points when all tests pass
+When you use this command, I will:
+
+1. **Create TODO list** with TDD phases
+2. **Check available plans** in docs/plan/
+3. **Identify first feature** to implement
+4. **Create failing test** immediately
+5. **Implement minimal code** to pass test
+6. **Continue TDD cycle** with file creation
+
+This command starts the implementation process and creates real files following our established patterns and quality standards.

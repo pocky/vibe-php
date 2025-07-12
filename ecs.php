@@ -87,5 +87,6 @@ return static function (ECSConfig $ecsConfig): void {
         PhpdocSummaryFixer::class,
         PhpdocLineSpanFixer::class,
         NoBlankLinesAfterPhpdocFixer::class,
+        VisibilityRequiredFixer::class,
     ]);
 };

@@ -36,6 +36,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     'prefix' => 'App\ExampleContext\Infrastructure\Persistence\Doctrine\ORM\Entity',
                     'alias' => 'Example',
                 ],
+                'BlogContext' => [
+                    'is_bundle' => false,
+                    'type' => 'attribute',
+                    'dir' => '%kernel.project_dir%/src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/Entity',
+                    'prefix' => 'App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity',
+                    'alias' => 'BlogContext',
+                ],
             ],
         ],
     ]);

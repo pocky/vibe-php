@@ -19,6 +19,19 @@ description: Show help for the PRD-Plan-Act-Report workflow
 
 ## Workflow Overview
 
+```mermaid
+graph LR
+    A[🎯 PRD<br/>Define] --> B[📋 Plan<br/>Design]
+    B --> C[⚡ Act<br/>Build]
+    C --> D[📊 Report<br/>Improve]
+    D --> A
+    
+    A1[Problem Statement<br/>User Stories<br/>Acceptance Criteria] -.-> A
+    B1[Technical Approach<br/>Architecture<br/>Implementation Steps] -.-> B
+    C1[TDD Cycle<br/>Incremental Build<br/>Documentation] -.-> C
+    D1[Retrospective<br/>Lessons Learned<br/>Process Updates] -.-> D
+```
+
 ```
 1. PRD (Define) → 2. Plan (Design) → 3. Act (Build) → 4. Report (Improve)
 ```

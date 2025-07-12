@@ -63,6 +63,41 @@ Conduct post-implementation retrospective.
 
 ## Workflow Example
 
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant AI as Claude AI
+    participant Tools as QA Tools
+    participant Repo as Repository
+    
+    Note over Dev,Repo: Day 1: Define Requirements
+    Dev->>AI: /prd api-rate-limiting
+    AI->>Dev: PRD template & guidance
+    Dev->>Repo: Save PRD document
+    
+    Note over Dev,Repo: Day 2: Plan Implementation
+    Dev->>AI: /plan
+    AI->>Dev: Technical approach & steps
+    Dev->>Repo: Save implementation plan
+    
+    Note over Dev,Repo: Day 3-5: Build Feature
+    Dev->>AI: /act
+    AI->>Dev: Implementation checklist
+    loop TDD Cycle
+        AI->>Dev: Write test
+        AI->>Dev: Implement code
+        AI->>Tools: Run QA checks
+        Tools->>AI: Results
+        AI->>Dev: Refactor if needed
+    end
+    Dev->>Repo: Commit & push changes
+    
+    Note over Dev,Repo: Day 6: Retrospective
+    Dev->>AI: /learn
+    AI->>Dev: Lessons learned
+    Dev->>Repo: Update documentation
+```
+
 ```bash
 # Day 1: Define what to build
 /prd api-rate-limiting

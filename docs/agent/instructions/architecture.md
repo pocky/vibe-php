@@ -9,6 +9,47 @@ This document defines architectural patterns and constraints for implementing Do
 ### Domain-Driven Design (DDD)
 
 #### Bounded Context Structure
+
+```mermaid
+graph TB
+    subgraph "src/"
+        subgraph "BlogContext/"
+            BA[Application/]
+            BD[Domain/]
+            BI[Infrastructure/]
+            BS[Shared/]
+        end
+        
+        subgraph "SecurityContext/"
+            SA[Application/]
+            SD[Domain/]
+            SI[Infrastructure/]
+            SS[Shared/]
+        end
+        
+        subgraph "Shared/"
+            SGW[Gateway/]
+            SMB[MessageBus/]
+            SIN[Instrumentation/]
+        end
+    end
+    
+    BD -.-> SGW
+    SD -.-> SGW
+    BA --> BD
+    SA --> SD
+    BI --> BD
+    SI --> SD
+    
+    style BD fill:#e8f5e8
+    style SD fill:#e8f5e8
+    style BA fill:#fff3e0
+    style SA fill:#fff3e0
+    style BI fill:#f3e5f5
+    style SI fill:#f3e5f5
+    style SGW fill:#e1f5fe
+```
+
 ```
 src/
 ├── [Context]Context/        # Each bounded context
@@ -70,17 +111,15 @@ Domain/
 // Command structure (MANDATORY)
 Application/Operation/Command/[UseCase]/
 ├── Command.php          # Data transfer object with constructor promotion
-├── Handler.php         # Business logic orchestration only
-└── Event.php           # Domain event emitted after successful execution
+└── Handler.php         # Business logic orchestration with EventBus
 ```
 
 **Example Structure**:
 ```php
 // CreateArticle command
 Application/Operation/Command/CreateArticle/
-├── Command.php          # readonly class with validation in constructor
-├── Handler.php         # orchestrates domain operations
-└── Event.php           # ArticleCreated event
+├── Command.php          # readonly class with all operation data
+└── Handler.php         # orchestrates Creator + EventBus dispatch
 ```
 
 #### Query Side (Read Operations)  
@@ -102,17 +141,18 @@ Application/Operation/Query/GetArticle/
 ```
 
 #### CQRS Rules (MANDATORY)
-- **Commands**: Write operations that MUST emit domain events
+- **Commands**: Write operations that return void and emit domain events
 - **Queries**: Read-only operations that return view models
-- **Separation**: Commands and queries use different buses
-- **Events**: Every successful command emits at least one domain event
-- **No Business Logic**: Handlers orchestrate only, domain logic stays in Domain layer
+- **EventBus**: Commands use EventBus for clean event dispatching
+- **Events**: Emitted by aggregates, dispatched by Application handlers
+- **No Business Logic**: Handlers orchestrate only, domain logic in Domain Creators
+- **Domain Purity**: Domain layer has no infrastructure dependencies
 
-#### Symfony Messenger Integration
-- Separate `command.bus` and `query.bus` configuration
-- Commands MUST emit domain events via EventDispatcher
-- Queries are read-only operations with optimized read models
-- Handlers are tagged with appropriate bus (`command.bus` or `query.bus`)
+#### EventBus Integration
+- **EventBusInterface**: Clean abstraction for event dispatching
+- **Domain Events**: Emitted by aggregates during business operations
+- **Handler Responsibility**: Retrieve events from aggregates and dispatch via EventBus
+- **Infrastructure**: EventBus implementation can be synchronous or asynchronous
 
 ### Gateway Pattern
 
@@ -229,9 +269,16 @@ Gateway Execution Flow:
 - Strong typing throughout
 
 #### Domain Events
-- Every command MUST emit at least one event
+- Emitted by aggregates during business operations
 - Events represent business state changes
 - Used for inter-context communication
+- Events stored in aggregates until released by Application layer
+
+#### Domain Creators
+- Entry points with `__invoke()` method for single responsibility
+- Pure PHP with no external dependencies
+- Business logic orchestration
+- Return aggregates with unreleased events
 
 #### Repository Interfaces
 - Define business operations, not CRUD
@@ -241,9 +288,10 @@ Gateway Execution Flow:
 ### Application Layer
 
 #### Command Handlers
-- Orchestrate domain operations
-- Handle transactions and events
-- No business logic (delegate to Domain)
+- Orchestrate domain operations via Creators
+- Dispatch domain events via EventBus
+- Return void (pure Command pattern)
+- No business logic (delegate to Domain Creators)
 
 #### Query Handlers  
 - Optimized for read operations
@@ -280,10 +328,16 @@ Gateway Execution Flow:
 - LexikJWTAuthenticationBundle for tokens
 - Password hashing via Symfony PasswordHasher
 
-#### Event Handling
-- Symfony EventDispatcher for domain events
-- Async processing via Symfony Messenger
-- Event listeners in Infrastructure layer
+#### EventBus Integration
+- EventBusInterface in `Shared/Infrastructure/MessageBus/`
+- Clean abstraction for event dispatching
+- Can be implemented with Symfony Messenger or EventDispatcher
+- Used by Application handlers to dispatch domain events
+
+#### Event Listeners
+- Event listeners created only when needed for real business logic
+- Located in `Infrastructure/EventListener/`
+- Handle side effects like notifications, caching, logging
 
 #### Instrumentation Infrastructure
 - LoggerInstrumentation in `Infrastructure/Instrumentation/`

@@ -465,9 +465,9 @@ final readonly class CreateArticleHandler
 
         // Return result
         return new CreateArticleResult(
-            articleId: $articleId->toString(),
-            slug: $slug->toString(),
-            status: $article->status()->toString(),
+            articleId: $articleId->getValue(),
+            slug: $slug->getValue(),
+            status: $article->status()->getValue(),
             createdAt: $article->createdAt(),
         );
     }

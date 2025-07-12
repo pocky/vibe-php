@@ -2,9 +2,14 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:cli.github.com)",
-      "Bash(git checkout:*)",
       "WebFetch(domain:symfony.com)",
-      "WebFetch(domain:www.doctrine-project.org)"
+      "WebFetch(domain:www.doctrine-project.org)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "hooks": {

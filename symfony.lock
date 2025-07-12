@@ -21,6 +21,18 @@
             "src/ExampleContext/Infrastructure/Persistence/Doctrine/ORM/Entity/.gitignore"
         ]
     },
+    "doctrine/doctrine-fixtures-bundle": {
+        "version": "4.1",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "557e629afb186ddb32fee8fc8366f1bcf197b9b2"
+        },
+        "files": [
+            "src/ExampleContext/Infrastructure/Persistence/Doctrine/ORM/Fixture/.gitignore"
+        ]
+    },
     "doctrine/doctrine-migrations-bundle": {
         "version": "3.4",
         "recipe": {
@@ -183,6 +195,15 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/maker-bundle": {
+        "version": "1.64",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
+        }
+    },
     "symfony/messenger": {
         "version": "7.3",
         "recipe": {
@@ -211,6 +232,18 @@
         },
         "files": [
             "config/packages/monolog.php"
+        ]
+    },
+    "symfony/property-info": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "7.3",
+            "ref": "d060bba53e082b9e775e9298c8e98069898141d2"
+        },
+        "files": [
+            "config/packages/property_info.php"
         ]
     },
     "symfony/routing": {
@@ -248,6 +281,18 @@
             "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
         }
     },
+    "symfony/validator": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "7.0",
+            "ref": "c640b8e6f2119d73c8c46f593bb3247f27c0df89"
+        },
+        "files": [
+            "config/packages/validator.php"
+        ]
+    },
     "symfony/web-profiler-bundle": {
         "version": "7.3",
         "recipe": {
@@ -283,6 +328,18 @@
         },
         "files": [
             ".twig-cs-fixer.dist.php"
+        ]
+    },
+    "zenstruck/foundry": {
+        "version": "2.6",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "4e2202ae9cc40d445a676051ce22313bf8c997ea"
+        },
+        "files": [
+            "config/packages/zenstruck_foundry.php"
         ]
     }
 }

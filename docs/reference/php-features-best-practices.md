@@ -9,9 +9,72 @@ This document provides comprehensive guidelines for using PHP 8.4 features in th
 - **Minimum Required**: PHP 8.4
 - **Configured in**: `composer.json` with `"php": ">=8.4"`
 
-## Core PHP 8.4 Features We Use
+## Core PHP Features We Use
 
-### 1. Readonly Classes and Properties
+### 1. Enums (PHP 8.1+) - MANDATORY for Fixed Values
+
+PHP enums should be used for all fixed sets of values instead of classes with constants.
+
+#### Best Practices
+
+- **Always use enums** for status, type, priority, and other fixed sets
+- Use backed enums (`enum Status: string`) for persistence
+- Implement helper methods for business logic
+- Use enum cases directly (`Status::DRAFT`) instead of factory methods
+
+#### Examples from Our Codebase
+
+```php
+// Correct: Enum for fixed values
+namespace App\BlogContext\Domain\Shared\ValueObject;
+
+enum ArticleStatus: string
+{
+    case DRAFT = 'draft';
+    case PUBLISHED = 'published';
+    case ARCHIVED = 'archived';
+
+    public static function fromString(string $status): self
+    {
+        return self::from($status);
+    }
+
+    public function isDraft(): bool
+    {
+        return self::DRAFT === $this;
+    }
+
+    public function toString(): string
+    {
+        return $this->value;
+    }
+}
+
+// Usage: Direct enum cases
+$article = new Article(
+    status: ArticleStatus::DRAFT,  // ✅ Correct
+    // ...
+);
+
+// ❌ Wrong: Don't use factory methods anymore
+$status = ArticleStatus::draft();
+```
+
+#### When to Use Enums vs Classes
+
+**Use Enums When:**
+- Fixed set of predefined values (Status, Type, Priority, State)
+- Values are known at compile time
+- No complex validation beyond basic type checking
+- Simple string or integer backing values
+
+**Use Classes When:**
+- Complex validation logic required
+- Dynamic value generation
+- Rich business behavior beyond simple state
+- Composite value objects with multiple properties
+
+### 2. Readonly Classes and Properties
 
 PHP 8.2 introduced readonly classes, which we extensively use for immutable data structures and services.
 
@@ -193,24 +256,61 @@ class Configuration
 - Keep domain objects pure PHP with no framework dependencies
 
 ```php
-namespace App\SecurityContext\Domain\User;
+namespace App\BlogContext\Domain\Shared\ValueObject;
 
-final readonly class UserId
+final class ArticleId
 {
     public function __construct(
-        private string $value
+        private(set) string $value  // PHP 8.4 asymmetric visibility
     ) {
         if (!Uuid::isValid($value)) {
-            throw new \InvalidArgumentException('Invalid UUID');
+            throw new \InvalidArgumentException('Invalid UUID format');
         }
     }
     
-    public function toString(): string
+    public function getValue(): string  // Consistent API across all Value Objects
     {
         return $this->value;
     }
+    
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
 }
 ```
+
+#### Value Objects Best Practices
+
+Current implementation in the project uses PHP 8.4 asymmetric visibility:
+
+```php
+// All Value Objects follow this pattern
+final class Title
+{
+    public function __construct(
+        private(set) string $value,  // Can only be set in constructor
+    ) {
+        $this->validate();
+    }
+
+    public function getValue(): string  // Consistent API
+    {
+        return $this->value;
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+}
+```
+
+**Benefits:**
+- **Immutability**: Properties can only be set during construction
+- **Consistent API**: All Value Objects use `getValue()` method
+- **Direct access**: Can use `$object->value` for reading
+- **Type safety**: Asymmetric visibility prevents accidental mutations
 
 ### Application Layer
 
@@ -339,6 +439,7 @@ public private(set) array $data = [];
 
 Before committing PHP 8.4 code:
 
+- [ ] **Enums used for fixed values** instead of classes with constants
 - [ ] All properties have type declarations
 - [ ] Readonly is used where appropriate
 - [ ] `#[\Override]` marks all interface implementations

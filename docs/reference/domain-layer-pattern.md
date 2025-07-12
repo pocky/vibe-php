@@ -28,8 +28,7 @@ src/BlogContext/Domain/
 ├── CreateArticle/              # Write use case
 │   ├── Creator.php             # Entry point with __invoke
 │   ├── DataPersister/          # Models for persistence
-│   │   ├── Article.php         # Domain model
-│   │   └── ArticleBuilder.php  # Factory for Article
+│   │   └── Article.php         # Domain model
 │   ├── Event/                  # Domain events
 │   │   └── ArticleCreated.php
 │   └── Exception/              # Business exceptions
@@ -78,23 +77,22 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\{Article, ArticleBuilder};
-use App\BlogContext\Domain\CreateArticle\Exception\{ArticleAlreadyExists, InvalidArticleData};
-use App\BlogContext\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleId};
+use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
+use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
+use App\BlogContext\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleId, ArticleStatus};
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\Shared\Infrastructure\Generator\GeneratorInterface;
+use App\Shared\Infrastructure\Generator\UuidGenerator;
 
 final readonly class Creator
 {
     public function __construct(
         private ArticleRepositoryInterface $repository,
-        private GeneratorInterface $generator,
     ) {}
 
     public function __invoke(Title $title, Content $content): Article
     {
         // 1. Generate unique identity
-        $articleId = new ArticleId($this->generator->generate());
+        $articleId = new ArticleId(UuidGenerator::generate());
         
         // 2. Apply business rules
         $slug = Slug::fromTitle($title);
@@ -104,13 +102,15 @@ final readonly class Creator
             throw new ArticleAlreadyExists($slug);
         }
 
-        // 4. Create domain model via factory
-        $article = ArticleBuilder::create()
-            ->withId($articleId)
-            ->withTitle($title)
-            ->withContent($content)
-            ->withSlug($slug)
-            ->build();
+        // 4. Create domain model directly
+        $article = new Article(
+            id: $articleId,
+            title: $title,
+            content: $content,
+            slug: $slug,
+            status: ArticleStatus::DRAFT,
+            createdAt: new \DateTimeImmutable(),
+        );
 
         // 5. Persist aggregate
         $this->repository->save($article);
@@ -231,11 +231,11 @@ final readonly class ArticleView
     public function toArray(): array
     {
         return [
-            'id' => $this->id->toString(),
-            'title' => $this->title->toString(),
-            'content' => $this->content->toString(),
-            'slug' => $this->slug->toString(),
-            'status' => $this->status->toString(),
+            'id' => $this->id->getValue(),
+            'title' => $this->title->getValue(),
+            'content' => $this->content->getValue(),
+            'slug' => $this->slug->getValue(),
+            'status' => $this->status->getValue(),
             'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
             'publishedAt' => $this->publishedAt?->format(\DateTimeInterface::ATOM),
             'updatedAt' => $this->updatedAt?->format(\DateTimeInterface::ATOM),
@@ -251,84 +251,35 @@ final readonly class ArticleView
 - Readonly for data integrity
 - May include computed properties
 
-### Factory Pattern (Builder)
+### Object Creation Patterns
 
-Factories encapsulate complex object creation logic.
+**Direct Construction (Preferred for Simple Cases)**:
+When all parameters are known and available, create objects directly using constructor with named parameters:
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\BlogContext\Domain\CreateArticle\DataPersister;
-
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
-
-final class ArticleBuilder
-{
-    private ?ArticleId $id = null;
-    private ?Title $title = null;
-    private ?Content $content = null;
-    private ?Slug $slug = null;
-
-    public static function create(): self
-    {
-        return new self();
-    }
-
-    public function withId(ArticleId $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function withTitle(Title $title): self
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    public function withContent(Content $content): self
-    {
-        $this->content = $content;
-        return $this;
-    }
-
-    public function withSlug(Slug $slug): self
-    {
-        $this->slug = $slug;
-        return $this;
-    }
-
-    public function build(): Article
-    {
-        $this->validateRequiredFields();
-
-        return new Article(
-            id: $this->id,
-            title: $this->title,
-            content: $this->content,
-            slug: $this->slug,
-            status: ArticleStatus::draft(),
-            createdAt: new \DateTimeImmutable(),
-        );
-    }
-
-    private function validateRequiredFields(): void
-    {
-        if (!$this->id || !$this->title || !$this->content || !$this->slug) {
-            throw new \InvalidArgumentException('Missing required fields for Article');
-        }
-    }
-}
+// Simple, clear, and explicit
+$article = new Article(
+    id: $articleId,
+    title: $title,
+    content: $content,
+    slug: $slug,
+    status: ArticleStatus::DRAFT,
+    createdAt: new \DateTimeImmutable(),
+);
 ```
 
-**Builder Rules**:
-- Fluent interface for complex construction
-- Validate all required fields before building
-- Encapsulate default values and business rules
-- Static factory method for initial creation
-- Throw explicit exceptions for invalid states
+**Factory Pattern (Use Only When Needed)**:
+Use builders or factories only for complex object creation with:
+- Optional parameters with defaults
+- Multi-step construction process
+- Complex validation requiring multiple steps
+- Object creation from different data sources
+
+**Creation Rules**:
+- Prefer direct constructor calls with named parameters
+- Use builders only for genuinely complex construction
+- Validate in constructor, not in separate methods
+- Keep object creation simple and explicit
 
 ## Value Objects (Shared)
 
@@ -341,10 +292,10 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
-final readonly class Title
+final class Title
 {
     public function __construct(
-        private string $value,
+        private(set) string $value,
     ) {
         $this->validate();
     }
@@ -366,7 +317,7 @@ final readonly class Title
         }
     }
 
-    public function toString(): string
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -399,7 +350,7 @@ final readonly class Slug
 
     public static function fromTitle(Title $title): self
     {
-        $slug = strtolower($title->toString());
+        $slug = strtolower($title->getValue());
         $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
         $slug = preg_replace('/[\s-]+/', '-', $slug);
         $slug = trim($slug, '-');
@@ -422,7 +373,7 @@ final readonly class Slug
         }
     }
 
-    public function toString(): string
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -434,7 +385,9 @@ final readonly class Slug
 }
 ```
 
-### Enum-like Value Objects
+### Enum Value Objects (Preferred)
+
+For fixed sets of values, **always use PHP 8.1+ enums** instead of classes:
 
 ```php
 <?php
@@ -443,89 +396,104 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
-final readonly class ArticleStatus
+enum ArticleStatus: string
 {
-    private const DRAFT = 'draft';
-    private const PUBLISHED = 'published';
-    private const ARCHIVED = 'archived';
-
-    private const VALID_STATUSES = [
-        self::DRAFT,
-        self::PUBLISHED,
-        self::ARCHIVED,
-    ];
-
-    private function __construct(
-        private string $value,
-    ) {}
-
-    public static function draft(): self
-    {
-        return new self(self::DRAFT);
-    }
-
-    public static function published(): self
-    {
-        return new self(self::PUBLISHED);
-    }
-
-    public static function archived(): self
-    {
-        return new self(self::ARCHIVED);
-    }
+    case DRAFT = 'draft';
+    case PUBLISHED = 'published';
+    case ARCHIVED = 'archived';
 
     public static function fromString(string $status): self
     {
-        if (!in_array($status, self::VALID_STATUSES, true)) {
-            throw new \InvalidArgumentException("Invalid article status: $status");
-        }
-        
-        return new self($status);
+        return self::from($status);
     }
 
     public function isDraft(): bool
     {
-        return $this->value === self::DRAFT;
+        return self::DRAFT === $this;
     }
 
     public function isPublished(): bool
     {
-        return $this->value === self::PUBLISHED;
+        return self::PUBLISHED === $this;
     }
 
     public function isArchived(): bool
     {
-        return $this->value === self::ARCHIVED;
+        return self::ARCHIVED === $this;
     }
 
-    public function toString(): string
+    public function getValue(): string
     {
         return $this->value;
     }
 
     public function equals(self $other): bool
     {
-        return $this->value === $other->value;
+        return $this === $other;
     }
 }
 ```
 
+**Benefits of Enums over Classes:**
+- **Type Safety**: Native PHP validation
+- **Performance**: Reference comparison (`===`)
+- **Less Code**: No boilerplate validation
+- **Built-in Methods**: `from()`, `tryFrom()`, `cases()` available
+- **Serialization**: Native JSON support
+
+**When to Use Enums:**
+- Fixed set of predefined values (Status, Type, Priority)
+- No complex validation logic required
+- Value is primitive (string, int)
+- Cases are known at compile time
+
 ## Domain Events
 
-### Event Interface
+### Domain Event Architecture
+
+Domain events are emitted by aggregates during business operations and stored until released by the Application layer. This ensures domain purity while enabling event-driven architecture.
+
+### Aggregate Event Management
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Event;
+namespace App\BlogContext\Domain\CreateArticle\DataPersister;
 
-interface DomainEventInterface
+use App\BlogContext\Domain\CreateArticle\Event\ArticleCreated;
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+
+final class Article
 {
-    public function occurredOn(): \DateTimeImmutable;
-    public function eventType(): string;
-    public function aggregateId(): string;
+    private array $domainEvents = [];
+
+    public function __construct(
+        public ArticleId $id,
+        public Title $title,
+        // ... other properties
+    ) {
+        // Emit domain event on creation
+        $this->domainEvents[] = new ArticleCreated(
+            articleId: $this->id,
+            title: $this->title,
+            createdAt: new \DateTimeImmutable()
+        );
+    }
+
+    // Domain event management
+    public function releaseEvents(): array
+    {
+        $events = $this->domainEvents;
+        $this->domainEvents = [];
+        return $events;
+    }
+
+    public function hasUnreleasedEvents(): bool
+    {
+        return [] !== $this->domainEvents;
+    }
 }
 ```
 
@@ -538,15 +506,14 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\CreateArticle\Event;
 
-use App\BlogContext\Domain\Event\DomainEventInterface;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
 
-final readonly class ArticleCreated implements DomainEventInterface
+final readonly class ArticleCreated
 {
     public function __construct(
         private ArticleId $articleId,
         private Title $title,
-        private \DateTimeImmutable $occurredOn,
+        private \DateTimeImmutable $createdAt,
     ) {}
 
     public function articleId(): ArticleId
@@ -559,30 +526,27 @@ final readonly class ArticleCreated implements DomainEventInterface
         return $this->title;
     }
 
-    #[\Override]
-    public function occurredOn(): \DateTimeImmutable
+    public function createdAt(): \DateTimeImmutable
     {
-        return $this->occurredOn;
+        return $this->createdAt;
     }
 
-    #[\Override]
     public function eventType(): string
     {
         return 'BlogContext.Article.Created';
     }
 
-    #[\Override]
     public function aggregateId(): string
     {
-        return $this->articleId->toString();
+        return $this->articleId->getValue();
     }
 
     public function toArray(): array
     {
         return [
-            'articleId' => $this->articleId->toString(),
-            'title' => $this->title->toString(),
-            'occurredOn' => $this->occurredOn->format(\DateTimeInterface::ATOM),
+            'articleId' => $this->articleId->getValue(),
+            'title' => $this->title->getValue(),
+            'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
             'eventType' => $this->eventType(),
         ];
     }
@@ -628,7 +592,7 @@ final class ArticleAlreadyExists extends CreateArticleException
         private readonly Slug $slug,
     ) {
         parent::__construct(
-            sprintf('Article with slug "%s" already exists', $slug->toString())
+            sprintf('Article with slug "%s" already exists', $slug->getValue())
         );
     }
 
@@ -718,7 +682,7 @@ final class CreatorTest extends TestCase
         $article = ($this->creator)($title, $content);
 
         // Then
-        $this->assertSame('my-article-title', $article->slug()->toString());
+        $this->assertSame('my-article-title', $article->slug->getValue());
         $this->assertTrue($article->status()->isDraft());
         $this->assertTrue($article->hasUnreleasedEvents());
     }
@@ -759,7 +723,7 @@ final class TitleTest extends TestCase
     {
         $title = new Title('Valid Title');
         
-        $this->assertSame('Valid Title', $title->toString());
+        $this->assertSame('Valid Title', $title->getValue());
     }
 
     public function testRejectEmptyTitle(): void
@@ -806,10 +770,11 @@ final class TitleTest extends TestCase
 2. **Use Case Organization**: One directory per business use case
 3. **Immutable Models**: Use readonly properties and value objects
 4. **Explicit Dependencies**: Constructor injection for all dependencies
-5. **Domain Events**: Emit events for all state changes
+5. **Domain Events**: Emit events from aggregates, store until Application layer releases
 6. **Value Object Validation**: Validate in constructor, fail fast
-7. **Factory Pattern**: Use builders for complex object creation
+7. **Simple Construction**: Use direct constructors; avoid builders for simple cases
 8. **Repository Interfaces**: Define business-focused repository methods
+9. **Prefer Enums**: Use PHP 8.1+ enums for fixed sets of values instead of classes
 
 ### ✅ Naming Conventions
 
@@ -824,7 +789,7 @@ final class TitleTest extends TestCase
 
 1. **Unit Tests**: Test each use case independently
 2. **Value Object Tests**: Test all validation rules
-3. **Event Tests**: Verify events are emitted correctly
+3. **Event Tests**: Verify events are emitted and can be released from aggregates
 4. **Exception Tests**: Test all error conditions
 5. **Factory Tests**: Test object construction scenarios
 
@@ -836,17 +801,18 @@ final class TitleTest extends TestCase
 4. **Primitive Obsession**: Use value objects instead of strings/integers
 5. **Logic in Getters**: Keep getters simple, no business logic
 6. **Generic Exceptions**: Use specific domain exceptions
+7. **Unnecessary Builders**: Don't use builders when constructor is sufficient
 
 ## Integration with Other Layers
 
 ### With Application Layer (CQRS)
-- Command Handlers orchestrate Domain use cases
+- Command Handlers orchestrate Domain Creators
 - Query Handlers may bypass Domain for read models
-- Events trigger Application layer side effects
+- Application layer retrieves and dispatches Domain events via EventBus
 
 ### With Infrastructure Layer
 - Repositories implement Domain interfaces
-- Event dispatchers handle Domain events
+- EventBus implementations handle Domain event dispatching
 - Persistence adapters transform Domain models
 
 ### With Gateway Layer

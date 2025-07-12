@@ -106,6 +106,22 @@ To create a comprehensive PRD, please provide:
 - **User-Centric**: Focus on solving real user problems
 - **Testable Requirements**: Clear acceptance criteria from user perspective
 - **Architecture-Agnostic**: No technical implementation details
+- **Iterative Business Rules**: Follow the iterative approach for business rules development
+
+### Business Rules Development
+
+I follow an **iterative approach** for business rules as documented in `@docs/agent/workflows/iterative-business-rules.md`:
+
+1. **Start Simple**: Define basic business rules focusing on the happy path
+2. **Identify Edge Cases**: List all constraints, validations, and exceptional scenarios  
+3. **Create Dedicated User Stories**: One User Story per constraint or edge case
+4. **Iterate**: Implement basic rules first, then add constraints progressively
+
+This approach ensures:
+- ✅ **Fast delivery** of working MVP
+- ✅ **Flexibility** to adjust priorities based on feedback
+- ✅ **Testability** with isolated, independent constraints
+- ✅ **Risk reduction** by avoiding over-engineering
 
 **Note**: Technical architecture and implementation details should be documented separately in a technical plan or architecture document.
 

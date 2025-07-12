@@ -288,17 +288,17 @@ docker compose exec app bin/console doctrine:migrations:status
 Create the repository that bridges domain and infrastructure:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Doctrine/Repository/ArticleRepository.php
+// src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Persistence\Doctrine\Repository;
+namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
 
 use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Slug};
-use App\BlogContext\Infrastructure\Persistence\Doctrine\Entity\BlogArticle;
+use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 

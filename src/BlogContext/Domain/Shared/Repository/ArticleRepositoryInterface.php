@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Domain\Shared\Repository;
+
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Slug};
+
+interface ArticleRepositoryInterface
+{
+    /**
+     * Save any article model (polymorphic)
+     */
+    public function save(object $article): void;
+
+    /**
+     * Find article by ID and return data for reconstruction
+     */
+    public function findById(ArticleId $id): ArticleData|null;
+
+    public function existsBySlug(Slug $slug): bool;
+
+    /**
+     * Remove any article model (polymorphic)
+     */
+    public function remove(object $article): void;
+}
