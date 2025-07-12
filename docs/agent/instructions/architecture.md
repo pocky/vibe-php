@@ -63,27 +63,56 @@ Domain/
 
 ### CQRS Pattern
 
+**See @docs/reference/cqrs-pattern.md for complete CQRS implementation patterns.**
+
 #### Command Side (Write Operations)
 ```php
-// Command structure
+// Command structure (MANDATORY)
 Application/Operation/Command/[UseCase]/
-├── Command.php          # Data transfer object
-└── Handler.php         # Business logic orchestration
+├── Command.php          # Data transfer object with constructor promotion
+├── Handler.php         # Business logic orchestration only
+└── Event.php           # Domain event emitted after successful execution
+```
+
+**Example Structure**:
+```php
+// CreateArticle command
+Application/Operation/Command/CreateArticle/
+├── Command.php          # readonly class with validation in constructor
+├── Handler.php         # orchestrates domain operations
+└── Event.php           # ArticleCreated event
 ```
 
 #### Query Side (Read Operations)  
 ```php
-// Query structure
+// Query structure (MANDATORY)
 Application/Operation/Query/[UseCase]/
-├── Query.php           # Query parameters
-├── Handler.php         # Data retrieval logic
-└── [Name]View.php      # Response structure
+├── Query.php           # Query parameters (readonly)
+├── Handler.php         # Data retrieval logic only
+└── View.php            # Response model (readonly)
 ```
 
+**Example Structure**:
+```php
+// GetArticle query
+Application/Operation/Query/GetArticle/
+├── Query.php           # ArticleId parameter
+├── Handler.php         # retrieves from repository
+└── View.php            # ArticleView response model
+```
+
+#### CQRS Rules (MANDATORY)
+- **Commands**: Write operations that MUST emit domain events
+- **Queries**: Read-only operations that return view models
+- **Separation**: Commands and queries use different buses
+- **Events**: Every successful command emits at least one domain event
+- **No Business Logic**: Handlers orchestrate only, domain logic stays in Domain layer
+
 #### Symfony Messenger Integration
-- Separate `command.bus` and `query.bus`
-- Commands MUST emit domain events
-- Queries are read-only operations
+- Separate `command.bus` and `query.bus` configuration
+- Commands MUST emit domain events via EventDispatcher
+- Queries are read-only operations with optimized read models
+- Handlers are tagged with appropriate bus (`command.bus` or `query.bus`)
 
 ### Gateway Pattern
 
@@ -92,20 +121,88 @@ Application/Operation/Query/[UseCase]/
 - Transform primitive arrays to/from domain objects via GatewayRequest/GatewayResponse
 - Handle cross-cutting concerns via middleware pipeline
 - Orchestrate use case execution with instrumentation
+- One gateway per use case or tightly related operations
 
-#### Implementation Rules
+**See @docs/reference/gateway-pattern.md for complete implementation guide.**
+
+#### Implementation Rules (MANDATORY)
 ```php
 // Gateway signature (MANDATORY)
 public function __invoke(GatewayRequest $request): GatewayResponse
 
-// Internal structure in src/Shared/Application/Gateway/
-├── DefaultGateway.php          # Main orchestration class
-├── GatewayRequest.php          # Input interface
-├── GatewayResponse.php         # Output interface
+// Gateway structure per use case
+Application/Gateway/[UseCase]/
+├── Gateway.php                  # Extends DefaultGateway
+├── Request.php                  # Implements GatewayRequest
+├── Response.php                 # Implements GatewayResponse
+└── Middleware/                  # Use case specific middlewares
+    ├── Validation.php           # Business validation
+    └── Processor.php            # Operation execution
+```
+
+#### Complete Gateway Directory Structure
+```php
+// Example: CreateArticle Gateway
+Application/Gateway/CreateArticle/
+├── Gateway.php                  # Main gateway extending DefaultGateway
+├── Request.php                  # CreateArticleRequest implementing GatewayRequest
+├── Response.php                 # CreateArticleResponse implementing GatewayResponse
+└── Middleware/
+    ├── Validation.php           # Article-specific validation
+    └── Processor.php            # Creates command and executes via handler
+```
+
+#### Gateway Components Responsibilities
+
+**Gateway.php** (MANDATORY):
+- Extends DefaultGateway
+- Configures middleware pipeline in constructor
+- Uses dependency injection for all middlewares
+- Order: DefaultLogger → DefaultErrorHandler → Validation → Processor
+
+**Request.php** (MANDATORY):
+- Implements GatewayRequest interface
+- readonly class with validation in constructor
+- Factory method: `fromData(array $data): self`
+- Serialization method: `data(): array`
+- Business validation in constructor or dedicated methods
+
+**Response.php** (MANDATORY):
+- Implements GatewayResponse interface
+- readonly class with all output data
+- Serialization method: `data(): array`
+- Getters for all properties
+
+**Middleware/Validation.php** (Business-specific):
+- Custom validation logic for the specific use case
+- Validates Request object
+- Throws meaningful exceptions on validation failure
+
+**Middleware/Processor.php** (Operation execution):
+- Creates Command/Query from Request
+- Executes via appropriate Handler
+- Transforms result to Response
+- Handles domain events if needed
+
+#### Middleware Pipeline (MANDATORY Order)
+```php
+Gateway Execution Flow:
+1. DefaultLogger (start instrumentation)
+2. DefaultErrorHandler (exception handling wrapper)
+3. Validation (business-specific input validation)
+4. Processor (operation execution via CQRS handlers)
+```
+
+#### Shared Gateway Infrastructure
+```php
+// Shared components in src/Shared/Application/Gateway/
+├── DefaultGateway.php          # Base gateway class
+├── GatewayRequest.php          # Request interface
+├── GatewayResponse.php         # Response interface
 ├── GatewayException.php        # Error handling
 ├── Attribute/
 │   └── AsGateway.php          # Configuration attribute
-├── Middleware/                 # Pipeline components
+├── Middleware/                 # Shared middlewares
 │   ├── Pipe.php               # Middleware orchestrator
 │   ├── DefaultLogger.php      # Logging middleware
 │   └── DefaultErrorHandler.php # Error handling middleware
@@ -115,16 +212,11 @@ public function __invoke(GatewayRequest $request): GatewayResponse
     └── DefaultGatewayInstrumentation.php
 ```
 
-#### Middleware Pipeline
-- **DefaultLogger**: Start/success instrumentation
-- **DefaultErrorHandler**: Exception handling and GatewayException wrapping
-- **Validation**: Input data validation (custom)
-- **Authorization**: Access control (custom)
-- **Audit**: Action logging via instrumentation
-
 ## Implementation Rules
 
 ### Domain Layer (STRICT)
+
+**See @docs/reference/domain-layer-pattern.md for domain modeling guidelines.**
 
 #### Entry Points
 - Use `__invoke()` method for single responsibility
@@ -158,12 +250,16 @@ public function __invoke(GatewayRequest $request): GatewayResponse
 - Return view objects, not domain entities
 - Can bypass domain for performance
 
-#### Gateways
-- One gateway per use case or related group
-- Implement GatewayRequest/GatewayResponse pattern
-- Use middleware pipeline for cross-cutting concerns
-- Orchestrate command/query handlers execution
-- Provide instrumentation and error handling
+#### Gateways (MANDATORY Rules)
+- **One gateway per use case**: CreateArticle, UpdateArticle, GetArticle, etc.
+- **Always extend DefaultGateway**: Never implement gateway logic from scratch
+- **Implement GatewayRequest/GatewayResponse pattern**: Use interfaces for type safety
+- **Use middleware pipeline**: DefaultLogger → DefaultErrorHandler → Validation → Processor
+- **Orchestrate CQRS handlers**: Processor middleware executes Command/Query handlers
+- **Provide instrumentation**: All operations logged via DefaultLogger
+- **Handle errors consistently**: DefaultErrorHandler wraps all exceptions
+- **Validate at gateway level**: Business validation in Validation middleware
+- **Transform data**: Request transforms arrays → domain objects, Response transforms domain → arrays
 
 ### Infrastructure Layer
 
@@ -197,11 +293,15 @@ public function __invoke(GatewayRequest $request): GatewayResponse
 ## Code Organization Rules
 
 ### File Naming
-- Entry points: Use business terms (Creator, Authenticator, Updater)
-- Value objects: Business concepts (Email, UserId, UserStatus)
-- Events: Past tense (UserCreated, AuthenticationFailed)
-- Generators: Descriptive purpose (UuidGenerator, SequentialGenerator)
-- Gateways: Action-oriented (CreateUserGateway, AuthenticateUserGateway)
+- **Entry points**: Use business terms (Creator, Authenticator, Updater)
+- **Value objects**: Business concepts (Email, UserId, UserStatus, ArticleId, Title, Content)
+- **Events**: Past tense (UserCreated, AuthenticationFailed, ArticleCreated, ArticlePublished)
+- **Generators**: Descriptive purpose (UuidGenerator, SequentialGenerator)
+- **Gateways**: Action-oriented (CreateUserGateway, AuthenticateUserGateway, CreateArticleGateway)
+- **Commands**: Action-oriented (CreateUserCommand, CreateArticleCommand)
+- **Queries**: Get/List/Search pattern (GetUserQuery, ListArticlesQuery, SearchArticlesQuery)
+- **Views**: Descriptive (UserView, ArticleView, ArticleListView)
+- **Handlers**: Match operation (CreateUserHandler, GetUserHandler, CreateArticleHandler)
 
 ### Class Structure
 - All classes should be `final` by default
@@ -251,12 +351,22 @@ public function __invoke(GatewayRequest $request): GatewayResponse
 
 ## Implementation Guidelines
 
-### Starting New Use Cases
-1. Create domain entry point with business logic
-2. Define value objects and events
-3. Create application command/query handlers
-4. Implement infrastructure adapters
-5. Add gateway with middleware
+### Starting New Use Cases (MANDATORY Process)
+1. **Create domain entry point** with business logic (aggregate methods)
+2. **Define value objects and events** in Domain layer
+3. **Create CQRS operations**:
+   - Command/Handler/Event for write operations
+   - Query/Handler/View for read operations
+4. **Implement infrastructure adapters** (repositories, event listeners)
+5. **Add gateway with complete structure**:
+   - Gateway extending DefaultGateway
+   - Request implementing GatewayRequest
+   - Response implementing GatewayResponse
+   - Validation middleware for business rules
+   - Processor middleware for operation execution
+6. **Configure service container** for dependency injection
+7. **Write comprehensive tests** for all layers
+8. **Run QA tools** to ensure code quality
 
 ### Adding New Contexts
 1. Follow same structure as SecurityContext

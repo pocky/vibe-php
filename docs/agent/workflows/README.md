@@ -18,10 +18,16 @@ Review outcomes, capture lessons learned, and improve the process.
 
 ## Available Workflows
 
+### Development Lifecycle
 - `prd-template.md` - Template for creating Product Requirements Documents
 - `plan-template.md` - Template for implementation planning
 - `act-checklist.md` - Execution checklist and guidelines
-- `learn-retrospective.md` - Post-implementation review template
+- `report-retrospective.md` - Post-implementation review template
+
+### Technical Workflows
+- `database-migration-workflow.md` - Complete DDD migration workflow from domain to database
+- `claude-commands.md` - Custom Claude commands reference
+- `github-pr-management.md` - Pull request workflow with GitHub CLI
 
 ## Claude Commands
 

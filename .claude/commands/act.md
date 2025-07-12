@@ -49,6 +49,14 @@ I'll help you follow Test-Driven Development principles:
 
 ### Key Principles I'll Follow:
 
+**Architecture Reference**: Follow patterns from @docs/reference/ including:
+- @docs/reference/domain-layer-pattern.md for domain modeling
+- @docs/reference/cqrs-pattern.md for command/query separation  
+- @docs/reference/gateway-pattern.md for entry point implementation
+- @docs/reference/doctrine-orm.md for persistence patterns
+
+### Implementation Principles:
+
 - **Test First**: Always write the test before the implementation
 - **Small Steps**: One test, one feature at a time
 - **Clear Intent**: Tests should describe what the code should do

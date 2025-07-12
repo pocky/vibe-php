@@ -62,11 +62,15 @@ I'll analyze:
 ### My Architectural Approach
 
 I follow these principles:
+- **Domain-Driven Design**: Align architecture with business domains using bounded contexts
+- **Hexagonal Architecture**: Separate domain logic from infrastructure concerns
+- **CQRS + Event Sourcing**: Command/Query separation with domain events
+- **Migration-First Database**: Use Doctrine migrations for schema evolution
+- **Gateway Pattern**: Standardized entry points with middleware pipelines
 - **Modular Design**: Components should be loosely coupled and highly cohesive
 - **Future-Proof**: Architecture should accommodate reasonable future changes
 - **Technical Debt Awareness**: Identify and plan for managing technical debt
 - **Risk Mitigation**: Proactive identification and mitigation of technical risks
-- **Domain-Driven Design**: Align architecture with business domains
 
 ### What I'll Deliver
 

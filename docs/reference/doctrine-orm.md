@@ -30,6 +30,17 @@ composer require symfony/orm-pack
 - **Symfony Doctrine Bundle**: https://symfony.com/doc/current/doctrine.html
 - **Doctrine DBAL**: https://www.doctrine-project.org/projects/dbal.html
 - **Doctrine Migrations**: https://www.doctrine-project.org/projects/migrations.html
+- **Symfony Migrations Bundle**: https://symfony.com/bundles/DoctrineMigrationsBundle/current/index.html
+
+## Migration-First Approach
+
+Following our project's strategy, database schema is managed through:
+
+1. **Entity Definition**: Create Doctrine entities with proper ORM mapping
+2. **Migration Generation**: Use `doctrine:migrations:diff` to generate migrations
+3. **Schema Evolution**: Apply migrations with `doctrine:migrations:migrate`
+
+See @docs/agent/instructions/doctrine-migrations.md for detailed workflow.
 
 ## Project Configuration
 

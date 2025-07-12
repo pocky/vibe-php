@@ -41,6 +41,13 @@ This file contains links to important external documentation that Claude should 
 - **Workflow Commands**: https://cli.github.com/manual/gh_workflow
 - **API Access**: https://cli.github.com/manual/gh_api
 
+### Doctrine
+- **ORM Documentation**: https://www.doctrine-project.org/projects/doctrine-orm/en/current/index.html
+- **DBAL Documentation**: https://www.doctrine-project.org/projects/dbal/en/current/index.html
+- **Migrations Documentation**: https://www.doctrine-project.org/projects/migrations/en/current/index.html
+- **Symfony Doctrine Bundle**: https://symfony.com/bundles/DoctrineBundle/current/index.html
+- **Symfony Migrations Bundle**: https://symfony.com/bundles/DoctrineMigrationsBundle/current/index.html
+
 ## Framework Documentation
 
 ### Symfony 7.3
@@ -67,6 +74,13 @@ This file contains links to important external documentation that Claude should 
 - **Doctrine ORM**: https://symfony.com/doc/current/doctrine.html
 - **Messenger**: https://symfony.com/doc/current/messenger.html
 - **Security**: https://symfony.com/doc/current/security.html
+
+### CQRS & Event-Driven Architecture
+- **Martin Fowler - CQRS**: https://martinfowler.com/bliki/CQRS.html
+- **Greg Young - CQRS Documents**: https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
+- **Event Sourcing**: https://martinfowler.com/eaaDev/EventSourcing.html
+- **Domain Events**: https://martinfowler.com/eaaDev/DomainEvent.html
+- **Symfony Messenger Best Practices**: https://symfony.com/doc/current/messenger.html#consuming-messages
 
 ### Testing
 - **PHPUnit**: https://phpunit.de/documentation.html

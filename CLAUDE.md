@@ -16,12 +16,14 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 - Follow Docker best practices in @docs/agent/instructions/docker.md
 - Follow Symfony best practices in @docs/agent/instructions/symfony.md
 - Follow architecture patterns in @docs/agent/instructions/architecture.md
+- Follow Doctrine Migrations standards in @docs/agent/instructions/doctrine-migrations.md
+- Reference implementation patterns in @docs/reference/ for specific patterns
 - External documentation references in @docs/reference/external-docs.md
 - Available commands are in @composer.json scripts section
 
 ## Project Overview
 
-PHP 8.3+ application with Domain-Driven Design structure running in Docker.
+PHP 8.4+ application with Domain-Driven Design structure running in Docker.
 
 ### Key Components
 - **Framework**: Symfony 7.3
@@ -53,6 +55,8 @@ etc/docker/           # Docker configurations
 - ✅ **Testing**: PHPUnit 12.2 configured and integrated
 - ✅ **Code Quality**: ECS, PHPStan, Rector, Twig CS Fixer integrated
 - ✅ **Development Tools**: Web Profiler, Debug Bundle available
+- ✅ **Database**: Doctrine ORM with migrations strategy
+- ✅ **Architecture**: DDD with CQRS and Gateway patterns
 - ℹ️ **Dependencies**: Uses custom mformono packages
 
 ## AI Agent Best Practices
