@@ -1,5 +1,14 @@
 {
   "permissions": {
+    "hooks": {
+      "PreToolUse": [{
+        "matcher": "Read|Grep|Glob|Task",
+        "hooks": [{
+          "type": "command",
+          "command": "./claude-gemini-bridge/hooks/gemini-bridge.sh"
+        }]
+      }]
+    },
     "allow": [
       "WebFetch(domain:cli.github.com)"
     ],
