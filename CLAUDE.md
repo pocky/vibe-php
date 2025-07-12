@@ -15,6 +15,7 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 - Follow QA tools standards in @docs/agent/instructions/qa-tools.md
 - Follow Docker best practices in @docs/agent/instructions/docker.md
 - Follow Symfony best practices in @docs/agent/instructions/symfony.md
+- Follow architecture patterns in @docs/agent/instructions/architecture.md
 - External documentation references in @docs/reference/external-docs.md
 - Available commands are in @composer.json scripts section
 
