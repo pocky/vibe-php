@@ -1,20 +1,24 @@
 {
   "permissions": {
-    "hooks": {
-      "PreToolUse": [{
-        "matcher": "Read|Grep|Glob|Task",
-        "hooks": [{
-          "type": "command",
-          "command": "./claude-gemini-bridge/hooks/gemini-bridge.sh"
-        }]
-      }]
-    },
     "allow": [
       "WebFetch(domain:cli.github.com)",
       "Bash(git checkout:*)",
       "WebFetch(domain:symfony.com)",
       "WebFetch(domain:www.doctrine-project.org)"
     ],
-    "deny": []
+    "deny": [],
+    "hooks": {
+      "PreToolUse": [
+        {
+          "matcher": "Read|Grep|Glob|Task",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "./claude-gemini-bridge/hooks/gemini-bridge.sh"
+            }
+          ]
+        }
+      ]
+    }
   }
 }

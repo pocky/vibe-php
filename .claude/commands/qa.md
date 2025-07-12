@@ -19,33 +19,33 @@ I'll run code quality checks to ensure your code meets the project standards.
 <parameter name="todos">[
   {
     "id": "1",
-    "content": "🧪 Run PHPUnit tests",
+    "content": "🎨 Run ECS (Easy Coding Standard) - Auto-fix code style",
     "status": "pending",
     "priority": "high"
   },
   {
     "id": "2",
-    "content": "🎨 Run ECS (Easy Coding Standard) - Code style check",
+    "content": "♻️ Run Rector - Auto-modernize code",
     "status": "pending",
     "priority": "high"
   },
   {
     "id": "3",
-    "content": "🔍 Run PHPStan - Static analysis",
+    "content": "📐 Run Twig CS Fixer - Auto-fix template style",
     "status": "pending",
     "priority": "high"
   },
   {
     "id": "4",
-    "content": "♻️ Run Rector - Code modernization check",
+    "content": "🧪 Run PHPUnit tests",
     "status": "pending",
-    "priority": "medium"
+    "priority": "high"
   },
   {
     "id": "5",
-    "content": "📐 Run Twig CS Fixer - Template style check",
+    "content": "🔍 Run PHPStan - Static analysis (final check)",
     "status": "pending",
-    "priority": "medium"
+    "priority": "high"
   },
   {
     "id": "6",
@@ -70,12 +70,13 @@ I'll run the quality checks to identify any issues without making changes.
 I'll run the tools in fix mode to automatically correct issues where possible.
 
 {{else}}
-### 📋 Running Complete QA Suite
+### 🔧 Running Complete QA Suite (Fix & Verify)
 
-I'll run all quality checks and provide a comprehensive report.
+I'll first run auto-fixes, then verify with tests and static analysis.
 {{/if}}
 
 <function_calls>
+{{#if (eq action "check")}}
 {{#if (or (eq tool "tests") (eq tool "all"))}}
 <invoke name="Bash">
 <parameter name="command">docker compose exec app bin/phpunit</parameter>
@@ -85,8 +86,8 @@ I'll run all quality checks and provide a comprehensive report.
 
 {{#if (or (eq tool "ecs") (eq tool "all"))}}
 <invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/ecs {{#if (eq action "fix")}}--fix{{/if}}</parameter>
-<parameter name="description">Run Easy Coding Standard {{#if (eq action "fix")}}with fixes{{else}}check only{{/if}}</parameter>
+<parameter name="command">docker compose exec app vendor/bin/ecs</parameter>
+<parameter name="description">Run Easy Coding Standard check only</parameter>
 </invoke>
 {{/if}}
 
@@ -99,16 +100,53 @@ I'll run all quality checks and provide a comprehensive report.
 
 {{#if (or (eq tool "rector") (eq tool "all"))}}
 <invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/rector {{#if (eq action "fix")}}process{{else}}--dry-run{{/if}}</parameter>
-<parameter name="description">Run Rector {{#if (eq action "fix")}}to modernize code{{else}}in dry-run mode{{/if}}</parameter>
+<parameter name="command">docker compose exec app vendor/bin/rector --dry-run</parameter>
+<parameter name="description">Run Rector in dry-run mode</parameter>
 </invoke>
 {{/if}}
 
 {{#if (or (eq tool "twig-cs-fixer") (eq tool "all"))}}
 <invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates {{#if (eq action "fix")}}--fix{{/if}}</parameter>
-<parameter name="description">Run Twig CS Fixer {{#if (eq action "fix")}}with fixes{{else}}check only{{/if}}</parameter>
+<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates</parameter>
+<parameter name="description">Run Twig CS Fixer check only</parameter>
 </invoke>
+{{/if}}
+{{else}}
+<!-- Default action: Fix first, then verify -->
+{{#if (or (eq tool "ecs") (eq tool "all"))}}
+<invoke name="Bash">
+<parameter name="command">docker compose exec app vendor/bin/ecs --fix</parameter>
+<parameter name="description">Run Easy Coding Standard with fixes</parameter>
+</invoke>
+{{/if}}
+
+{{#if (or (eq tool "rector") (eq tool "all"))}}
+<invoke name="Bash">
+<parameter name="command">docker compose exec app vendor/bin/rector process</parameter>
+<parameter name="description">Run Rector to modernize code</parameter>
+</invoke>
+{{/if}}
+
+{{#if (or (eq tool "twig-cs-fixer") (eq tool "all"))}}
+<invoke name="Bash">
+<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates --fix</parameter>
+<parameter name="description">Run Twig CS Fixer with fixes</parameter>
+</invoke>
+{{/if}}
+
+{{#if (or (eq tool "tests") (eq tool "all"))}}
+<invoke name="Bash">
+<parameter name="command">docker compose exec app bin/phpunit</parameter>
+<parameter name="description">Run PHPUnit tests</parameter>
+</invoke>
+{{/if}}
+
+{{#if (or (eq tool "phpstan") (eq tool "all"))}}
+<invoke name="Bash">
+<parameter name="command">docker compose exec app vendor/bin/phpstan analyse</parameter>
+<parameter name="description">Run PHPStan static analysis</parameter>
+</invoke>
+{{/if}}
 {{/if}}
 </function_calls>
 

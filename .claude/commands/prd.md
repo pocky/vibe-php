@@ -55,7 +55,7 @@ To create a comprehensive PRD, please provide:
 1. **What problem does {{feature-name}} solve?**
 2. **Who are the primary users?**
 3. **What are the key business goals?**
-4. **Any specific technical constraints or requirements?**
+4. **Any business constraints?** (budget, timeline, regulations)
 5. **What does success look like for this feature?**
 
 ### PRD Structure I'll Create
@@ -63,12 +63,12 @@ To create a comprehensive PRD, please provide:
 1. **Product Overview**
    - Purpose and problem statement
    - Key value propositions
-   - Product scope
+   - Product scope and boundaries
 
 2. **Goals and Success Metrics**
    - Business objectives
    - User goals
-   - Measurable KPIs
+   - Measurable KPIs and success criteria
 
 3. **User Personas**
    - Target user profiles
@@ -76,35 +76,37 @@ To create a comprehensive PRD, please provide:
    - Usage scenarios
 
 4. **Functional Requirements**
-   - Core features
-   - Must-have vs nice-to-have
-   - Feature specifications
+   - Core features and capabilities
+   - Must-have vs nice-to-have features
+   - Business rules and constraints
 
 5. **User Experience**
-   - User flows
-   - Interface requirements
-   - Interaction patterns
+   - User journeys and workflows
+   - Key interactions and touchpoints
+   - Accessibility requirements
 
-6. **Technical Considerations**
-   - Architecture requirements
-   - Integration points
-   - Performance criteria
-
-7. **User Stories**
+6. **User Stories**
    - Detailed scenarios (US-001, US-002, etc.)
-   - Acceptance criteria
-   - Authentication requirements
+   - Acceptance criteria from user perspective
+   - Business value for each story
 
-8. **Milestones and Timeline**
-   - Development phases
-   - Key deliverables
-   - Dependencies
+7. **Non-Functional Requirements**
+   - Performance expectations (user-facing)
+   - Security requirements (business level)
+   - Compliance and regulatory needs
+
+8. **Success Criteria & Metrics**
+   - How to measure feature success
+   - Key performance indicators
+   - User satisfaction metrics
 
 ### My Approach
 
-- **Comprehensive Coverage**: Every aspect of the feature will be documented
-- **Testable Requirements**: All user stories will have clear acceptance criteria
+- **Business-Focused**: Document WHAT needs to be built, not HOW
 - **User-Centric**: Focus on solving real user problems
-- **Technical Clarity**: Provide enough detail for implementation
+- **Testable Requirements**: Clear acceptance criteria from user perspective
+- **Architecture-Agnostic**: No technical implementation details
+
+**Note**: Technical architecture and implementation details should be documented separately in a technical plan or architecture document.
 
 Please share the details about {{feature-name}} and I'll create a detailed PRD following best practices.

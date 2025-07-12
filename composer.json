@@ -67,11 +67,11 @@
             "@auto-scripts"
         ],
         "qa": [
-            "@qa:tests",
             "@qa:ecs",
-            "@qa:phpstan",
             "@qa:rector",
-            "@qa:twig"
+            "@qa:twig",
+            "@qa:tests",
+            "@qa:phpstan"
         ],
         "qa:tests": "bin/phpunit",
         "qa:ecs": "vendor/bin/ecs",
@@ -84,8 +84,7 @@
         "qa:fix": [
             "@qa:ecs:fix",
             "@qa:rector:fix",
-            "@qa:twig:fix",
-            "@qa:phpstan"
+            "@qa:twig:fix"
         ]
     },
     "conflict": {

@@ -125,16 +125,27 @@ docker compose exec app composer qa:ecs
 docker compose exec app composer qa:phpstan
 ```
 
+### Optimized QA Process
+
+The `composer qa` command now follows an optimized workflow:
+
+1. **Auto-fixes first**: ECS, Rector, and Twig CS Fixer automatically fix issues
+2. **Tests**: Ensure functionality works after fixes
+3. **Static analysis**: PHPStan runs last to catch any remaining issues
+
+This order ensures that fixable issues are resolved before running verification tools.
+
 ### Before Committing
 
 ```bash
-# Run all checks
+# Run all checks with auto-fixes first, then verification
 docker compose exec app composer qa
 
-# Fix all fixable issues
+# If you prefer step by step:
+# 1. Fix all fixable issues first
 docker compose exec app composer qa:fix
 
-# Verify everything passes
+# 2. Then verify everything passes
 docker compose exec app composer qa
 ```
 
@@ -214,7 +225,7 @@ gh pr create ...
 ## Quick Commands
 
 ```bash
-# Full QA suite
+# Full QA suite (fixes first, then verification)
 docker compose exec app composer qa
 
 # Fix everything possible
