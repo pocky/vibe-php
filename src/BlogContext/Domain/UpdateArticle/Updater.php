@@ -5,21 +5,19 @@ declare(strict_types=1);
 namespace App\BlogContext\Domain\UpdateArticle;
 
 use App\BlogContext\Domain\Shared\Repository\{ArticleData, ArticleRepositoryInterface};
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Content, Slug, Title};
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
 use App\BlogContext\Domain\UpdateArticle\DataPersister\Article;
 use App\BlogContext\Domain\UpdateArticle\Exception\{ArticleNotFound, ArticleSlugAlreadyExists, PublishedArticleRequiresApproval};
-use App\Shared\Infrastructure\Slugger\SluggerInterface;
 
 final readonly class Updater implements UpdaterInterface
 {
     public function __construct(
         private ArticleRepositoryInterface $repository,
-        private SluggerInterface $slugger,
     ) {
     }
 
     #[\Override]
-    public function __invoke(ArticleId $articleId, Title $title, Content $content): Article
+    public function __invoke(ArticleId $articleId, Title $title, Content $content, Slug $slug, ArticleStatus $status): Article
     {
         // Find existing article
         $existingArticleData = $this->repository->findById($articleId);
@@ -32,11 +30,6 @@ final readonly class Updater implements UpdaterInterface
             throw new PublishedArticleRequiresApproval($articleId);
         }
 
-        // Apply business rules: generate new slug from title if title changed
-        $slug = $title->equals($existingArticleData->title)
-            ? $existingArticleData->slug
-            : new Slug($this->slugger->slugify($title->getValue()));
-
         // Check if new slug conflicts with another article
         if (!$slug->equals($existingArticleData->slug) && $this->repository->existsBySlug($slug)) {
             throw new ArticleSlugAlreadyExists($slug);
@@ -48,7 +41,7 @@ final readonly class Updater implements UpdaterInterface
             title: $title,
             content: $content,
             slug: $slug,
-            status: $existingArticleData->status,
+            status: $status,
             createdAt: $existingArticleData->createdAt,
             updatedAt: new \DateTimeImmutable(),
             originalTitle: $existingArticleData->title,

@@ -7,10 +7,10 @@ namespace App\BlogContext\Infrastructure\Identity;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\Shared\Infrastructure\Generator\GeneratorInterface;
 
-class ArticleIdGenerator
+final readonly class ArticleIdGenerator
 {
     public function __construct(
-        private readonly GeneratorInterface $generator,
+        private GeneratorInterface $generator,
     ) {
     }
 

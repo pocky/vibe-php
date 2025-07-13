@@ -6,6 +6,9 @@ namespace App\BlogContext\Domain\Shared\ValueObject;
 
 final class Title
 {
+    private const int MIN_LENGTH = 5;
+    private const int MAX_LENGTH = 200;
+
     public function __construct(
         private(set) string $value,
     ) {
@@ -16,15 +19,15 @@ final class Title
     {
         $trimmed = trim($this->value);
 
-        if ('' === $trimmed || '0' === $trimmed) {
+        if ('' === $trimmed) {
             throw new \InvalidArgumentException('Title cannot be empty');
         }
 
-        if (5 > strlen($trimmed)) {
+        if (self::MIN_LENGTH > strlen($trimmed)) {
             throw new \InvalidArgumentException('Title must be at least 5 characters');
         }
 
-        if (200 < strlen($this->value)) {
+        if (self::MAX_LENGTH < strlen($trimmed)) {
             throw new \InvalidArgumentException('Title cannot exceed 200 characters');
         }
     }

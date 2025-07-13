@@ -10,9 +10,9 @@ final readonly class Response implements GatewayResponse
 {
     public function __construct(
         public string $articleId,
-        public string $status,
+        public string $title,
+        public string $content,
         public \DateTimeImmutable $autoSavedAt,
-        public bool $hasChanges = true,
     ) {
     }
 
@@ -20,9 +20,9 @@ final readonly class Response implements GatewayResponse
     {
         return [
             'articleId' => $this->articleId,
-            'status' => $this->status,
+            'title' => $this->title,
+            'content' => $this->content,
             'autoSavedAt' => $this->autoSavedAt->format(\DateTimeInterface::ATOM),
-            'hasChanges' => $this->hasChanges,
         ];
     }
 }

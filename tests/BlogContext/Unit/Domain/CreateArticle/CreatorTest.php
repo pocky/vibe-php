@@ -8,10 +8,13 @@ use App\BlogContext\Domain\CreateArticle\Creator;
 use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class CreatorTest extends TestCase
 {
+    use ArticleIdGeneratorTrait;
+
     private ArticleRepositoryInterface $repository;
     private Creator $creator;
 
@@ -24,7 +27,8 @@ final class CreatorTest extends TestCase
     public function testCreateArticleSuccessfully(): void
     {
         // Given
-        $articleId = new ArticleId('550e8400-e29b-41d4-a716-446655440000');
+        $articleIdValue = $this->generateArticleId()->getValue();
+        $articleId = new ArticleId($articleIdValue);
         $title = new Title('My Great Article Title');
         $content = new Content('This is the article content with sufficient text.');
         $slug = new Slug('my-great-article-title');
@@ -50,7 +54,7 @@ final class CreatorTest extends TestCase
         $article = ($this->creator)($articleId, $title, $content, $slug, $status, $createdAt);
 
         // Then
-        $this->assertSame('550e8400-e29b-41d4-a716-446655440000', $article->id->getValue());
+        $this->assertSame($articleIdValue, $article->id->getValue());
         $this->assertSame('my-great-article-title', $article->slug->getValue());
         $this->assertTrue($article->status->isDraft());
         $this->assertTrue($article->hasUnreleasedEvents()); // Events available for Application layer

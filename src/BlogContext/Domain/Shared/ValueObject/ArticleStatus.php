@@ -15,6 +15,16 @@ enum ArticleStatus: string
         return self::from($status);
     }
 
+    public function toString(): string
+    {
+        return $this->value;
+    }
+
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
     public function isDraft(): bool
     {
         return self::DRAFT === $this;
@@ -30,13 +40,8 @@ enum ArticleStatus: string
         return self::ARCHIVED === $this;
     }
 
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-
     public function equals(self $other): bool
     {
-        return $this === $other;
+        return $this->value === $other->value;
     }
 }

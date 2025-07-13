@@ -11,14 +11,13 @@ use Psr\Log\LoggerInterface;
 
 class DefaultGatewayInstrumentation implements GatewayInstrumentation
 {
-    public LoggerInterface $logger {
-        get => $this->loggerInstrumentation->logger;
-    }
+    private readonly LoggerInterface $logger;
 
     public function __construct(
-        private readonly LoggerInstrumentation $loggerInstrumentation,
+        LoggerInstrumentation $loggerInstrumentation,
         private readonly string $name,
     ) {
+        $this->logger = $loggerInstrumentation->getLogger();
     }
 
     #[\Override]

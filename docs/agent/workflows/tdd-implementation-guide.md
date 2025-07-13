@@ -4,6 +4,12 @@
 
 This guide provides a comprehensive approach to Test-Driven Development (TDD) implementation following the Red-Green-Refactor cycle with architecture-specific best practices.
 
+## Testing Strategy
+
+- **PHPUnit**: For unit tests of domain logic and isolated components
+- **Behat**: For ALL functional tests (API endpoints, integration tests, e2e scenarios)
+- **No functional tests in PHPUnit**: All tests involving HTTP, database, or external systems must use Behat
+
 ## TDD Cycle Overview
 
 ```mermaid
@@ -50,6 +56,33 @@ final class ArticleTest extends TestCase
         self::assertTrue($article->status->isDraft());
     }
 }
+```
+
+#### Example: Behat Feature Test (Functional)
+```gherkin
+# features/blog/article-creation.feature
+Feature: Article creation
+  As an API user
+  I want to create articles
+  So that I can publish content
+
+  Scenario: Create a new article
+    When I make a POST request to "/api/articles" with JSON:
+      """
+      {
+        "title": "My Article Title",
+        "content": "Article content here",
+        "slug": "my-article-title"
+      }
+      """
+    Then the response should have status code 201
+    And the response should contain JSON:
+      """
+      {
+        "title": "My Article Title",
+        "status": "draft"
+      }
+      """
 ```
 
 ### Phase 2: 🟢 GREEN - Make Test Pass
@@ -262,10 +295,26 @@ touch src/BlogContext/Domain/CreateArticle/Article.php
 # Ensure all tests still pass
 ```
 
-### 4. Continuous Validation
+### 4. Functional Testing with Behat
+```bash
+# Write Behat feature for API behavior
+touch features/blog/article-creation.feature
+
+# Implement step definitions
+touch tests/Behat/Context/BlogApiContext.php
+
+# Run Behat tests
+vendor/bin/behat
+
+# Run all tests (unit + functional)
+vendor/bin/phpunit && vendor/bin/behat
+```
+
+### 5. Continuous Validation
 ```bash
 # Run tests frequently
-vendor/bin/phpunit
+vendor/bin/phpunit  # Unit tests
+vendor/bin/behat    # Functional tests
 
 # Run quality checks
 composer qa
@@ -292,6 +341,12 @@ composer qa
 - **Repository testing** - Actual persistence
 - **Adapter testing** - External service integration
 - **Configuration testing** - Service container setup
+
+### UI Layer (API/Web)
+- **Use Behat exclusively** - No PHPUnit functional tests
+- **API testing** - Full HTTP request/response cycle
+- **Behavior scenarios** - User-centric test cases
+- **End-to-end validation** - Complete feature flows
 
 ## Common TDD Patterns
 

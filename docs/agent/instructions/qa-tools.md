@@ -8,14 +8,14 @@ This document defines standards for using QA tools to maintain code quality. All
 
 ### 1. PHPUnit 🧪
 
-**Purpose**: Automated testing to ensure code functionality
-- Unit tests for individual classes/methods
-- Integration tests for component interaction
-- Ensures code works as expected and prevents regressions
+**Purpose**: Unit testing for domain logic and isolated components
+- Unit tests for individual classes/methods in Domain layer
+- Mock-based tests for Application layer
+- NO functional tests (use Behat instead)
 
 **Commands**:
 ```bash
-# Run all tests
+# Run all unit tests
 docker compose exec app bin/phpunit
 # or
 docker compose exec app composer qa:tests
@@ -29,7 +29,31 @@ docker compose exec app bin/phpunit --coverage-text
 
 **Note**: All tests MUST pass before creating a PR.
 
-### 2. ECS (Easy Coding Standard) 🎨
+### 2. Behat 🥒
+
+**Purpose**: Functional and acceptance testing for API and UI
+- ALL functional tests must use Behat
+- API endpoint testing
+- Integration scenarios
+- End-to-end user journeys
+
+**Commands**:
+```bash
+# Run all Behat tests
+docker compose exec app vendor/bin/behat
+# or
+docker compose exec app composer qa:behat
+
+# Run specific feature
+docker compose exec app vendor/bin/behat features/blog/article-api.feature
+
+# List available steps
+docker compose exec app vendor/bin/behat -dl
+```
+
+**Note**: Features must be written in English.
+
+### 3. ECS (Easy Coding Standard) 🎨
 
 **Purpose**: Enforces consistent code style
 - PSR-12 compliance
@@ -49,7 +73,7 @@ docker compose exec app vendor/bin/ecs --fix
 docker compose exec app composer qa:ecs:fix
 ```
 
-### 3. PHPStan 🔍
+### 4. PHPStan 🔍
 
 **Purpose**: Static analysis for type safety and logic errors
 - Level: max (strictest analysis)
@@ -65,7 +89,7 @@ docker compose exec app composer qa:phpstan
 
 **Note**: PHPStan issues cannot be auto-fixed. Manual correction required.
 
-### 4. Rector ♻️
+### 5. Rector ♻️
 
 **Purpose**: Automated code modernization and refactoring
 - Upgrades to latest PHP features
@@ -85,7 +109,7 @@ docker compose exec app vendor/bin/rector process
 docker compose exec app composer qa:rector:fix
 ```
 
-### 5. Twig CS Fixer 📐
+### 6. Twig CS Fixer 📐
 
 **Purpose**: Ensures consistent Twig template formatting
 - Template syntax validation
@@ -117,8 +141,11 @@ docker compose exec app composer qa
 ### During Development
 
 ```bash
-# Run tests frequently
+# Run unit tests frequently
 docker compose exec app composer qa:tests
+
+# Run functional tests frequently
+docker compose exec app composer qa:behat
 
 # Run checks frequently
 docker compose exec app composer qa:ecs
@@ -130,8 +157,9 @@ docker compose exec app composer qa:phpstan
 The `composer qa` command now follows an optimized workflow:
 
 1. **Auto-fixes first**: ECS, Rector, and Twig CS Fixer automatically fix issues
-2. **Tests**: Ensure functionality works after fixes
-3. **Static analysis**: PHPStan runs last to catch any remaining issues
+2. **Unit tests**: PHPUnit ensures domain logic works after fixes
+3. **Functional tests**: Behat validates API and integration scenarios
+4. **Static analysis**: PHPStan runs last to catch any remaining issues
 
 This order ensures that fixable issues are resolved before running verification tools.
 

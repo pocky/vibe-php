@@ -52,6 +52,7 @@ return static function (ECSConfig $ecsConfig): void {
         NoUnsetCastFixer::class,
         SimpleToComplexStringVariableFixer::class,
         PsrAutoloadingFixer::class,
+        FullyQualifiedStrictTypesFixer::class,
     ]);
 
     $ecsConfig->ruleWithConfiguration(YodaStyleFixer::class, [
@@ -87,6 +88,5 @@ return static function (ECSConfig $ecsConfig): void {
         PhpdocSummaryFixer::class,
         PhpdocLineSpanFixer::class,
         NoBlankLinesAfterPhpdocFixer::class,
-        VisibilityRequiredFixer::class,
     ]);
 };

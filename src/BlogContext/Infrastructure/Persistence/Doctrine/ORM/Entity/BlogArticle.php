@@ -14,8 +14,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Index(columns: ['status'], name: 'idx_articles_status')]
 #[ORM\Index(columns: ['slug'], name: 'idx_articles_slug')]
 #[ORM\Index(columns: ['published_at'], name: 'idx_articles_published_at')]
-#[ORM\Index(columns: ['created_at'], name: 'idx_articles_created_at')]
-class BlogArticle
+final class BlogArticle
 {
     public function __construct(
         #[ORM\Id]
@@ -32,9 +31,9 @@ class BlogArticle
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private \DateTimeImmutable $createdAt,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-        private \DateTimeImmutable|null $publishedAt = null,
+        private \DateTimeImmutable|null $updatedAt = null,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-        private \DateTimeImmutable|null $updatedAt = null
+        private \DateTimeImmutable|null $publishedAt = null
     ) {
     }
 
@@ -68,14 +67,14 @@ class BlogArticle
         return $this->createdAt;
     }
 
-    public function getPublishedAt(): \DateTimeImmutable|null
-    {
-        return $this->publishedAt;
-    }
-
     public function getUpdatedAt(): \DateTimeImmutable|null
     {
         return $this->updatedAt;
+    }
+
+    public function getPublishedAt(): \DateTimeImmutable|null
+    {
+        return $this->publishedAt;
     }
 
     public function setTitle(string $title): void
@@ -98,13 +97,28 @@ class BlogArticle
         $this->status = $status;
     }
 
-    public function setPublishedAt(\DateTimeImmutable|null $publishedAt): void
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function setPublishedAt(\DateTimeImmutable $publishedAt): void
     {
         $this->publishedAt = $publishedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable|null $updatedAt): void
+    public function updateContent(string $title, string $content, string $slug): void
     {
-        $this->updatedAt = $updatedAt;
+        $this->title = $title;
+        $this->content = $content;
+        $this->slug = $slug;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function publish(): void
+    {
+        $this->status = 'published';
+        $this->publishedAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

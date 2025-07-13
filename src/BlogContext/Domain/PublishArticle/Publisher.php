@@ -9,13 +9,14 @@ use App\BlogContext\Domain\PublishArticle\Exception\{ArticleAlreadyPublished, Ar
 use App\BlogContext\Domain\Shared\Repository\{ArticleData, ArticleRepositoryInterface};
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus};
 
-final readonly class Publisher
+final readonly class Publisher implements PublisherInterface
 {
     public function __construct(
         private ArticleRepositoryInterface $repository,
     ) {
     }
 
+    #[\Override]
     public function __invoke(ArticleId $articleId): Article
     {
         // Find existing article

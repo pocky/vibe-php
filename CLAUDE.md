@@ -17,6 +17,7 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 - Follow Symfony best practices in @docs/agent/instructions/symfony.md
 - Follow architecture patterns in @docs/agent/instructions/architecture.md
 - Follow Doctrine Migrations standards in @docs/agent/instructions/doctrine-migrations.md
+- Follow API Platform integration patterns in @docs/agent/instructions/api-platform-integration.md
 - Reference implementation patterns in @docs/reference/ for specific patterns
 - External documentation references in @docs/reference/external-docs.md
 - Available commands are in @composer.json scripts section
@@ -67,6 +68,48 @@ When working with AI agents in this codebase, follow the two-step approach docum
 2. **Implementation Phase**: Use a coding model to execute the plan
 
 This separation ensures better control, higher quality results, and easier debugging.
+
+## TDD Protocol for /act Command
+
+When using the `/act` command, **MANDATORY Test-Driven Development approach**:
+
+### 1. Strict Red-Green-Refactor Cycle
+- **RED Phase**: Write failing tests FIRST, implementation comes AFTER
+- **GREEN Phase**: Write minimal code to make tests pass
+- **REFACTOR Phase**: Improve code while keeping tests green
+
+### 2. Implementation Flow
+```bash
+# Red phase - ALWAYS FIRST
+git commit -m "test: add failing test for [feature]"
+
+# Green phase - MINIMAL implementation
+git commit -m "feat: implement [feature] to pass tests"
+
+# Refactor phase - improve without changing behavior
+git commit -m "refactor: improve [aspect] while keeping tests green"
+```
+
+### 3. Cognitive Preservation Questions
+Before using `exit_plan_mode`, ALWAYS ask:
+- "Do you want me to follow strict TDD Red-Green-Refactor cycles?"
+- "Should I stop after each phase for your validation?"
+- "What specific testing approach do you prefer for this feature?"
+
+### 4. Plan Structure Requirements
+All `/act` plans MUST explicitly include:
+- **Phase 1: RED** - Detailed list of failing tests to write
+- **Phase 2: GREEN** - Minimal implementation steps
+- **Phase 3: REFACTOR** - Code improvement steps
+- **Validation Points** - Where to pause for developer confirmation
+
+### 5. Never Skip Tests
+- NEVER implement code before writing failing tests
+- NEVER use `exit_plan_mode` without TDD phases in the plan
+- ALWAYS write tests that fail for the right reasons
+- Implementation must be driven by making tests pass
+
+This ensures developer skill preservation and prevents over-automation.
 
 ## Error Handling
 

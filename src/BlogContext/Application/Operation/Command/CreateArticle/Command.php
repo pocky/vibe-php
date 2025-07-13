@@ -15,7 +15,7 @@ final readonly class Command
         public string $slug,
         public string $status,
         public \DateTimeImmutable $createdAt,
-        public string|null $authorId = null,
+        public string|null $authorId,
     ) {
     }
 }

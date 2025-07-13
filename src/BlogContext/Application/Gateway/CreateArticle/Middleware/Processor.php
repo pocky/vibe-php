@@ -7,23 +7,23 @@ namespace App\BlogContext\Application\Gateway\CreateArticle\Middleware;
 use App\BlogContext\Application\Gateway\CreateArticle\Request;
 use App\BlogContext\Application\Gateway\CreateArticle\Response;
 use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
-use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
 use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
+use App\Shared\Infrastructure\MessageBus\CommandBusInterface;
 
 final readonly class Processor
 {
     public function __construct(
-        private Handler $commandHandler,
+        private CommandBusInterface $commandBus,
         private ArticleIdGenerator $articleIdGenerator,
     ) {
     }
 
-    /**
-     * @param callable(Request): Response|null $next
-     */
-    public function __invoke(Request $request, callable|null $next = null): Response
+    public function __invoke(GatewayRequest $request): GatewayResponse
     {
-        // Generate unique article ID
+        /** @var Request $request */
+        // Generate unique article ID using domain service
         $articleId = $this->articleIdGenerator->nextIdentity();
 
         // Create CQRS Command from Gateway Request
@@ -37,8 +37,8 @@ final readonly class Processor
             authorId: $request->authorId,
         );
 
-        // Execute via Command Handler - no return needed
-        ($this->commandHandler)($command);
+        // Execute via Command Bus
+        ($this->commandBus)($command);
 
         // Transform to Gateway Response using command data
         return new Response(

@@ -5,11 +5,18 @@
       "WebFetch(domain:symfony.com)",
       "WebFetch(domain:www.doctrine-project.org)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)",
       "Bash(docker compose exec:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git commit:*)",
+      "Bash(touch:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(mv:*)",
+      "WebFetch(domain:docs.behat.org)",
+      "WebFetch(domain:packagist.org)"
     ],
     "deny": [],
     "hooks": {
