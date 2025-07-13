@@ -10,7 +10,7 @@ use App\BlogContext\Domain\UpdateArticle\DataPersister\Article;
 use App\BlogContext\Domain\UpdateArticle\Exception\{ArticleNotFound, ArticleSlugAlreadyExists, PublishedArticleRequiresApproval};
 use App\Shared\Infrastructure\Slugger\SluggerInterface;
 
-final readonly class Updater
+final readonly class Updater implements UpdaterInterface
 {
     public function __construct(
         private ArticleRepositoryInterface $repository,
@@ -18,6 +18,7 @@ final readonly class Updater
     ) {
     }
 
+    #[\Override]
     public function __invoke(ArticleId $articleId, Title $title, Content $content): Article
     {
         // Find existing article

@@ -22,13 +22,13 @@ final readonly class Request implements GatewayRequest
             pattern: '/^[^<>"\']*$/',
             message: 'Article title contains invalid characters'
         )]
-        public readonly string $title,
+        public string $title,
         #[Assert\NotBlank(message: 'Content is required')]
         #[Assert\Length(
             min: 10,
             minMessage: 'Article content must be at least {{ limit }} characters'
         )]
-        public readonly string $content,
+        public string $content,
         #[Assert\NotBlank(message: 'Slug is required')]
         #[Assert\Length(
             min: 3,
@@ -40,16 +40,16 @@ final readonly class Request implements GatewayRequest
             pattern: '/^[a-z0-9-]+$/',
             message: 'Slug must contain only lowercase letters, numbers and hyphens'
         )]
-        public readonly string $slug,
+        public string $slug,
         #[Assert\Choice(
             choices: ['draft', 'published', 'archived'],
             message: 'Status must be one of: draft, published, archived'
         )]
-        public readonly string $status,
+        public string $status,
         #[Assert\NotNull(message: 'Creation date is required')]
-        public readonly \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $createdAt,
         #[Assert\Uuid(message: 'Invalid author ID format')]
-        public readonly string|null $authorId = null,
+        public string|null $authorId = null,
     ) {
     }
 

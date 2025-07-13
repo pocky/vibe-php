@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle;
+namespace App\BlogContext\Application\Gateway\AutoSaveArticle;
 
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -10,9 +10,9 @@ final readonly class Response implements GatewayResponse
 {
     public function __construct(
         public string $articleId,
-        public string $slug,
         public string $status,
-        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $autoSavedAt,
+        public bool $hasChanges = true,
     ) {
     }
 
@@ -20,9 +20,9 @@ final readonly class Response implements GatewayResponse
     {
         return [
             'articleId' => $this->articleId,
-            'slug' => $this->slug,
             'status' => $this->status,
-            'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
+            'autoSavedAt' => $this->autoSavedAt->format(\DateTimeInterface::ATOM),
+            'hasChanges' => $this->hasChanges,
         ];
     }
 }
