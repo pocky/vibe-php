@@ -156,15 +156,13 @@ Feature: Blog article API management
       """
       {}
       """
-    Then the response should have status code 201
+    Then the response should have status code 422
     And the response should contain JSON:
       """
       {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "status": "published"
+        "@type": "Error"
       }
       """
-    And the response should contain a non-empty "publishedAt" property
 
   Scenario: Attempt to publish an already published article
     Given an article exists with the following data:

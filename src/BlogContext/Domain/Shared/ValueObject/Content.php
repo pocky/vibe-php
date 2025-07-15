@@ -27,6 +27,7 @@ final class Content
         if (self::MIN_LENGTH > strlen($trimmed)) {
             throw ValidationException::withTranslationKey('validation.article.content.too_short', [
                 'min_length' => self::MIN_LENGTH,
+                'actual_length' => strlen($trimmed),
             ]);
         }
     }

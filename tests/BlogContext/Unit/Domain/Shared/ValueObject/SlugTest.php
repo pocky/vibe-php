@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\Domain\Shared\ValueObject\{Slug};
 use PHPUnit\Framework\TestCase;
 
@@ -28,18 +29,26 @@ final class SlugTest extends TestCase
 
     public function testRejectEmptySlug(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Slug cannot be empty');
+        $this->expectException(ValidationException::class);
 
-        new Slug('');
+        try {
+            new Slug('');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.empty', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectInvalidSlugFormat(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $this->expectException(ValidationException::class);
 
-        new Slug('Invalid Slug With Spaces');
+        try {
+            new Slug('Invalid Slug With Spaces');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectSlugWithSpecialCharacters(): void
@@ -74,43 +83,61 @@ final class SlugTest extends TestCase
         ];
 
         foreach ($invalidSlugs as $invalidSlug) {
-            $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage('Invalid slug format');
-
-            new Slug($invalidSlug);
+            try {
+                new Slug($invalidSlug);
+                $this->fail("Expected ValidationException for slug: {$invalidSlug}");
+            } catch (ValidationException $e) {
+                $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            }
         }
     }
 
     public function testRejectSlugWithUppercase(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $this->expectException(ValidationException::class);
 
-        new Slug('Slug-With-Uppercase');
+        try {
+            new Slug('Slug-With-Uppercase');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectSlugWithConsecutiveHyphens(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $this->expectException(ValidationException::class);
 
-        new Slug('slug--with--double-hyphens');
+        try {
+            new Slug('slug--with--double-hyphens');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectSlugStartingWithHyphen(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $this->expectException(ValidationException::class);
 
-        new Slug('-starting-with-hyphen');
+        try {
+            new Slug('-starting-with-hyphen');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectSlugEndingWithHyphen(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $this->expectException(ValidationException::class);
 
-        new Slug('ending-with-hyphen-');
+        try {
+            new Slug('ending-with-hyphen-');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.invalid_format', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testAcceptSlugWithNumbers(): void
@@ -129,10 +156,18 @@ final class SlugTest extends TestCase
 
     public function testRejectTooLongSlug(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Slug cannot exceed 250 characters');
+        $this->expectException(ValidationException::class);
 
-        new Slug(str_repeat('a', 251));
+        try {
+            new Slug(str_repeat('a', 251));
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.slug.too_long', $e->getTranslationKey());
+            $this->assertEquals([
+                'max_length' => 250,
+                'actual_length' => 251,
+            ], $e->getTranslationParameters());
+            throw $e;
+        }
     }
 
     public function testAcceptMaximumLengthSlug(): void

@@ -16,11 +16,13 @@ use App\Shared\Application\Gateway\GatewayException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class PublishArticleProcessor implements ProcessorInterface
 {
     public function __construct(
         private PublishArticleGateway $publishArticleGateway,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -46,32 +48,91 @@ final readonly class PublishArticleProcessor implements ProcessorInterface
 
             return $data;
         } catch (ArticleNotFound $e) {
-            throw new NotFoundHttpException('Article not found', $e);
+            $message = $this->translator->trans('error.article.not_found', [], 'messages');
+            throw new NotFoundHttpException($message, $e);
         } catch (ArticleAlreadyPublished $e) {
-            throw new ConflictHttpException('Article is already published', $e);
+            $message = $this->translator->trans('error.article.already_published', [], 'messages');
+            throw new ConflictHttpException($message, $e);
         } catch (ArticleNotReady $e) {
-            // Create a structured validation error for API Platform
-            $violation = new \stdClass();
-            $violation->message = $e->getMessage();
-            $violation->propertyPath = 'article';
+            // The error message from DefaultValidation already contains the validation errors
+            // We need to translate them for the API response
+            $errorMessage = $e->getMessage();
 
-            $violationList = new \stdClass();
-            $violationList->{'@type'} = 'ConstraintViolationList';
-            $violationList->violations = [$violation];
+            // Extract validation errors from the message
+            if (str_contains($errorMessage, 'validation.')) {
+                // Parse the validation errors and translate them
+                $lines = explode("\n", $errorMessage);
+                $translatedLines = [];
 
-            throw new UnprocessableEntityHttpException($e->getMessage(), $e);
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (str_starts_with($line, 'validation.')) {
+                        $translatedLines[] = $this->translator->trans($line, [], 'messages');
+                    } elseif ('' !== $line && !str_contains($line, 'Object(')) {
+                        $translatedLines[] = $line;
+                    }
+                }
+
+                $translatedMessage = implode("\n", $translatedLines);
+            } else {
+                $translatedMessage = $errorMessage;
+            }
+
+            throw new UnprocessableEntityHttpException($translatedMessage, $e);
         } catch (GatewayException $e) {
             $previous = $e->getPrevious();
             if ($previous instanceof ArticleNotFound) {
-                throw new NotFoundHttpException('Article not found', $e);
+                $message = $this->translator->trans('error.article.not_found', [], 'messages');
+                throw new NotFoundHttpException($message, $e);
             }
             if ($previous instanceof ArticleAlreadyPublished) {
-                throw new ConflictHttpException('Article is already published', $e);
+                $message = $this->translator->trans('error.article.already_published', [], 'messages');
+                throw new ConflictHttpException($message, $e);
             }
             if ($previous instanceof ArticleNotReady) {
-                // Create a structured validation error for API Platform
-                throw new UnprocessableEntityHttpException($previous->getMessage(), $e);
+                // Handle validation errors same as above
+                $errorMessage = $previous->getMessage();
+
+                if (str_contains($errorMessage, 'validation.')) {
+                    $lines = explode("\n", $errorMessage);
+                    $translatedLines = [];
+
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if (str_starts_with($line, 'validation.')) {
+                            $translatedLines[] = $this->translator->trans($line, [], 'messages');
+                        } elseif ('' !== $line && !str_contains($line, 'Object(')) {
+                            $translatedLines[] = $line;
+                        }
+                    }
+
+                    $translatedMessage = implode("\n", $translatedLines);
+                } else {
+                    $translatedMessage = $errorMessage;
+                }
+
+                throw new UnprocessableEntityHttpException($translatedMessage, $e);
             }
+
+            // Check if the GatewayException contains validation errors
+            $errorMessage = $e->getMessage();
+            if (str_contains($errorMessage, 'validation.') && str_contains($errorMessage, 'DefaultValidation.php')) {
+                $lines = explode("\n", $errorMessage);
+                $translatedLines = [];
+
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (str_starts_with($line, 'validation.')) {
+                        $translatedLines[] = $this->translator->trans($line, [], 'messages');
+                    }
+                }
+
+                if ([] !== $translatedLines) {
+                    $translatedMessage = implode("\n", $translatedLines);
+                    throw new UnprocessableEntityHttpException($translatedMessage, $e);
+                }
+            }
+
             throw $e;
         }
     }

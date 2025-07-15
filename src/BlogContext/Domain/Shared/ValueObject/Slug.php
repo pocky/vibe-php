@@ -30,6 +30,7 @@ final class Slug
         if (self::MAX_LENGTH < strlen($this->value)) {
             throw ValidationException::withTranslationKey('validation.article.slug.too_long', [
                 'max_length' => self::MAX_LENGTH,
+                'actual_length' => strlen($this->value),
             ]);
         }
     }

@@ -13,6 +13,7 @@ final class SeoReady extends Constraint
     public string $contentTooShort = 'validation.seo.content.too_short';
     public string $missingMetaDescription = 'validation.seo.meta_description.missing';
 
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

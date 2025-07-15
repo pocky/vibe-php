@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
@@ -33,26 +34,38 @@ final class ArticleIdTest extends TestCase
 
     public function testRejectInvalidUuid(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid UUID format');
+        $this->expectException(ValidationException::class);
 
-        new ArticleId('invalid-uuid');
+        try {
+            new ArticleId('invalid-uuid');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.id.invalid_uuid', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectEmptyString(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid UUID format');
+        $this->expectException(ValidationException::class);
 
-        new ArticleId('');
+        try {
+            new ArticleId('');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.id.invalid_uuid', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectIncompleteUuid(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid UUID format');
+        $this->expectException(ValidationException::class);
 
-        new ArticleId('550e8400-e29b-41d4-a716');
+        try {
+            new ArticleId('550e8400-e29b-41d4-a716');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.id.invalid_uuid', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testAcceptDifferentUuidVersions(): void

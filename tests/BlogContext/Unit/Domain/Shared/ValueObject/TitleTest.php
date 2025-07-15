@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\Domain\Shared\ValueObject\Title;
 use PHPUnit\Framework\TestCase;
 
@@ -28,26 +29,42 @@ final class TitleTest extends TestCase
 
     public function testRejectEmptyTitle(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Title cannot be empty');
+        $this->expectException(ValidationException::class);
 
-        new Title('');
+        try {
+            new Title('');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.title.empty', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectWhitespaceOnlyTitle(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Title cannot be empty');
+        $this->expectException(ValidationException::class);
 
-        new Title('   ');
+        try {
+            new Title('   ');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.title.empty', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectTooShortTitle(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Title must be at least 5 characters');
+        $this->expectException(ValidationException::class);
 
-        new Title('Hi');
+        try {
+            new Title('Hi');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.title.too_short', $e->getTranslationKey());
+            $this->assertEquals([
+                'min_length' => 5,
+                'actual_length' => 2,
+            ], $e->getTranslationParameters());
+            throw $e;
+        }
     }
 
     public function testAcceptMinimumLengthTitle(): void
@@ -59,10 +76,18 @@ final class TitleTest extends TestCase
 
     public function testRejectTooLongTitle(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Title cannot exceed 200 characters');
+        $this->expectException(ValidationException::class);
 
-        new Title(str_repeat('a', 201));
+        try {
+            new Title(str_repeat('a', 201));
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.title.too_long', $e->getTranslationKey());
+            $this->assertEquals([
+                'max_length' => 200,
+                'actual_length' => 201,
+            ], $e->getTranslationParameters());
+            throw $e;
+        }
     }
 
     public function testAcceptMaximumLengthTitle(): void

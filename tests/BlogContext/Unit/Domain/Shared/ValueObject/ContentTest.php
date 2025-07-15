@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\Domain\Shared\ValueObject\Content;
 use PHPUnit\Framework\TestCase;
 
@@ -28,26 +29,42 @@ final class ContentTest extends TestCase
 
     public function testRejectEmptyContent(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Content cannot be empty');
+        $this->expectException(ValidationException::class);
 
-        new Content('');
+        try {
+            new Content('');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.content.empty', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectWhitespaceOnlyContent(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Content cannot be empty');
+        $this->expectException(ValidationException::class);
 
-        new Content('   ');
+        try {
+            new Content('   ');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.content.empty', $e->getTranslationKey());
+            throw $e;
+        }
     }
 
     public function testRejectTooShortContent(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Content must be at least 10 characters');
+        $this->expectException(ValidationException::class);
 
-        new Content('Hi');
+        try {
+            new Content('Hi');
+        } catch (ValidationException $e) {
+            $this->assertEquals('validation.article.content.too_short', $e->getTranslationKey());
+            $this->assertEquals([
+                'min_length' => 10,
+                'actual_length' => 2,
+            ], $e->getTranslationParameters());
+            throw $e;
+        }
     }
 
     public function testAcceptMinimumLengthContent(): void

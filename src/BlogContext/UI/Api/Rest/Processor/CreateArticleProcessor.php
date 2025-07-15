@@ -9,14 +9,18 @@ use ApiPlatform\State\ProcessorInterface;
 use App\BlogContext\Application\Gateway\CreateArticle\Gateway as CreateArticleGateway;
 use App\BlogContext\Application\Gateway\CreateArticle\Request as CreateArticleRequest;
 use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\UI\Api\Rest\Resource\ArticleResource;
 use App\Shared\Application\Gateway\GatewayException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class CreateArticleProcessor implements ProcessorInterface
 {
     public function __construct(
         private CreateArticleGateway $createArticleGateway,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -47,24 +51,41 @@ final readonly class CreateArticleProcessor implements ProcessorInterface
                     ? new \DateTimeImmutable($responseData['publishedAt'])
                     : null,
             );
-        } catch (\InvalidArgumentException $e) {
-            throw new \InvalidArgumentException($e->getMessage(), 422, $e);
+        } catch (ValidationException $e) {
+            // Translate validation errors for API consumers
+            $message = $this->translator->trans(
+                $e->getTranslationKey(),
+                $e->getTranslationParameters(),
+                $e->getTranslationDomain()
+            );
+            throw new BadRequestHttpException($message, $e);
         } catch (ArticleAlreadyExists $e) {
-            throw new ConflictHttpException('Article with this slug already exists', $e);
+            $message = $this->translator->trans('error.article.already_exists', [], 'messages');
+            throw new ConflictHttpException($message, $e);
         } catch (GatewayException $e) {
-            // Check if the previous exception is ArticleAlreadyExists
-            $previous = $e->getPrevious();
-            if ($previous instanceof ArticleAlreadyExists) {
-                throw new ConflictHttpException('Article with this slug already exists', $e);
-            }
-            // Check if the message contains 'already exists'
-            if (str_contains($e->getMessage(), 'already exists')) {
-                throw new ConflictHttpException('Article with this slug already exists', $e);
-            }
-            throw $e;
-        } catch (\RuntimeException $e) {
-            if (str_contains($e->getMessage(), 'already exists')) {
-                throw new ConflictHttpException('Article with this slug already exists', $e);
+            // Check nested exceptions for ArticleAlreadyExists
+            $current = $e;
+            while ($current instanceof \Throwable) {
+                if ($current instanceof ArticleAlreadyExists) {
+                    $message = $this->translator->trans('error.article.already_exists', [], 'messages');
+                    throw new ConflictHttpException($message, $e);
+                }
+                if ($current instanceof ValidationException) {
+                    $message = $this->translator->trans(
+                        $current->getTranslationKey(),
+                        $current->getTranslationParameters(),
+                        $current->getTranslationDomain()
+                    );
+                    throw new BadRequestHttpException($message, $e);
+                }
+
+                // Check if message contains "Article with slug" to handle deeply nested exceptions
+                if ($current->getMessage() && str_contains($current->getMessage(), 'already exists')) {
+                    $message = $this->translator->trans('error.article.already_exists', [], 'messages');
+                    throw new ConflictHttpException($message, $e);
+                }
+
+                $current = $current->getPrevious();
             }
             throw $e;
         }
