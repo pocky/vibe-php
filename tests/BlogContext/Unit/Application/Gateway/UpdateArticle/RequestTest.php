@@ -5,99 +5,112 @@ declare(strict_types=1);
 namespace App\Tests\BlogContext\Unit\Application\Gateway\UpdateArticle;
 
 use App\BlogContext\Application\Gateway\UpdateArticle\Request;
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class RequestTest extends TestCase
 {
-    public function testCanCreateValidRequest(): void
-    {
-        $request = new Request(
-            articleId: '550e8400-e29b-41d4-a716-446655440000',
-            title: 'Updated Article Title',
-            content: 'This is the updated content of the article with sufficient length.'
-        );
+    use ArticleIdGeneratorTrait;
 
-        self::assertSame('550e8400-e29b-41d4-a716-446655440000', $request->articleId);
-        self::assertSame('Updated Article Title', $request->title);
-        self::assertSame('This is the updated content of the article with sufficient length.', $request->content);
-    }
-
-    public function testCanCreateFromDataArray(): void
+    public function testFromDataCreatesRequestSuccessfully(): void
     {
+        // Given
+        $articleId = $this->generateArticleId()->getValue();
         $data = [
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-            'title' => 'Test Article',
-            'content' => 'This is test content with sufficient length.',
+            'articleId' => $articleId,
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+            'slug' => 'test-article-title',
+            'status' => 'draft',
         ];
 
+        // When
         $request = Request::fromData($data);
 
-        self::assertSame('550e8400-e29b-41d4-a716-446655440000', $request->articleId);
-        self::assertSame('Test Article', $request->title);
-        self::assertSame('This is test content with sufficient length.', $request->content);
+        // Then
+        $this->assertEquals($articleId, $request->articleId);
+        $this->assertEquals('Test Article Title', $request->title);
+        $this->assertEquals('This is the content of the test article.', $request->content);
+        $this->assertEquals('test-article-title', $request->slug);
+        $this->assertEquals('draft', $request->status);
     }
 
-    public function testCanConvertToDataArray(): void
+    public function testFromDataThrowsExceptionWhenArticleIdIsMissing(): void
     {
-        $request = new Request(
-            articleId: '550e8400-e29b-41d4-a716-446655440000',
-            title: 'Test Article',
-            content: 'Test content'
-        );
-
-        $data = $request->data();
-
-        $expected = [
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-            'title' => 'Test Article',
-            'content' => 'Test content',
+        // Given
+        $data = [
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+            'slug' => 'test-article-title',
+            'status' => 'draft',
         ];
 
-        self::assertSame($expected, $data);
-    }
-
-    public function testFromDataThrowsExceptionForMissingArticleId(): void
-    {
+        // Then
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Article ID is required');
 
-        Request::fromData([
-            'title' => 'Test',
-            'content' => 'Content',
-        ]);
+        // When
+        Request::fromData($data);
     }
 
-    public function testFromDataThrowsExceptionForMissingTitle(): void
+    public function testFromDataThrowsExceptionWhenTitleIsMissing(): void
     {
+        // Given
+        $data = [
+            'articleId' => $this->generateArticleId()->getValue(),
+            'content' => 'This is the content of the test article.',
+            'slug' => 'test-article-title',
+            'status' => 'draft',
+        ];
+
+        // Then
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Title is required');
 
-        Request::fromData([
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-            'content' => 'Content',
-        ]);
+        // When
+        Request::fromData($data);
     }
 
-    public function testFromDataThrowsExceptionForMissingContent(): void
+    public function testFromDataThrowsExceptionWhenContentIsMissing(): void
     {
+        // Given
+        $data = [
+            'articleId' => $this->generateArticleId()->getValue(),
+            'title' => 'Test Article Title',
+            'slug' => 'test-article-title',
+            'status' => 'draft',
+        ];
+
+        // Then
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Content is required');
 
-        Request::fromData([
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-            'title' => 'Test',
-        ]);
+        // When
+        Request::fromData($data);
     }
 
-    public function testRequestIsReadonly(): void
+    public function testDataReturnsCorrectArray(): void
     {
+        // Given
+        $articleId = $this->generateArticleId()->getValue();
         $request = new Request(
-            articleId: '550e8400-e29b-41d4-a716-446655440000',
-            title: 'Test',
-            content: 'Content'
+            articleId: $articleId,
+            title: 'Test Article Title',
+            content: 'This is the content of the test article.',
+            slug: 'test-article-title',
+            status: 'draft',
         );
 
-        $reflection = new \ReflectionClass($request);
-        self::assertTrue($reflection->isReadOnly(), 'Request should be readonly');
+        // When
+        $data = $request->data();
+
+        // Then
+        $this->assertEquals([
+            'articleId' => $articleId,
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+            'slug' => 'test-article-title',
+            'status' => 'draft',
+        ], $data);
     }
 }

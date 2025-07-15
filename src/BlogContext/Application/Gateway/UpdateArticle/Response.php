@@ -11,10 +11,10 @@ final readonly class Response implements GatewayResponse
     public function __construct(
         public string $articleId,
         public string $title,
+        public string $content,
         public string $slug,
         public string $status,
         public \DateTimeImmutable $updatedAt,
-        public array $changedFields = [],
     ) {
     }
 
@@ -23,10 +23,10 @@ final readonly class Response implements GatewayResponse
         return [
             'articleId' => $this->articleId,
             'title' => $this->title,
+            'content' => $this->content,
             'slug' => $this->slug,
             'status' => $this->status,
             'updatedAt' => $this->updatedAt->format(\DateTimeInterface::ATOM),
-            'changedFields' => $this->changedFields,
         ];
     }
 }

@@ -44,10 +44,41 @@ final class SlugTest extends TestCase
 
     public function testRejectSlugWithSpecialCharacters(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid slug format');
+        $invalidSlugs = [
+            'slug-with-@-symbols',
+            'slug_with_underscores',
+            'slug with spaces',
+            'slug!',
+            'slug#test',
+            'slug$test',
+            'slug%test',
+            'slug^test',
+            'slug&test',
+            'slug*test',
+            'slug(test)',
+            'slug+test',
+            'slug=test',
+            'slug[test]',
+            'slug{test}',
+            'slug|test',
+            'slug\\test',
+            'slug:test',
+            'slug;test',
+            'slug"test',
+            "slug'test",
+            'slug<test>',
+            'slug,test',
+            'slug.test',
+            'slug?test',
+            'slug/test',
+        ];
 
-        new Slug('slug-with-@-symbols');
+        foreach ($invalidSlugs as $invalidSlug) {
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('Invalid slug format');
+
+            new Slug($invalidSlug);
+        }
     }
 
     public function testRejectSlugWithUppercase(): void
@@ -56,6 +87,30 @@ final class SlugTest extends TestCase
         $this->expectExceptionMessage('Invalid slug format');
 
         new Slug('Slug-With-Uppercase');
+    }
+
+    public function testRejectSlugWithConsecutiveHyphens(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid slug format');
+
+        new Slug('slug--with--double-hyphens');
+    }
+
+    public function testRejectSlugStartingWithHyphen(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid slug format');
+
+        new Slug('-starting-with-hyphen');
+    }
+
+    public function testRejectSlugEndingWithHyphen(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid slug format');
+
+        new Slug('ending-with-hyphen-');
     }
 
     public function testAcceptSlugWithNumbers(): void

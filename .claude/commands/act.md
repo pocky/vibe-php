@@ -35,7 +35,10 @@ graph LR
 ### Quality Standards
 - **PHP 8.4 Features**: Property hooks, asymmetric visibility, enums
 - **Architecture Compliance**: DDD, Hexagonal, Clean Architecture
-- **Code Quality**: ECS, PHPStan, Rector, PHPUnit
+- **Code Quality**: ECS, PHPStan, Rector
+- **Testing Strategy**:
+  - PHPUnit for unit tests (Domain logic only)
+  - Behat for ALL functional tests (API, integration, e2e)
 
 ## Starting Implementation
 
@@ -44,8 +47,21 @@ When you use this command, I will:
 1. **Create TODO list** with TDD phases
 2. **Check available plans** in docs/plan/
 3. **Identify first feature** to implement
-4. **Create failing test** immediately
-5. **Implement minimal code** to pass test
+4. **Create appropriate tests**:
+   - Unit test (PHPUnit) for domain logic
+   - Feature file (Behat) for API/functional behavior
+5. **Implement minimal code** to pass tests
 6. **Continue TDD cycle** with file creation
+
+### Testing Approach in TDD
+
+- **RED Phase**: 
+  - Write PHPUnit test for domain logic
+  - Write Behat feature for API behavior
+- **GREEN Phase**: 
+  - Implement domain code to pass unit tests
+  - Implement API/UI to pass Behat scenarios
+- **REFACTOR Phase**: 
+  - Improve code while keeping all tests green
 
 This command starts the implementation process and creates real files following our established patterns and quality standards.

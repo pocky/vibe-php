@@ -56,6 +56,7 @@ src/
 │   ├── Application/         # Use cases and gateways
 │   ├── Domain/             # Business logic (pure PHP)
 │   ├── Infrastructure/     # External adapters
+│   ├── UI/                # User interfaces (Web, API, CLI)
 │   └── Shared/            # Context-specific shared code
 └── Shared/                # Global shared across all contexts
 ```
@@ -100,7 +101,7 @@ Domain/
 1. **Domain**: Business rules, entities, value objects
 2. **Application**: Use cases, orchestration, gateways
 3. **Infrastructure**: Database, security, external services
-4. **UI**: Controllers, APIs (future implementation)
+4. **UI**: User interfaces - Web controllers, REST/GraphQL APIs, CLI commands
 
 ### CQRS Pattern
 
@@ -343,6 +344,44 @@ Gateway Execution Flow:
 - LoggerInstrumentation in `Infrastructure/Instrumentation/`
 - Implements base Instrumentation interface
 - Provides PSR-3 logger integration for Gateway instrumentation
+
+### UI Layer
+
+#### UI Layer Organization
+The UI layer contains all user interfaces, organized by interface type:
+
+```
+UI/
+├── Web/              # Web interface (future)
+│   └── Controller/   # Symfony controllers for web pages
+├── Api/              # API interfaces
+│   ├── Rest/         # REST API with API Platform
+│   │   ├── Resource/     # API Platform resources
+│   │   ├── Processor/    # State processors (write operations)
+│   │   ├── Provider/     # State providers (read operations)
+│   │   └── Filter/       # Custom filters
+│   └── GraphQL/      # GraphQL API (if needed)
+│       ├── Resolver/     # GraphQL resolvers
+│       └── Type/         # GraphQL types
+└── Cli/              # Command Line Interface
+    └── Command/      # Symfony Console commands
+```
+
+#### API Platform Integration
+- **Resources**: Define API endpoints as API Platform resources in `UI/Api/Rest/Resource/`
+- **State Providers**: Implement read operations using Application Queries
+- **State Processors**: Implement write operations using Application Commands via Gateways
+- **Filters**: Custom filters for search and filtering capabilities
+- **Validation**: Leverage Symfony Validator with API Platform
+- **Security**: Use voters and API Platform security attributes
+
+#### UI Layer Rules
+- **No business logic**: UI layer only handles presentation and input transformation
+- **Use Gateways**: All operations go through Application Gateways
+- **Transform data**: Convert HTTP requests to Gateway requests, Gateway responses to HTTP responses
+- **Framework-specific**: This is the only layer where framework-specific UI code is allowed
+- **Stateless**: UI components should be stateless
+- **Documentation**: Use OpenAPI/Swagger annotations for REST APIs
 
 ## Code Organization Rules
 

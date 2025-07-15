@@ -6,10 +6,13 @@ namespace App\BlogContext\Tests\Unit\Application\Operation\Command\CreateArticle
 
 use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class CommandTest extends TestCase
 {
+    use ArticleIdGeneratorTrait;
+
     public function testCreateCommandWithValidData(): void
     {
         // Given
@@ -19,7 +22,7 @@ final class CommandTest extends TestCase
         $slug = 'my-first-article';
         $status = 'draft';
         $createdAt = new \DateTimeImmutable('2024-01-01T10:00:00Z');
-        $authorId = '550e8400-e29b-41d4-a716-446655440000';
+        $authorId = $this->generateArticleId()->getValue();
 
         // When
         $command = new Command(
@@ -59,7 +62,8 @@ final class CommandTest extends TestCase
             content: $content,
             slug: $slug,
             status: $status,
-            createdAt: $createdAt
+            createdAt: $createdAt,
+            authorId: null
         );
 
         // Then

@@ -6,8 +6,5 @@ namespace App\Shared\Application\Gateway;
 
 interface GatewayResponse
 {
-    /**
-     * @return array<string, mixed>
-     */
     public function data(): array;
 }

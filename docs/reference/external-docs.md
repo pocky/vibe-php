@@ -75,6 +75,23 @@ This file contains links to important external documentation that Claude should 
 - **Messenger**: https://symfony.com/doc/current/messenger.html
 - **Security**: https://symfony.com/doc/current/security.html
 
+### API Platform
+- **Official Documentation**: https://api-platform.com/docs/
+- **Symfony Integration**: https://api-platform.com/docs/symfony/
+- **Getting Started**: https://api-platform.com/docs/symfony/getting-started/
+- **Core Concepts**: https://api-platform.com/docs/core/
+- **OpenAPI**: https://api-platform.com/docs/core/openapi/
+- **JSON-LD & Hydra**: https://api-platform.com/docs/core/json-ld/
+- **GraphQL**: https://api-platform.com/docs/graphql/
+- **Security**: https://api-platform.com/docs/core/security/
+- **Serialization**: https://api-platform.com/docs/core/serialization/
+- **Filters**: https://api-platform.com/docs/core/filters/
+- **Pagination**: https://api-platform.com/docs/core/pagination/
+- **State Providers**: https://api-platform.com/docs/core/state-providers/
+- **State Processors**: https://api-platform.com/docs/core/state-processors/
+- **Validation**: https://api-platform.com/docs/core/validation/
+- **Testing**: https://api-platform.com/docs/core/testing/
+
 ### CQRS & Event-Driven Architecture
 - **Martin Fowler - CQRS**: https://martinfowler.com/bliki/CQRS.html
 - **Greg Young - CQRS Documents**: https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf

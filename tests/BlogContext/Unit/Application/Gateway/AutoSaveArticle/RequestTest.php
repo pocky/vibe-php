@@ -5,48 +5,98 @@ declare(strict_types=1);
 namespace App\Tests\BlogContext\Unit\Application\Gateway\AutoSaveArticle;
 
 use App\BlogContext\Application\Gateway\AutoSaveArticle\Request;
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class RequestTest extends TestCase
 {
-    public function testCanCreateAutoSaveRequest(): void
+    use ArticleIdGeneratorTrait;
+
+    public function testFromDataCreatesRequestSuccessfully(): void
     {
+        // Given
+        $articleId = $this->generateArticleId();
+        $data = [
+            'articleId' => $articleId->getValue(),
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+        ];
+
+        // When
+        $request = Request::fromData($data);
+
+        // Then
+        $this->assertEquals($articleId->getValue(), $request->articleId);
+        $this->assertEquals('Test Article Title', $request->title);
+        $this->assertEquals('This is the content of the test article.', $request->content);
+    }
+
+    public function testFromDataThrowsExceptionWhenArticleIdIsMissing(): void
+    {
+        // Given
+        $data = [
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+        ];
+
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Article ID is required');
+
+        // When
+        Request::fromData($data);
+    }
+
+    public function testFromDataThrowsExceptionWhenTitleIsMissing(): void
+    {
+        // Given
+        $data = [
+            'articleId' => $this->generateArticleId()->getValue(),
+            'content' => 'This is the content of the test article.',
+        ];
+
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Title is required');
+
+        // When
+        Request::fromData($data);
+    }
+
+    public function testFromDataThrowsExceptionWhenContentIsMissing(): void
+    {
+        // Given
+        $data = [
+            'articleId' => $this->generateArticleId()->getValue(),
+            'title' => 'Test Article Title',
+        ];
+
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Content is required');
+
+        // When
+        Request::fromData($data);
+    }
+
+    public function testDataReturnsCorrectArray(): void
+    {
+        // Given
+        $articleId = $this->generateArticleId();
         $request = new Request(
-            articleId: '550e8400-e29b-41d4-a716-446655440000',
-            title: 'Auto-saved title',
-            content: 'Auto-saved content'
+            articleId: $articleId->getValue(),
+            title: 'Test Article Title',
+            content: 'This is the content of the test article.',
         );
 
-        self::assertSame('550e8400-e29b-41d4-a716-446655440000', $request->articleId);
-        self::assertSame('Auto-saved title', $request->title);
-        self::assertSame('Auto-saved content', $request->content);
-    }
+        // When
+        $data = $request->data();
 
-    public function testCanCreateFromDataWithEmptyFields(): void
-    {
-        $data = [
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-            'title' => '',
-            'content' => '',
-        ];
-
-        $request = Request::fromData($data);
-
-        self::assertSame('550e8400-e29b-41d4-a716-446655440000', $request->articleId);
-        self::assertSame('', $request->title);
-        self::assertSame('', $request->content);
-    }
-
-    public function testCanCreateFromDataWithMissingOptionalFields(): void
-    {
-        $data = [
-            'articleId' => '550e8400-e29b-41d4-a716-446655440000',
-        ];
-
-        $request = Request::fromData($data);
-
-        self::assertSame('550e8400-e29b-41d4-a716-446655440000', $request->articleId);
-        self::assertSame('', $request->title);
-        self::assertSame('', $request->content);
+        // Then
+        $this->assertEquals([
+            'articleId' => $articleId->getValue(),
+            'title' => 'Test Article Title',
+            'content' => 'This is the content of the test article.',
+        ], $data);
     }
 }

@@ -6,6 +6,8 @@ namespace App\BlogContext\Domain\Shared\ValueObject;
 
 final class Content
 {
+    private const int MIN_LENGTH = 10;
+
     public function __construct(
         private(set) string $value,
     ) {
@@ -16,12 +18,12 @@ final class Content
     {
         $trimmed = trim($this->value);
 
-        if ('' === $trimmed || '0' === $trimmed) {
+        if ('' === $trimmed) {
             throw new \InvalidArgumentException('Content cannot be empty');
         }
 
-        if (10 > strlen($trimmed)) {
-            throw new \InvalidArgumentException('Content must be at least 10 characters');
+        if (self::MIN_LENGTH > strlen($trimmed)) {
+            throw new \InvalidArgumentException('Content must be at least 10 characters long');
         }
     }
 

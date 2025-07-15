@@ -29,13 +29,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'auto_mapping' => false,
             ],
             'mappings' => [
-                'Example' => [
-                    'is_bundle' => false,
-                    'type' => 'attribute',
-                    'dir' => '%kernel.project_dir%/src/ExampleContext/Infrastructure/Persistence/Doctrine/ORM/Entity',
-                    'prefix' => 'App\ExampleContext\Infrastructure\Persistence\Doctrine\ORM\Entity',
-                    'alias' => 'Example',
-                ],
                 'BlogContext' => [
                     'is_bundle' => false,
                     'type' => 'attribute',

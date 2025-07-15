@@ -33,8 +33,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->exclude([
             __DIR__.'/../src/DependencyInjection',
             __DIR__.'/../src/Kernel.php',
+            __DIR__.'/../src/Shared/Application/Gateway/Instrumentation/DefaultGatewayInstrumentation.php',
         ])
     ;
+
+    # Configure DefaultGatewayInstrumentation manually since it needs a string parameter
+    $services->set(\App\Shared\Application\Gateway\Instrumentation\DefaultGatewayInstrumentation::class)
+        ->args([
+            '$loggerInstrumentation' => service(\App\Shared\Infrastructure\Instrumentation\LoggerInstrumentation::class),
+            '$name' => 'default.gateway',
+        ]);
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

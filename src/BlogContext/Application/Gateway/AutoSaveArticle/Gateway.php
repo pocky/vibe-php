@@ -5,24 +5,23 @@ declare(strict_types=1);
 namespace App\BlogContext\Application\Gateway\AutoSaveArticle;
 
 use App\BlogContext\Application\Gateway\AutoSaveArticle\Middleware\Processor;
+use App\Shared\Application\Gateway\Attribute\AsGateway;
 use App\Shared\Application\Gateway\DefaultGateway;
-use App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation;
-use App\Shared\Application\Gateway\Middleware\{DefaultErrorHandler, DefaultLogger, DefaultValidation};
+use App\Shared\Application\Gateway\Middleware\DefaultErrorHandler;
+use App\Shared\Application\Gateway\Middleware\DefaultLogger;
+use App\Shared\Application\Gateway\Middleware\DefaultValidation;
 
+#[AsGateway(
+    context: 'blog',
+    domain: 'article',
+    operation: 'auto_save_article',
+    middlewares: [
+        DefaultLogger::class,
+        DefaultErrorHandler::class,
+        DefaultValidation::class,
+        Processor::class,
+    ],
+)]
 final class Gateway extends DefaultGateway
 {
-    public function __construct(
-        GatewayInstrumentation $instrumentation,
-        DefaultValidation $validation,
-        Processor $processor,
-    ) {
-        $middlewares = [
-            new DefaultLogger($instrumentation),
-            new DefaultErrorHandler($instrumentation, 'BlogContext', 'Article', 'autosave'),
-            $validation,
-            $processor,
-        ];
-
-        parent::__construct($middlewares);
-    }
 }

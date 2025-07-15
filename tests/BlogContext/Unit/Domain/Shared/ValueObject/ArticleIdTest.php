@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
 
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class ArticleIdTest extends TestCase
 {
+    use ArticleIdGeneratorTrait;
+
     public function testCreateValidArticleId(): void
     {
-        $uuid = '550e8400-e29b-41d4-a716-446655440000';
+        $uuid = $this->generateArticleId()->getValue();
         $articleId = new ArticleId($uuid);
 
         $this->assertSame($uuid, $articleId->getValue());
@@ -19,7 +22,7 @@ final class ArticleIdTest extends TestCase
 
     public function testArticleIdEquality(): void
     {
-        $uuid = '550e8400-e29b-41d4-a716-446655440000';
+        $uuid = $this->generateArticleId()->getValue();
         $articleId1 = new ArticleId($uuid);
         $articleId2 = new ArticleId($uuid);
         $articleId3 = new ArticleId('123e4567-e89b-12d3-a456-426614174000');

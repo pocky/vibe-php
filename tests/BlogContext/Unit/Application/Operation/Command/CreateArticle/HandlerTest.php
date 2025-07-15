@@ -10,10 +10,13 @@ use App\BlogContext\Domain\CreateArticle\CreatorInterface;
 use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
+use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class HandlerTest extends TestCase
 {
+    use ArticleIdGeneratorTrait;
+
     public function testHandleCreateArticleCommand(): void
     {
         // Given
@@ -29,7 +32,7 @@ final class HandlerTest extends TestCase
             slug: $slug,
             status: $status,
             createdAt: $createdAt,
-            authorId: '550e8400-e29b-41d4-a716-446655440000'
+            authorId: $this->generateArticleId()->getValue()
         );
 
         // Create a real Article instance for the test
@@ -75,7 +78,8 @@ final class HandlerTest extends TestCase
             content: 'Content without author.',
             slug: $slug,
             status: $status,
-            createdAt: $createdAt
+            createdAt: $createdAt,
+            authorId: null
         );
 
         // Create a real Article instance for the test

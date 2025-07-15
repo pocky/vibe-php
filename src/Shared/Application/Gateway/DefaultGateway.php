@@ -6,21 +6,15 @@ namespace App\Shared\Application\Gateway;
 
 use App\Shared\Application\Gateway\Middleware\Pipe;
 
-/**
- * @template T of GatewayResponse
- */
-class DefaultGateway
+abstract class DefaultGateway
 {
     public function __construct(
-        protected(set) array $middlewares,
+        protected array $middlewares,
     ) {
     }
 
-    /**
-     * @return T
-     */
     public function __invoke(GatewayRequest $request): GatewayResponse
     {
-        return (new Pipe($this->middlewares))($request);
+        return new Pipe($this->middlewares)($request);
     }
 }

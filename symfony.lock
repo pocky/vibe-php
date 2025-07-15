@@ -1,4 +1,18 @@
 {
+    "api-platform/symfony": {
+        "version": "4.1",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "4.0",
+            "ref": "7433fb9097b76e1b3adf42a6fdee867e92462f8f"
+        },
+        "files": [
+            "config/packages/api_platform.php",
+            "config/routes/api_platform.php",
+            "src/ExampleContext/UI/Api/.gitignore"
+        ]
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -46,6 +60,50 @@
             "migrations/.gitignore"
         ]
     },
+    "friends-of-behat/mink-debug-extension": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "69fd84c485018ae27396799b3a7851837d0333d0"
+        }
+    },
+    "friends-of-behat/mink-extension": {
+        "version": "2.7",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.4",
+            "ref": "79e9e63eca7bac14a5a1dfbb892b554f69b20d3b"
+        }
+    },
+    "friends-of-behat/symfony-extension": {
+        "version": "2.6",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "57b739ecb7b533ec774ab0927925cb2f2a06368a"
+        },
+        "files": [
+            "behat.dist.php",
+            "config/behat/suites.php",
+            "config/behat/suites/.gitiginore",
+            "config/services_test.php",
+            "features/demo.feature",
+            "tests/Behat/DemoContext.php"
+        ]
+    },
+    "friends-of-behat/variadic-extension": {
+        "version": "1.6",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.1",
+            "ref": "ff13d88ef6152caaed9412750a0d677207e02d72"
+        }
+    },
     "mformono/docker": {
         "version": "1.0",
         "recipe": {
@@ -76,6 +134,18 @@
         },
         "files": [
             ".editorconfig"
+        ]
+    },
+    "nelmio/cors-bundle": {
+        "version": "2.5",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "1.5",
+            "ref": "f818ca1a144e57496762ae837d9929543f042751"
+        },
+        "files": [
+            "config/packages/nelmio_cors.php"
         ]
     },
     "phpstan/phpstan": {
@@ -128,6 +198,15 @@
         "files": [
             "rector.php"
         ]
+    },
+    "robertfausk/behat-panther-extension": {
+        "version": "1.2",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.1",
+            "ref": "69e8bc03cc7ca7c80029f4f6e30ab28dc90b2af8"
+        }
     },
     "spaze/phpstan-disallowed-calls": {
         "version": "4.5",
@@ -234,6 +313,15 @@
             "config/packages/monolog.php"
         ]
     },
+    "symfony/panther": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "f6fcfe4c7a2903d7e8e8a919d8856d172e68dbc0"
+        }
+    },
     "symfony/property-info": {
         "version": "7.3",
         "recipe": {
@@ -257,6 +345,32 @@
         "files": [
             "config/packages/routing.php",
             "config/routes.php"
+        ]
+    },
+    "symfony/security-bundle": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "6.4",
+            "ref": "8e0d9245095894ea7fab636eaf624c74ecef21a6"
+        },
+        "files": [
+            "config/packages/security.php",
+            "config/routes/security.php"
+        ]
+    },
+    "symfony/translation": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "6.3",
+            "ref": "887fac7595124233e0a6058e4347668911e41095"
+        },
+        "files": [
+            "config/packages/translation.php",
+            "translations/.gitignore"
         ]
     },
     "symfony/twig-bundle": {

@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Persistence\Doctrine;
 
-use App\Shared\Infrastructure\Paginator\PagerfantaPaginator;
 use App\Shared\Infrastructure\Paginator\PaginatorInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
 use Webmozart\Assert\Assert;
 
 /**
@@ -45,8 +42,11 @@ abstract class DoctrineRepository extends ServiceEntityRepository implements \It
         }
     }
 
-    public function __construct(ManagerRegistry $registry, string $entityClass, string $alias)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        string $entityClass,
+        string $alias
+    ) {
         parent::__construct($registry, $entityClass);
 
         $this->queryBuilder = $this->createQueryBuilder($alias);
@@ -89,16 +89,61 @@ abstract class DoctrineRepository extends ServiceEntityRepository implements \It
     #[\Override]
     public function getIterator(): \Traversable
     {
-        yield from $this->paginator();
+        $results = $this->queryBuilder->getQuery()->getResult();
+        yield from $results;
     }
 
     public function paginator(): PaginatorInterface
     {
-        $pagerfanta = new Pagerfanta(new QueryAdapter($this->queryBuilder));
-        $pagerfanta->setCurrentPage($this->page ?? 1);
-        $pagerfanta->setMaxPerPage($this->itemsPerPage ?? 10);
+        $page = $this->page ?? 1;
+        $itemsPerPage = $this->itemsPerPage ?? 10;
 
-        return new PagerfantaPaginator($pagerfanta);
+        // Clone query builder for count query
+        $countQb = clone $this->queryBuilder;
+        $countQb->select('COUNT(' . $countQb->getRootAliases()[0] . ')');
+        $total = (int) $countQb->getQuery()->getSingleScalarResult();
+
+        // Apply pagination to main query
+        $this->queryBuilder
+            ->setFirstResult(($page - 1) * $itemsPerPage)
+            ->setMaxResults($itemsPerPage);
+
+        $items = $this->queryBuilder->getQuery()->getResult();
+
+        return new readonly class($items, $total, $page, $itemsPerPage) implements PaginatorInterface {
+            public function __construct(
+                private array $items,
+                private int $total,
+                private int $page,
+                private int $itemsPerPage,
+            ) {
+            }
+
+            public function getItems(): array
+            {
+                return $this->items;
+            }
+
+            public function getTotalItems(): int
+            {
+                return $this->total;
+            }
+
+            public function getCurrentPage(): int
+            {
+                return $this->page;
+            }
+
+            public function getItemsPerPage(): int
+            {
+                return $this->itemsPerPage;
+            }
+
+            public function hasNextPage(): bool
+            {
+                return $this->page * $this->itemsPerPage < $this->total;
+            }
+        };
     }
 
     protected function filter(callable $filter): static
