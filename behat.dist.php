@@ -11,8 +11,9 @@ use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Output\Printer\Factory\OutputFactory;
 use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
 
-use App\Tests\Behat\Context\BlogApiContext;
-use App\Tests\Behat\Context\Hook\DoctrineORMContext;
+use App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingBlogArticlesContext;
+use App\Tests\BlogContext\Behat\Context\Api\BlogArticleApiContext;
+use App\Tests\Shared\Behat\Context\Hook\DoctrineORMContext;
 use Behat\Config\Suite;
 
 $profile = (new Profile('default'))
@@ -25,7 +26,15 @@ $profile = (new Profile('default'))
         (new Suite('blog'))
             ->withPaths('features/blog')
             ->withContexts(
-                BlogApiContext::class,
+                BlogArticleApiContext::class,
+                DoctrineORMContext::class,
+            )
+    )
+    ->withSuite(
+        (new Suite('admin'))
+            ->withPaths('features/admin')
+            ->withContexts(
+                ManagingBlogArticlesContext::class,
                 DoctrineORMContext::class,
             )
     )
@@ -40,7 +49,7 @@ $profile = (new Profile('default'))
     ->withExtension(new Extension(Robertfausk\Behat\PantherExtension\ServiceContainer\PantherExtension::class))
     ->withExtension(new Extension(Behat\MinkExtension\ServiceContainer\MinkExtension::class, [
         'files_path' => '%paths.base%/tests/Resources/',
-        'base_url' => 'https://127.0.0.1:8080',
+        'base_url' => 'http://localhost:8000',
         'default_session' => 'symfony',
         'javascript_session' => 'panther',
         'sessions' => [
@@ -50,7 +59,7 @@ $profile = (new Profile('default'))
                     'options' => [
                         'browser' => 'chrome',
                         'webServerDir' => '%paths.base%/public',
-                        'external_base_uri' => 'https://127.0.0.1:8080',
+                        'external_base_uri' => 'http://localhost:8000',
                     ],
                     'kernel_options' => [
                         'APP_ENV' => 'test',

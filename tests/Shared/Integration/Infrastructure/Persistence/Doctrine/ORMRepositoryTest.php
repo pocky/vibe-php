@@ -28,6 +28,19 @@ final class ORMRepositoryTest extends TestCase
             ->method('getManager')
             ->willReturn($this->mockManager);
 
+        // Set up mock expectations for EntityManager methods - return new instances each time
+        $this->mockManager
+            ->method('createQueryBuilder')
+            ->willReturnCallback(fn () => $this->createMock(QueryBuilder::class));
+
+        $this->mockManager
+            ->method('createQuery')
+            ->willReturnCallback(fn () => $this->createMock(Query::class));
+
+        $this->mockManager
+            ->method('createNativeQuery')
+            ->willReturnCallback(fn () => $this->createMock(NativeQuery::class));
+
         $this->repository = new class($this->mockManagerRegistry, \stdClass::class) extends ORMRepository {};
     }
 
@@ -204,7 +217,7 @@ final class ORMRepositoryTest extends TestCase
 
         // With asymmetric visibility, the property should still be readable from protected context
         // We test this by checking the property name and type rather than visibility specifics
-        $this->assertStringContainsString('ObjectManager', $type->getName());
+        $this->assertStringContainsString('EntityManagerInterface', $type->getName());
     }
 
     public function testPhpstanIgnoreComments(): void

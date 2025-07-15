@@ -38,6 +38,8 @@ services:
       - .:/app
     environment:
       APP_ENV: "test"
+    depends_on:
+      - database
 
 ###> doctrine/doctrine-bundle ###
   database:

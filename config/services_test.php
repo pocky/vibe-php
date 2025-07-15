@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Tests\Mock\HttpFoundation\MockRequestStack;
-use App\Tests\Behat\Client\ApiPlatformClient;
-use App\Tests\Behat\Client\RequestFactory;
 use Behat\Behat\Context\Context;
 use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -23,5 +20,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autoconfigure()
     ;
 
-    $services->load('App\\Tests\\Behat\\', __DIR__.'/../tests/Behat/');
+    // Load Behat contexts from their respective bounded contexts
+    $services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
+    $services->load('App\\Tests\\Shared\\Behat\\', __DIR__.'/../tests/Shared/Behat/');
 };

@@ -17,14 +17,20 @@ The `mformono/behat-pack` package has been installed and includes:
 
 ```
 ├── behat.dist.php          # Main Behat configuration
-├── config/behat/           # Suite configuration
-│   ├── suites.php         # Definition of test suites
-│   └── suites/            # Specific configurations per suite
 ├── features/               # Gherkin specification files
-│   └── *.feature          # Test scenarios
-└── tests/                  # Contexts and support
-    └── Behat/             # Behat context classes
-        └── Context/       # Step implementations
+│   ├── admin/             # Admin interface scenarios
+│   └── blog/              # Blog API scenarios
+└── tests/                  # Contexts organized by DDD
+    ├── BlogContext/       # Blog-specific tests
+    │   └── Behat/
+    │       └── Context/
+    │           ├── Api/   # API test contexts
+    │           └── Ui/    # UI test contexts
+    │               └── Admin/
+    └── Shared/            # Shared test utilities
+        └── Behat/
+            └── Context/
+                └── Hook/  # Database hooks, etc.
 ```
 
 ## Configuration
@@ -95,7 +101,7 @@ Contexts can use either annotations (PHP < 8) or attributes (PHP 8+, recommended
 
 declare(strict_types=1);
 
-namespace App\Tests\Behat\Context;
+namespace App\Tests\BlogContext\Behat\Context\Api;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
@@ -226,7 +232,15 @@ docker compose exec app vendor/bin/behat --dry-run
 - Clean the state after each scenario
 - Inject necessary Symfony services
 
-### 4. Performance
+### 4. DDD Test Organization
+- Test contexts follow Domain-Driven Design structure
+- Each bounded context has its own test namespace:
+  - `tests/BlogContext/Behat/` for blog-specific tests
+  - `tests/SecurityContext/Behat/` for security tests (when created)
+- Shared utilities in `tests/Shared/Behat/`
+- API and UI tests separated within each context
+
+### 5. Performance
 - Use minimal fixtures
 - Database transactions with rollback
 - Avoid sleeps, use waits

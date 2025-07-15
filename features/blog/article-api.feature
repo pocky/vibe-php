@@ -184,7 +184,7 @@ Feature: Blog article API management
     Given an article exists with the following data:
       | id        | 550e8400-e29b-41d4-a716-446655440000 |
       | title     | Short Article                        |
-      | content   | Too short                            |
+      | content   | Short text                           |
       | slug      | short                                |
       | status    | draft                                |
     When I make a POST request to "/api/articles/550e8400-e29b-41d4-a716-446655440000/publish" with JSON:

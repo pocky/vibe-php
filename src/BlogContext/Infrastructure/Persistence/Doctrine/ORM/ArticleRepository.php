@@ -39,7 +39,7 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
                     slug: $article->slug->getValue(),
                     status: $article->status->value,
                     createdAt: $article->createdAt,
-                    // updatedAt is null for new articles
+                    updatedAt: $article->createdAt, // Use createdAt for updatedAt on creation
                 );
                 $this->entityManager->persist($entity);
             } else {

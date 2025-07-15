@@ -18,4 +18,10 @@ final readonly class Command
         public string|null $authorId,
     ) {
     }
+
+    public function updatedAt(): \DateTimeImmutable
+    {
+        // Clone createdAt value for updatedAt on creation
+        return $this->createdAt;
+    }
 }

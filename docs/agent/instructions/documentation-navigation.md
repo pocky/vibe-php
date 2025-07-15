@@ -67,8 +67,13 @@ mindmap
 docs/
 ├── agent/              # YOUR instructions and workflows
 ├── contexts/           # Business domain documentation
+│   └── blog/          # Blog context documentation
+│       └── ui-layer-implementation.md  # NEW: UI layer details
 ├── reference/          # Technical patterns and standards
+│   ├── sylius-admin-ui-integration.md  # NEW: Sylius Admin UI
+│   └── sylius-stack-integration.md     # NEW: Sylius Stack setup
 ├── testing/            # Testing strategies and guides
+│   └── behat-sylius-patterns.md        # NEW: Behat with Sylius
 ├── examples/           # Implementation examples
 ├── external-tools/     # External tool documentation
 ├── plan/              # Historical planning documents
@@ -108,6 +113,7 @@ When working on a specific feature:
    - `technical-plan.md` - Implementation roadmap
 
 Example: For blog features → `@docs/contexts/blog/`
+- **UI Layer Implementation**: `@docs/contexts/blog/ui-layer-implementation.md` *(NEW)*
 
 ### 🔧 For Technical Patterns and Standards
 
@@ -119,6 +125,8 @@ Consult when implementing:
 - **Domain Layer**: `@docs/reference/domain-layer-pattern.md`
 - **Doctrine ORM**: `@docs/reference/doctrine-orm.md`
 - **PHP Best Practices**: `@docs/reference/php-features-best-practices.md`
+- **Sylius Admin UI**: `@docs/reference/sylius-admin-ui-integration.md` *(NEW)*
+- **Sylius Stack**: `@docs/reference/sylius-stack-integration.md` *(NEW)*
 
 ### 🧪 For Testing Guidelines
 
@@ -127,6 +135,7 @@ Consult when implementing:
 Before writing tests:
 - **Testing Strategy**: `@docs/testing/README.md`
 - **Behat Tests**: `@docs/testing/behat-guide.md`
+- **Behat with Sylius Patterns**: `@docs/testing/behat-sylius-patterns.md` *(NEW)*
 - **Generator Pattern in Tests**: `@docs/testing/generator-pattern-testing.md`
 
 ### 💡 For Implementation Examples
@@ -189,12 +198,18 @@ Encountered an ERROR before?
 ### Scenario 3: Writing Tests
 1. Check strategy: `@docs/testing/README.md`
 2. For Behat: `@docs/testing/behat-guide.md`
-3. Follow TDD: `@docs/agent/workflows/tdd-implementation-guide.md`
+3. For Sylius patterns: `@docs/testing/behat-sylius-patterns.md`
+4. Follow TDD: `@docs/agent/workflows/tdd-implementation-guide.md`
 
 ### Scenario 4: Database Changes
 1. Read guidelines: `@docs/agent/instructions/doctrine-migrations.md`
 2. Check patterns: `@docs/reference/doctrine-orm.md`
 3. Follow workflow: `@docs/agent/workflows/database-migration-workflow.md`
+
+### Scenario 5: Adding Admin UI *(NEW)*
+1. Read Sylius Admin UI guide: `@docs/reference/sylius-admin-ui-integration.md`
+2. Check UI implementation: `@docs/contexts/[context]/ui-layer-implementation.md`
+3. Follow architecture patterns: `@docs/agent/instructions/architecture.md`
 
 ## Important References to Memorize
 

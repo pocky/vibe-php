@@ -4,23 +4,25 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Persistence\Doctrine;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NativeQuery;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
 use Webmozart\Assert\Assert;
 
 abstract class ORMRepository
 {
-    protected(set) ObjectManager|null $manager;
+    protected(set) EntityManagerInterface|null $manager;
 
     public function __construct(
         ManagerRegistry $managerRegistry,
         protected(set) string $class
     ) {
-        $this->manager = $managerRegistry->getManager();
+        $manager = $managerRegistry->getManager();
+        Assert::isInstanceOf($manager, EntityManagerInterface::class);
+        $this->manager = $manager;
     }
 
     /**
@@ -44,7 +46,8 @@ abstract class ORMRepository
      */
     public function getQueryBuilder(): QueryBuilder
     {
-        // @phpstan-ignore-next-line
+        Assert::notNull($this->manager);
+        
         return $this->manager->createQueryBuilder();
     }
 
@@ -53,7 +56,8 @@ abstract class ORMRepository
      */
     public function getQuery(string $sql): Query
     {
-        // @phpstan-ignore-next-line
+        Assert::notNull($this->manager);
+        
         return $this->manager->createQuery($sql);
     }
 
@@ -62,7 +66,8 @@ abstract class ORMRepository
      */
     public function getNativeQuery(string $sql, ResultSetMapping $resultSetMapping): NativeQuery
     {
-        // @phpstan-ignore-next-line
+        Assert::notNull($this->manager);
+        
         return $this->manager->createNativeQuery($sql, $resultSetMapping);
     }
 
@@ -71,7 +76,8 @@ abstract class ORMRepository
      */
     public function getRsm(): Query\ResultSetMappingBuilder
     {
-        // @phpstan-ignore-next-line
+        Assert::notNull($this->manager);
+        
         return new Query\ResultSetMappingBuilder($this->manager);
     }
 }

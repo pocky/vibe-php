@@ -14,7 +14,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Index(columns: ['status'], name: 'idx_articles_status')]
 #[ORM\Index(columns: ['slug'], name: 'idx_articles_slug')]
 #[ORM\Index(columns: ['published_at'], name: 'idx_articles_published_at')]
-final class BlogArticle
+class BlogArticle
 {
     public function __construct(
         #[ORM\Id]

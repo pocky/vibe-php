@@ -17,6 +17,10 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+
+    $parameters = $containerConfigurator->parameters();
+    $parameters->set('locale', 'en');
+
     $services = $containerConfigurator->services();
 
     # default configuration for services in *this* file

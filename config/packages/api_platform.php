@@ -52,4 +52,41 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ],
         ],
     ]);
+
+    if ('test' === $containerConfigurator->env()) {
+        $containerConfigurator->extension('api_platform', [
+            'eager_loading' => [
+                'enabled' => false,
+            ],
+            'enable_docs' => false,
+            'enable_entrypoint' => false,
+            'enable_swagger' => false,
+            'enable_swagger_ui' => false,
+            'enable_re_doc' => false,
+        ]);
+    }
+
+    if ('dev' === $containerConfigurator->env()) {
+        $containerConfigurator->extension('api_platform', [
+            'eager_loading' => [
+                'enabled' => false,
+            ],
+        ]);
+    }
+
+    if ('prod' === $containerConfigurator->env()) {
+        $containerConfigurator->extension('api_platform', [
+            'eager_loading' => [
+                'enabled' => true,
+                'fetch_partial' => false,
+                'max_joins' => 30,
+                'force_eager' => true,
+            ],
+            'enable_docs' => false,
+            'enable_entrypoint' => false,
+            'enable_swagger' => false,
+            'enable_swagger_ui' => false,
+            'enable_re_doc' => false,
+        ]);
+    }
 };

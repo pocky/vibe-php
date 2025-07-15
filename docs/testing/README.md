@@ -7,6 +7,8 @@ This project uses a two-tiered testing approach:
 1.  **PHPUnit**: Unit tests for business logic (Domain layer)
 2.  **Behat**: Functional and acceptance tests for APIs and user interfaces
 
+Tests are organized following Domain-Driven Design principles. See [DDD Test Organization](./ddd-test-organization.md) for details.
+
 ## Testing Strategy
 
 ### Unit Tests (PHPUnit)
@@ -43,16 +45,23 @@ This project uses a two-tiered testing approach:
 
 ```
 tests/
-├── Behat/                  # Behat functional tests
-│   └── Context/           # Behat contexts (step definitions)
-├── [Context]/             # PHPUnit unit tests by context
-│   ├── Unit/             # Pure unit tests
+├── BlogContext/           # Tests for Blog bounded context
+│   ├── Behat/            # Behat functional tests
+│   │   └── Context/      # Step definitions
+│   │       ├── Api/      # API test contexts
+│   │       └── Ui/       # UI test contexts
+│   │           └── Admin/
+│   ├── Unit/             # PHPUnit unit tests
 │   └── Integration/      # Integration tests (if necessary)
+├── Shared/               # Shared test utilities
+│   └── Behat/
+│       └── Context/
+│           └── Hook/     # Database hooks, etc.
 └── bootstrap.php         # Test configuration
 
 features/                  # Behat specifications
-├── [context]/            # Features grouped by context
-│   └── *.feature        # Scenarios in English
+├── admin/                # Admin UI features
+└── blog/                 # Blog API features
 ```
 
 ## Testing Workflow
@@ -70,7 +79,7 @@ vim tests/BlogContext/Unit/Domain/MyFeatureTest.php
 vim src/BlogContext/Domain/MyFeature.php
 
 # 4. Implement the Behat steps
-vim tests/Behat/Context/BlogContext.php
+vim tests/BlogContext/Behat/Context/Api/BlogArticleApiContext.php
 
 # 5. Verify that everything passes
 docker compose exec app composer qa
