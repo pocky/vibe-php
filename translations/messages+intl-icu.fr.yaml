@@ -5,17 +5,16 @@ app:
     dashboard: Tableau de bord
     content: Contenu
     articles: Articles
-    
+
     # Labels communs
     title: Titre
-    content: Contenu
     slug: Slug
     status: Statut
     actions: Actions
     created_at: Créé le
     updated_at: Modifié le
     published_at: Publié le
-    
+
     # Actions
     create: Créer
     edit: Modifier
@@ -24,7 +23,7 @@ app:
     publish: Publier
     save: Enregistrer
     cancel: Annuler
-    
+
     # Valeurs de statut
     draft: Brouillon
     published: Publié
@@ -39,23 +38,23 @@ blog:
     list_title: 'Gestion des articles'
     create_title: 'Créer un nouvel article'
     edit_title: 'Modifier l''article "{title}"'
-    
+
     # Messages de statut avec contexte
     created: 'L''article "{title}" a été créé avec succès'
     updated: 'L''article "{title}" a été mis à jour avec succès'
     published: 'L''article "{title}" a été publié avec succès'
     deleted: 'L''article "{title}" a été supprimé avec succès'
-    
+
     # Messages de changement de statut
     status_changed: 'Le statut de l''article "{title}" a été changé vers {status}'
-    
+
   # Labels de formulaire
   form:
     title: Titre
     content: Contenu
     slug: Slug
     status: Statut
-    
+
   # En-têtes de grille
   grid:
     title: Titre
@@ -68,25 +67,34 @@ validation:
   # Validations génériques
   required: 'Ce champ est requis'
   invalid: 'Cette valeur n''est pas valide'
-  
+
   # Validations spécifiques aux articles
   article:
     title:
       empty: 'Le titre ne peut pas être vide'
       too_short: 'Le titre doit contenir au moins {min_length, number} caractères'
       too_long: 'Le titre ne peut pas dépasser {max_length, number} caractères'
-    
+
     content:
       empty: 'Le contenu ne peut pas être vide'
       too_short: 'Le contenu doit contenir au moins {min_length, number} caractères'
-    
+
     slug:
       empty: 'Le slug ne peut pas être vide'
       invalid_format: 'Format de slug invalide'
       too_long: 'Le slug ne peut pas dépasser {max_length, number} caractères'
-    
+
     id:
       invalid_uuid: 'Format UUID invalide'
+
+  # Messages de validation SEO
+  seo:
+    title:
+      too_short: 'Le titre de l''article est trop court pour le SEO. Longueur minimale : {min_length, number} caractères, actuelle : {actual_length, number} caractères'
+    content:
+      too_short: 'Le contenu de l''article est trop court pour le SEO. Longueur minimale : {min_length, number} caractères, actuelle : {actual_length, number} caractères'
+    meta_description:
+      missing: 'Il manque une méta-description à l''article pour le SEO'
 
 # Messages d'erreur
 error:
@@ -94,18 +102,18 @@ error:
   not_found: 'Ressource non trouvée'
   access_denied: 'Accès refusé'
   invalid_request: 'Requête invalide'
-  
+
   # Erreurs spécifiques aux articles
   article:
     not_found: 'Article non trouvé'
     already_exists: 'Un article avec ce slug existe déjà'
     already_published: 'L''article est déjà publié'
     not_ready_for_publish: 'L''article n''est pas prêt pour la publication'
-    
+
   # Erreurs de gateway
   gateway:
     processing_error: 'Erreur pendant le processus {operation_type} pour {context} {entity}'
-    
+
   # Erreurs de validation de requête
   request:
     field_required: '{field_name} est requis'

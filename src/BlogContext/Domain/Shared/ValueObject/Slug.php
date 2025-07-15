@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
-use App\BlogContext\Domain\Shared\Translation\TranslatorInterface;
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 
 final class Slug
 {
@@ -13,7 +13,6 @@ final class Slug
 
     public function __construct(
         private(set) string $value,
-        private ?TranslatorInterface $translator = null,
     ) {
         $this->validate();
     }
@@ -21,22 +20,17 @@ final class Slug
     private function validate(): void
     {
         if ('' === $this->value || '0' === $this->value) {
-            $message = $this->translator?->trans('validation.article.slug.empty', [], 'messages')
-                ?? 'Slug cannot be empty';
-            throw new \InvalidArgumentException($message);
+            throw ValidationException::withTranslationKey('validation.article.slug.empty');
         }
 
         if (!preg_match(self::PATTERN, $this->value)) {
-            $message = $this->translator?->trans('validation.article.slug.invalid_format', [], 'messages')
-                ?? 'Invalid slug format';
-            throw new \InvalidArgumentException($message);
+            throw ValidationException::withTranslationKey('validation.article.slug.invalid_format');
         }
 
         if (self::MAX_LENGTH < strlen($this->value)) {
-            $message = $this->translator?->trans('validation.article.slug.too_long', [
-                'max_length' => self::MAX_LENGTH
-            ], 'messages') ?? 'Slug cannot exceed 250 characters';
-            throw new \InvalidArgumentException($message);
+            throw ValidationException::withTranslationKey('validation.article.slug.too_long', [
+                'max_length' => self::MAX_LENGTH,
+            ]);
         }
     }
 

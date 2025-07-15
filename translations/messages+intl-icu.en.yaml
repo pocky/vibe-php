@@ -3,9 +3,8 @@ app:
   ui:
     # Navigation
     dashboard: Dashboard
-    content: Content
     articles: Articles
-    
+
     # Common labels
     title: Title
     content: Content
@@ -15,7 +14,7 @@ app:
     created_at: Created At
     updated_at: Updated At
     published_at: Published At
-    
+
     # Actions
     create: Create
     edit: Edit
@@ -24,7 +23,7 @@ app:
     publish: Publish
     save: Save
     cancel: Cancel
-    
+
     # Status values
     draft: Draft
     published: Published
@@ -39,23 +38,23 @@ blog:
     list_title: 'Article Management'
     create_title: 'Create New Article'
     edit_title: 'Edit Article "{title}"'
-    
+
     # Status messages with context
     created: 'Article "{title}" has been created successfully'
     updated: 'Article "{title}" has been updated successfully'
     published: 'Article "{title}" has been published successfully'
     deleted: 'Article "{title}" has been deleted successfully'
-    
+
     # Status change messages with gender/context
     status_changed: 'Article "{title}" status changed to {status}'
-    
+
   # Form labels
   form:
     title: Title
     content: Content
     slug: Slug
     status: Status
-    
+
   # Grid headers
   grid:
     title: Title
@@ -68,25 +67,34 @@ validation:
   # Generic validations
   required: 'This field is required'
   invalid: 'This value is not valid'
-  
+
   # Article-specific validations
   article:
     title:
       empty: 'Title cannot be empty'
       too_short: 'Title must be at least {min_length, number} characters'
       too_long: 'Title cannot exceed {max_length, number} characters'
-    
+
     content:
       empty: 'Content cannot be empty'
       too_short: 'Content must be at least {min_length, number} characters long'
-    
+
     slug:
       empty: 'Slug cannot be empty'
       invalid_format: 'Invalid slug format'
       too_long: 'Slug cannot exceed {max_length, number} characters'
-    
+
     id:
       invalid_uuid: 'Invalid UUID format'
+
+  # SEO validation messages
+  seo:
+    title:
+      too_short: 'Article title is too short for SEO. Minimum length: {min_length, number} characters, actual: {actual_length, number} characters'
+    content:
+      too_short: 'Article content is too short for SEO. Minimum length: {min_length, number} characters, actual: {actual_length, number} characters'
+    meta_description:
+      missing: 'Article is missing meta description for SEO'
 
 # Error messages
 error:
@@ -94,18 +102,18 @@ error:
   not_found: 'Resource not found'
   access_denied: 'Access denied'
   invalid_request: 'Invalid request'
-  
+
   # Article-specific errors
   article:
     not_found: 'Article not found'
     already_exists: 'Article with this slug already exists'
     already_published: 'Article is already published'
     not_ready_for_publish: 'Article is not ready for publication'
-    
+
   # Gateway errors
   gateway:
     processing_error: 'Error during {operation_type} process for {context} {entity}'
-    
+
   # Request validation errors
   request:
     field_required: '{field_name} is required'

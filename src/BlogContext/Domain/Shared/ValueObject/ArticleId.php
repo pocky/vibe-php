@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
-use App\BlogContext\Domain\Shared\Translation\TranslatorInterface;
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use Symfony\Component\Uid\Uuid;
 
 final class ArticleId
 {
     public function __construct(
         private(set) string $value,
-        private ?TranslatorInterface $translator = null,
     ) {
         $this->validate();
     }
@@ -19,15 +18,11 @@ final class ArticleId
     private function validate(): void
     {
         if ('' === $this->value) {
-            $message = $this->translator?->trans('validation.article.id.invalid_uuid', [], 'messages')
-                ?? 'Invalid UUID format';
-            throw new \InvalidArgumentException($message);
+            throw ValidationException::withTranslationKey('validation.article.id.invalid_uuid');
         }
 
         if (!Uuid::isValid($this->value)) {
-            $message = $this->translator?->trans('validation.article.id.invalid_uuid', [], 'messages')
-                ?? 'Invalid UUID format';
-            throw new \InvalidArgumentException($message);
+            throw ValidationException::withTranslationKey('validation.article.id.invalid_uuid');
         }
     }
 

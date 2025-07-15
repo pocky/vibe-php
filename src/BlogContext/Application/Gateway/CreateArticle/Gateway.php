@@ -10,6 +10,7 @@ use App\Shared\Application\Gateway\DefaultGateway;
 use App\Shared\Application\Gateway\Middleware\DefaultErrorHandler;
 use App\Shared\Application\Gateway\Middleware\DefaultLogger;
 use App\Shared\Application\Gateway\Middleware\DefaultValidation;
+use App\Shared\Application\Gateway\Middleware\TranslationErrorHandler;
 
 #[AsGateway(
     context: 'blog',
@@ -18,6 +19,7 @@ use App\Shared\Application\Gateway\Middleware\DefaultValidation;
     middlewares: [
         DefaultLogger::class,
         DefaultErrorHandler::class,
+        TranslationErrorHandler::class,
         DefaultValidation::class,
         Processor::class,
     ],

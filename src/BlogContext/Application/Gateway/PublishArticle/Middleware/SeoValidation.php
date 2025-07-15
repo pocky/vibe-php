@@ -6,17 +6,19 @@ namespace App\BlogContext\Application\Gateway\PublishArticle\Middleware;
 
 use App\BlogContext\Application\Gateway\GetArticle\Gateway as GetArticleGateway;
 use App\BlogContext\Application\Gateway\GetArticle\Request as GetArticleRequest;
+use App\BlogContext\Application\Gateway\PublishArticle\Exception\SeoValidationException;
 use App\BlogContext\Application\Gateway\PublishArticle\Request;
 use App\BlogContext\Domain\PublishArticle\Exception\ArticleNotFound;
-use App\BlogContext\Domain\PublishArticle\Exception\ArticleNotReady;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class SeoValidation
 {
     public function __construct(
         private GetArticleGateway $getArticleGateway,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -45,28 +47,24 @@ final readonly class SeoValidation
         }
 
         // SEO validation rules
-        $errors = [];
+        $titleLength = strlen((string) $articleData['title']);
+        $contentLength = strlen((string) $articleData['content']);
+        $slugLength = strlen((string) $articleData['slug']);
 
         // Title validation
-        if (10 > strlen((string) $articleData['title'])) {
-            $errors[] = 'Title must be at least 10 characters for SEO';
-        }
-        if (60 < strlen((string) $articleData['title'])) {
-            $errors[] = 'Title should not exceed 60 characters for optimal SEO';
+        if (10 > $titleLength) {
+            throw SeoValidationException::titleTooShort(10, $titleLength, $this->translator);
         }
 
         // Content validation
-        if (50 > strlen((string) $articleData['content'])) {
-            $errors[] = 'Content must be at least 50 characters';
+        if (50 > $contentLength) {
+            throw SeoValidationException::contentTooShort(50, $contentLength, $this->translator);
         }
 
-        // Slug validation
-        if (3 > strlen((string) $articleData['slug'])) {
-            $errors[] = 'Slug must be at least 3 characters';
-        }
-
-        if ([] !== $errors) {
-            throw new ArticleNotReady(new ArticleId($request->articleId), 'Article does not meet SEO requirements: ' . implode(', ', $errors));
+        // We could add more SEO validations here
+        // For example: missing meta description
+        if (!isset($articleData['meta_description']) || empty($articleData['meta_description'])) {
+            throw SeoValidationException::missingMetaDescription($this->translator);
         }
 
         /** @var GatewayResponse */
