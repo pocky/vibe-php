@@ -164,6 +164,63 @@ All `/act` plans MUST explicitly include:
 
 This ensures developer skill preservation and prevents over-automation.
 
+## Mandatory Development Workflow
+
+### Continuous Quality Assurance
+
+When implementing ANY feature or fixing ANY bug, you MUST:
+
+1. **ALWAYS use `/act` command** for new feature implementations
+   - This ensures TDD approach is followed systematically
+   - Never bypass TDD by implementing directly
+
+2. **Run QA continuously during development**:
+   ```bash
+   # After EVERY significant change
+   docker compose exec app composer qa
+   
+   # NOT just at the end of implementation
+   ```
+
+3. **QA validation rules**:
+   - **NEVER** consider a task complete if ANY QA check fails
+   - **NEVER** mark a todo as "completed" if QA is failing
+   - **ALWAYS** fix QA errors immediately before continuing
+   - **NEVER** commit code that fails QA checks
+
+4. **Development cycle**:
+   ```
+   Write test → Run QA → Implement → Run QA → Refactor → Run QA → Commit
+   ```
+
+### QA Failure Protocol
+
+When QA fails:
+1. **STOP** current implementation
+2. **FIX** the QA issues immediately
+3. **VERIFY** all QA passes before continuing
+4. **ONLY THEN** proceed with next task
+
+### Example Workflow
+
+```bash
+# ❌ WRONG: Implement everything then check QA at the end
+implement_feature()
+implement_another_feature()
+run_qa()  # Too late!
+
+# ✅ CORRECT: Check QA continuously
+write_test()
+run_qa()
+implement_minimal_code()
+run_qa()
+refactor()
+run_qa()
+commit()
+```
+
+This ensures code quality is maintained throughout development, not just checked at the end.
+
 ## Error Handling
 
 - Follow error handling protocol in @docs/agent/instructions/error-handling.md
