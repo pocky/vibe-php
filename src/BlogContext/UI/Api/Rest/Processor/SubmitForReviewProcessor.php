@@ -10,6 +10,7 @@ use App\BlogContext\Application\Gateway\SubmitForReview\Gateway as SubmitForRevi
 use App\BlogContext\Application\Gateway\SubmitForReview\Request as SubmitForReviewRequest;
 use App\BlogContext\UI\Api\Rest\Resource\ArticleResource;
 use App\Shared\Application\Gateway\GatewayException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -27,7 +28,7 @@ final readonly class SubmitForReviewProcessor implements ProcessorInterface
         try {
             // Get request body
             $httpRequest = $context['request'] ?? null;
-            if (!$httpRequest instanceof \Symfony\Component\HttpFoundation\Request) {
+            if (!$httpRequest instanceof Request) {
                 throw new UnprocessableEntityHttpException('Invalid request context');
             }
 

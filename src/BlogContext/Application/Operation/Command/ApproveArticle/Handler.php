@@ -6,6 +6,7 @@ namespace App\BlogContext\Application\Operation\Command\ApproveArticle;
 
 use App\BlogContext\Domain\ReviewArticle\DataProvider\ArticleReview;
 use App\BlogContext\Domain\ReviewArticle\Reviewer;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ReviewDecision;
@@ -24,15 +25,15 @@ final readonly class Handler
     {
         $articleId = new ArticleId($command->articleId);
 
-        $articleData = $this->articleRepository->findById($articleId);
-        if (!$articleData instanceof \App\BlogContext\Domain\Shared\Repository\ArticleData) {
+        $article = $this->articleRepository->findById($articleId);
+        if (!$article instanceof Article) {
             throw new \RuntimeException('Article not found');
         }
 
         $articleReview = new ArticleReview(
-            articleId: $articleData->id,
-            title: $articleData->title,
-            status: $articleData->status,
+            articleId: $article->getId(),
+            title: $article->getTitle(),
+            status: $article->getStatus(),
             reviewerId: $command->reviewerId,
             decision: ReviewDecision::approve($command->reason),
             reviewedAt: new \DateTimeImmutable(),

@@ -10,6 +10,7 @@ use App\BlogContext\Application\Gateway\ApproveArticle\Gateway as ApproveArticle
 use App\BlogContext\Application\Gateway\ApproveArticle\Request as ApproveArticleRequest;
 use App\BlogContext\UI\Api\Rest\Resource\ArticleResource;
 use App\Shared\Application\Gateway\GatewayException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -27,7 +28,7 @@ final readonly class ApproveArticleProcessor implements ProcessorInterface
         try {
             // Get request body
             $httpRequest = $context['request'] ?? null;
-            if (!$httpRequest instanceof \Symfony\Component\HttpFoundation\Request) {
+            if (!$httpRequest instanceof Request) {
                 throw new UnprocessableEntityHttpException('Invalid request context');
             }
 

@@ -6,7 +6,7 @@ namespace App\Tests\BlogContext\Unit\Application\Operation\Query\GetArticle;
 
 use App\BlogContext\Application\Operation\Query\GetArticle\Handler;
 use App\BlogContext\Application\Operation\Query\GetArticle\Query;
-use App\BlogContext\Domain\Shared\Repository\ArticleData;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
@@ -35,28 +35,28 @@ final class HandlerTest extends TestCase
         $articleId = $this->generateArticleId()->getValue();
         $query = new Query($articleId);
 
-        $articleData = new ArticleData(
+        $article = new Article(
             id: new ArticleId($articleId),
             title: new Title('Test Article'),
             content: new Content('Test content'),
             slug: new Slug('test-article'),
             status: ArticleStatus::DRAFT,
             createdAt: new \DateTimeImmutable('2024-01-01T12:00:00+00:00'),
-            publishedAt: null,
-            updatedAt: new \DateTimeImmutable('2024-01-01T12:00:00+00:00')
+            updatedAt: new \DateTimeImmutable('2024-01-01T12:00:00+00:00'),
+            publishedAt: null
         );
 
         $this->repository
             ->expects($this->once())
             ->method('findById')
             ->with($this->callback(fn (ArticleId $id) => $id->toString() === $articleId))
-            ->willReturn($articleData);
+            ->willReturn($article);
 
         $result = $this->handler->__invoke($query);
 
-        $this->assertInstanceOf(ArticleData::class, $result);
-        $this->assertEquals($articleId, $result->id->toString());
-        $this->assertEquals('Test Article', $result->title->getValue());
+        $this->assertInstanceOf(Article::class, $result);
+        $this->assertEquals($articleId, $result->getId()->toString());
+        $this->assertEquals('Test Article', $result->getTitle()->getValue());
     }
 
     public function testHandleWithNonExistentArticle(): void

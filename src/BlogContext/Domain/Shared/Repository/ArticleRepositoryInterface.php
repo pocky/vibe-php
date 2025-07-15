@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\Repository;
 
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Slug};
 use App\Shared\Infrastructure\Paginator\PaginatorInterface;
 
@@ -15,9 +16,9 @@ interface ArticleRepositoryInterface
     public function save(object $article): void;
 
     /**
-     * Find article by ID and return data for reconstruction
+     * Find article by ID and return domain model
      */
-    public function findById(ArticleId $id): ArticleData|null;
+    public function findById(ArticleId $id): Article|null;
 
     public function existsBySlug(Slug $slug): bool;
 

@@ -8,6 +8,7 @@ use App\BlogContext\Application\Gateway\SubmitForReview\Request;
 use App\BlogContext\Application\Gateway\SubmitForReview\Response;
 use App\BlogContext\Application\Operation\Command\SubmitForReview\Command;
 use App\BlogContext\Application\Operation\Command\SubmitForReview\Handler;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
@@ -33,7 +34,7 @@ final readonly class Processor
         $articleId = new ArticleId($request->articleId);
         $article = $this->articleRepository->findById($articleId);
 
-        if (!$article instanceof \App\BlogContext\Domain\Shared\Repository\ArticleData) {
+        if (!$article instanceof Article) {
             throw new GatewayException('Article not found', new \RuntimeException('Article not found'));
         }
 

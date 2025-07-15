@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Query\GetArticle;
 
-use App\BlogContext\Domain\Shared\Repository\ArticleData;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -17,15 +17,15 @@ readonly class Handler
     ) {
     }
 
-    public function __invoke(Query $query): ArticleData
+    public function __invoke(Query $query): Article
     {
         $articleId = new ArticleId($query->id);
-        $articleData = $this->repository->findById($articleId);
+        $article = $this->repository->findById($articleId);
 
-        if (!$articleData instanceof ArticleData) {
+        if (!$article instanceof Article) {
             throw new \RuntimeException('Article not found');
         }
 
-        return $articleData;
+        return $article;
     }
 }

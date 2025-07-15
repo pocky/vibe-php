@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\BlogContext\Application\Operation\Command\CreateArticle;
 
 use App\BlogContext\Domain\CreateArticle\CreatorInterface;
+use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -18,7 +19,7 @@ final readonly class Handler
     ) {
     }
 
-    public function __invoke(Command $command): \App\BlogContext\Domain\CreateArticle\DataPersister\Article
+    public function __invoke(Command $command): Article
     {
         // Transform command to value objects
         $title = new Title($command->title);

@@ -8,7 +8,7 @@ use App\BlogContext\Application\Gateway\GetArticle\Request;
 use App\BlogContext\Application\Gateway\GetArticle\Response;
 use App\BlogContext\Application\Operation\Query\GetArticle\Handler;
 use App\BlogContext\Application\Operation\Query\GetArticle\Query;
-use App\BlogContext\Domain\Shared\Repository\ArticleData;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -23,22 +23,22 @@ final readonly class Processor
     {
         /** @var Request $request */
         $query = new Query($request->id);
-        $articleData = ($this->handler)($query);
+        $article = ($this->handler)($query);
 
-        $article = [];
-        if ($articleData instanceof ArticleData) {
-            $article = [
-                'id' => $articleData->id->toString(),
-                'title' => $articleData->title->getValue(),
-                'content' => $articleData->content->getValue(),
-                'slug' => $articleData->slug->getValue(),
-                'status' => $articleData->status->value,
-                'created_at' => $articleData->createdAt->format('c'),
-                'updated_at' => ($articleData->updatedAt ?? $articleData->createdAt)->format('c'),
-                'published_at' => $articleData->publishedAt?->format('c'),
+        $articleData = [];
+        if ($article instanceof Article) {
+            $articleData = [
+                'id' => $article->getId()->toString(),
+                'title' => $article->getTitle()->getValue(),
+                'content' => $article->getContent()->getValue(),
+                'slug' => $article->getSlug()->getValue(),
+                'status' => $article->getStatus()->value,
+                'created_at' => $article->getCreatedAt()->format('c'),
+                'updated_at' => $article->getUpdatedAt()->format('c'),
+                'published_at' => $article->getPublishedAt()?->format('c'),
             ];
         }
 
-        return new Response(article: $article);
+        return new Response(article: $articleData);
     }
 }

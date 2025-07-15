@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
 
-use App\BlogContext\Domain\Shared\Exception\ValidationException;
-use App\BlogContext\Domain\Shared\Repository\ArticleData;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
-use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
-use App\BlogContext\Domain\Shared\ValueObject\Content;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
-use App\BlogContext\Domain\Shared\ValueObject\Title;
-use App\BlogContext\Infrastructure\Exception\DataCorruptionException;
 use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
+use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Mapper\ArticleMappingRegistry;
+use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Mapper\EntityToArticleMapper;
 use App\Shared\Infrastructure\Paginator\PaginatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
@@ -22,72 +19,60 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ArticleMappingRegistry $mappingRegistry,
+        private EntityToArticleMapper $entityToArticleMapper,
     ) {
     }
 
     public function save(object $article): void
     {
-        // Support different types of article domain objects
-        if ($article instanceof \App\BlogContext\Domain\CreateArticle\DataPersister\Article) {
-            // Check if entity already exists
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->id->getValue()));
+        // Get the article ID to find existing entity
+        $articleId = $this->extractArticleId($article);
+        $existingEntity = null;
 
-            if (!$entity instanceof BlogArticle) {
-                // Create new entity
-                $entity = new BlogArticle(
-                    id: Uuid::fromString($article->id->getValue()),
-                    title: $article->title->getValue(),
-                    content: $article->content->getValue(),
-                    slug: $article->slug->getValue(),
-                    status: $article->status->value,
-                    createdAt: $article->createdAt,
-                    updatedAt: $article->createdAt, // Use createdAt for updatedAt on creation
-                );
-                $this->entityManager->persist($entity);
-            } else {
-                // Update existing entity
-                $entity->setTitle($article->title->getValue());
-                $entity->setContent($article->content->getValue());
-                $entity->setSlug($article->slug->getValue());
-                $entity->setStatus($article->status->value);
-                $entity->setUpdatedAt(new \DateTimeImmutable());
-            }
-        } elseif ($article instanceof \App\BlogContext\Domain\UpdateArticle\DataPersister\Article) {
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->id->getValue()));
-            if ($entity instanceof BlogArticle) {
-                $entity->setTitle($article->title->getValue());
-                $entity->setContent($article->content->getValue());
-                $entity->setSlug($article->slug->getValue());
-                $entity->setStatus($article->status->value);
-                $entity->setUpdatedAt($article->updatedAt);
-            }
-        } elseif ($article instanceof \App\BlogContext\Domain\PublishArticle\DataPersister\Article) {
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->id->getValue()));
-            if ($entity instanceof BlogArticle) {
-                $entity->setStatus($article->status->value);
-                $entity->setPublishedAt($article->publishedAt);
-                $entity->setUpdatedAt(new \DateTimeImmutable());
-            }
-        } elseif ($article instanceof \App\BlogContext\Domain\SubmitForReview\DataPersister\Article) {
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->getArticleId()->getValue()));
-            if ($entity instanceof BlogArticle) {
-                $entity->setStatus($article->getStatus()->value);
-                $entity->setUpdatedAt(new \DateTimeImmutable());
-            }
-        } elseif ($article instanceof \App\BlogContext\Domain\ReviewArticle\DataPersister\ReviewedArticle) {
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->getArticleId()->getValue()));
-            if ($entity instanceof BlogArticle) {
-                $entity->setStatus($article->getStatus()->value);
-                $entity->setUpdatedAt(new \DateTimeImmutable());
-            }
-        } else {
-            throw new \InvalidArgumentException('Unsupported article type: ' . $article::class);
+        if ($articleId instanceof ArticleId) {
+            $existingEntity = $this->entityManager->find(
+                BlogArticle::class,
+                Uuid::fromString($articleId->getValue())
+            );
+        }
+
+        // Use the mapping registry to handle the conversion
+        $entity = $this->mappingRegistry->mapToEntity($article, $existingEntity);
+
+        // Persist new entities
+        if (!$existingEntity instanceof BlogArticle) {
+            $this->entityManager->persist($entity);
         }
 
         $this->entityManager->flush();
     }
 
-    public function findById(ArticleId $id): ArticleData|null
+    /**
+     * Extract ArticleId from various domain article types
+     */
+    private function extractArticleId(object $article): ArticleId|null
+    {
+        // Check common property names
+        if (property_exists($article, 'id') && $article->id instanceof ArticleId) {
+            return $article->id;
+        }
+
+        // Check for getter methods
+        if (method_exists($article, 'getArticleId')) {
+            /** @var ArticleId */
+            return $article->getArticleId();
+        }
+
+        if (method_exists($article, 'getId')) {
+            /** @var ArticleId */
+            return $article->getId();
+        }
+
+        return null;
+    }
+
+    public function findById(ArticleId $id): Article|null
     {
         $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($id->toString()));
 
@@ -95,20 +80,7 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
             return null;
         }
 
-        try {
-            return new ArticleData(
-                id: new ArticleId($entity->getId()->toRfc4122()),
-                title: new Title($entity->getTitle()),
-                content: new Content($entity->getContent()),
-                slug: new Slug($entity->getSlug()),
-                status: ArticleStatus::fromString($entity->getStatus()),
-                createdAt: $entity->getCreatedAt(),
-                publishedAt: $entity->getPublishedAt(),
-                updatedAt: $entity->getUpdatedAt()
-            );
-        } catch (ValidationException $e) {
-            throw DataCorruptionException::corruptedEntity(BlogArticle::class, $entity->getId()->toRfc4122(), $e);
-        }
+        return $this->entityToArticleMapper->mapToDomain($entity);
     }
 
     public function existsBySlug(Slug $slug): bool
@@ -124,14 +96,7 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
 
     public function remove(object $article): void
     {
-        // Get the article ID from any of the domain article types
-        $articleId = null;
-
-        // With PHP 8.4 property hooks, we only need to check property_exists
-        if (property_exists($article, 'id')) {
-            /** @var object{id: ArticleId} $article */
-            $articleId = $article->id;
-        }
+        $articleId = $this->extractArticleId($article);
 
         if ($articleId instanceof ArticleId) {
             $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($articleId->getValue()));
@@ -174,23 +139,11 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
 
         $total = $countQb->getQuery()->getSingleScalarResult();
 
-        // Convert entities to arrays for View layer
-        $items = array_map(function (BlogArticle $entity) {
-            try {
-                return [
-                    'id' => $entity->getId()->toRfc4122(),
-                    'title' => $entity->getTitle(),
-                    'content' => $entity->getContent(),
-                    'slug' => $entity->getSlug(),
-                    'status' => $entity->getStatus(),
-                    'created_at' => $entity->getCreatedAt()->format('c'),
-                    'updated_at' => $entity->getUpdatedAt()?->format('c') ?? '',
-                    'published_at' => $entity->getPublishedAt()?->format('c'),
-                ];
-            } catch (ValidationException $e) {
-                throw DataCorruptionException::corruptedEntity(BlogArticle::class, $entity->getId()->toRfc4122(), $e);
-            }
-        }, $entities);
+        // Convert entities to domain models
+        $items = array_map(
+            fn (BlogArticle $entity) => $this->entityToArticleMapper->mapToDomain($entity),
+            $entities
+        );
 
         return new readonly class($items, $total, $page, $limit) implements PaginatorInterface {
             public function __construct(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Command\SubmitForReview;
 
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\SubmitForReview\DataProvider\ArticleForReview;
@@ -22,16 +23,16 @@ final readonly class Handler
     public function __invoke(Command $command): void
     {
         $articleId = new ArticleId($command->articleId);
-        $articleData = $this->articleRepository->findById($articleId);
+        $article = $this->articleRepository->findById($articleId);
 
-        if (!$articleData instanceof \App\BlogContext\Domain\Shared\Repository\ArticleData) {
+        if (!$article instanceof Article) {
             throw new \RuntimeException('Article not found');
         }
 
         $articleForReview = new ArticleForReview(
-            articleId: $articleData->id,
-            title: $articleData->title,
-            status: $articleData->status,
+            articleId: $article->getId(),
+            title: $article->getTitle(),
+            status: $article->getStatus(),
             submittedAt: new \DateTimeImmutable(),
         );
 

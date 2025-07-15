@@ -6,7 +6,7 @@ namespace App\Tests\BlogContext\Unit\Application\Operation\Command\SubmitForRevi
 
 use App\BlogContext\Application\Operation\Command\SubmitForReview\Command;
 use App\BlogContext\Application\Operation\Command\SubmitForReview\Handler;
-use App\BlogContext\Domain\Shared\Repository\ArticleData;
+use App\BlogContext\Domain\Shared\Model\Article;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
@@ -42,13 +42,14 @@ final class HandlerTest extends TestCase
         $content = new Content('Article content');
         $createdAt = new \DateTimeImmutable();
 
-        $articleData = new ArticleData(
+        $article = new Article(
             id: $articleId,
             title: $title,
             content: $content,
             slug: $slug,
             status: ArticleStatus::DRAFT,
             createdAt: $createdAt,
+            updatedAt: $createdAt,
         );
 
         $command = new Command(
@@ -59,7 +60,7 @@ final class HandlerTest extends TestCase
         $this->articleRepository->expects($this->once())
             ->method('findById')
             ->with($articleId)
-            ->willReturn($articleData);
+            ->willReturn($article);
 
         $this->articleRepository->expects($this->once())
             ->method('save')
@@ -94,13 +95,14 @@ final class HandlerTest extends TestCase
     public function testHandleThrowsExceptionWhenArticleCannotBeSubmitted(): void
     {
         $articleId = new ArticleId('550e8400-e29b-41d4-a716-446655440000');
-        $articleData = new ArticleData(
+        $article = new Article(
             id: $articleId,
             title: new Title('Test Article'),
             content: new Content('This is a longer content that should pass the validation requirements'),
             slug: new Slug('test-article'),
             status: ArticleStatus::PUBLISHED, // Cannot submit published article
             createdAt: new \DateTimeImmutable(),
+            updatedAt: new \DateTimeImmutable(),
         );
 
         $command = new Command(
@@ -110,7 +112,7 @@ final class HandlerTest extends TestCase
 
         $this->articleRepository->expects($this->once())
             ->method('findById')
-            ->willReturn($articleData);
+            ->willReturn($article);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot submit published article for review');

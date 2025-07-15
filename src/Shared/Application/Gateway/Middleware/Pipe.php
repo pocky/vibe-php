@@ -26,6 +26,7 @@ final readonly class Pipe
 
         Assert::notNull($next);
 
+        /** @var GatewayResponse */
         return $next($request);
     }
 }

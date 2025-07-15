@@ -53,7 +53,9 @@ final class AbstractGatewayInstrumentationTest extends TestCase
         $response = $this->createMock(GatewayResponse::class);
         $responseData = [
             'result' => 'success',
-            'data' => ['id' => '123'],
+            'data' => [
+                'id' => '123',
+            ],
         ];
         $response->method('data')->willReturn($responseData);
 
@@ -76,7 +78,9 @@ final class AbstractGatewayInstrumentationTest extends TestCase
 
         $reason = 'Validation failed';
 
-        $expectedData = array_merge($requestData, [' reason' => $reason]);
+        $expectedData = array_merge($requestData, [
+            ' reason' => $reason,
+        ]);
 
         $this->logger
             ->expects($this->once())
@@ -136,7 +140,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
             ->willReturnCallback(function ($message, $context) use (&$callCount, $expectedCalls) {
                 $this->assertEquals($expectedCalls[$callCount][0], $message);
                 $this->assertEquals($expectedCalls[$callCount][1], $context);
-                $callCount++;
+                ++$callCount;
             });
 
         $instrumentation1->start($request);
@@ -159,19 +163,23 @@ final class AbstractGatewayInstrumentationTest extends TestCase
         $reason = 'Complex error occurred';
 
         // The spread operator should merge all data correctly
-        $expectedData = [...$complexRequestData, ...['reason' => $reason]];
+        $expectedData = [
+            ...$complexRequestData, ...[
+                'reason' => $reason,
+            ]];
 
         $this->logger
             ->expects($this->once())
             ->method('error')
             ->with(
                 'test.gateway.error',
-                $this->callback(function ($data) use ($complexRequestData, $reason) {
-                    return $data['id'] === '123'
-                        && $data['nested'] === ['field1' => 'value1', 'field2' => 'value2']
-                        && $data['array'] === [1, 2, 3]
-                        && $data[' reason'] === $reason;
-                })
+                $this->callback(fn ($data) => '123' === $data['id']
+                    && $data['nested'] === [
+                        'field1' => 'value1',
+                        'field2' => 'value2',
+                    ]
+                    && $data['array'] === [1, 2, 3]
+                    && $data[' reason'] === $reason)
             );
 
         $this->instrumentation->error($request, $reason);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\BlogContext\Infrastructure\Symfony\CompilerPass\ArticleMapperPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -47,5 +48,10 @@ class Kernel extends BaseKernel
         if (false !== $fileName) {
             $routes->import($fileName, 'attribute');
         }
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new ArticleMapperPass());
     }
 }
