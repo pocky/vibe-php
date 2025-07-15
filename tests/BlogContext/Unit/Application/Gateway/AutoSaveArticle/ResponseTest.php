@@ -21,6 +21,8 @@ final class ResponseTest extends TestCase
             articleId: $articleId->getValue(),
             title: 'Auto-saved Article Title',
             content: 'This is the auto-saved content of the article.',
+            slug: 'auto-saved-article',
+            status: 'draft',
             autoSavedAt: $autoSavedAt,
         );
 
@@ -32,6 +34,8 @@ final class ResponseTest extends TestCase
             'articleId' => $articleId->getValue(),
             'title' => 'Auto-saved Article Title',
             'content' => 'This is the auto-saved content of the article.',
+            'slug' => 'auto-saved-article',
+            'status' => 'draft',
             'autoSavedAt' => $autoSavedAt->format(\DateTimeInterface::ATOM),
         ], $data);
     }
@@ -47,6 +51,8 @@ final class ResponseTest extends TestCase
             articleId: $articleId->getValue(),
             title: 'Test Title',
             content: 'Test Content',
+            slug: 'test-slug',
+            status: 'draft',
             autoSavedAt: $autoSavedAt,
         );
 
@@ -54,6 +60,8 @@ final class ResponseTest extends TestCase
         $this->assertEquals($articleId->getValue(), $response->articleId);
         $this->assertEquals('Test Title', $response->title);
         $this->assertEquals('Test Content', $response->content);
+        $this->assertEquals('test-slug', $response->slug);
+        $this->assertEquals('draft', $response->status);
         $this->assertSame($autoSavedAt, $response->autoSavedAt);
     }
 }

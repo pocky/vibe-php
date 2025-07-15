@@ -301,4 +301,134 @@ final class BlogArticleApiContext implements Context
         // For now, we just verify the article wasn't deleted
         Assert::true(true, 'Article verification');
     }
+
+    #[\Behat\Step\Given('the following articles exist:')]
+    public function theFollowingArticlesExist(TableNode $table): void
+    {
+        foreach ($table->getHash() as $row) {
+            $id = Uuid::fromString($row['id']);
+
+            // Create article in database using factory
+            $articleData = [
+                'id' => $id,
+                'title' => $row['title'],
+                'content' => $row['content'],
+                'slug' => $row['slug'],
+                'status' => $row['status'],
+                'createdAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(),
+            ];
+
+            if ('published' === $row['status']) {
+                $articleData['publishedAt'] = new \DateTimeImmutable();
+            }
+
+            BlogArticleFactory::createOne($articleData);
+
+            $this->articles[$row['id']] = $row;
+        }
+    }
+
+    #[\Behat\Step\When('I send a :method request to :path with body:')]
+    public function iSendARequestToWithBody(string $method, string $path, PyStringNode $jsonString): void
+    {
+        $this->client->request($method, $path, [], [], [
+            'CONTENT_TYPE' => 'application/ld+json',
+            'HTTP_ACCEPT' => 'application/ld+json',
+        ], $jsonString->getRaw());
+
+        $this->lastStatusCode = $this->client->getResponse()->getStatusCode();
+        $content = $this->client->getResponse()->getContent();
+
+        if (false !== $content && '' !== $content) {
+            $this->lastResponse = json_decode($content, true);
+        }
+    }
+
+    #[\Behat\Step\Then('the response status code should be :statusCode')]
+    public function theResponseStatusCodeShouldBe(int $statusCode): void
+    {
+        if ($this->lastStatusCode !== $statusCode) {
+            // Get the response content for debugging
+            $content = $this->client->getResponse()->getContent();
+            Assert::eq($this->lastStatusCode, $statusCode, sprintf(
+                'Expected status code %d, got %d. Response: %s',
+                $statusCode,
+                $this->lastStatusCode,
+                $content
+            ));
+        }
+    }
+
+    #[\Behat\Step\Then('the response should be in JSON')]
+    public function theResponseShouldBeInJson(): void
+    {
+        Assert::notNull($this->lastResponse, 'Response body is not valid JSON');
+        Assert::isArray($this->lastResponse, 'Response is not a valid JSON object/array');
+    }
+
+    #[\Behat\Step\Then('the JSON node :node should be equal to :expectedValue')]
+    public function theJsonNodeShouldBeEqualTo(string $node, string $expectedValue): void
+    {
+        Assert::notNull($this->lastResponse, 'Response body is empty');
+
+        // Handle nested nodes like "violations[0].propertyPath"
+        $value = $this->getJsonNodeValue($node);
+
+        Assert::eq($value, $expectedValue, sprintf(
+            'Expected JSON node "%s" to be "%s", got "%s"',
+            $node,
+            $expectedValue,
+            is_array($value) ? json_encode($value) : (string) $value
+        ));
+    }
+
+    #[\Behat\Step\Then('the JSON node :node should contain :expectedValue')]
+    public function theJsonNodeShouldContain(string $node, string $expectedValue): void
+    {
+        Assert::notNull($this->lastResponse, 'Response body is empty');
+
+        $value = $this->getJsonNodeValue($node);
+
+        Assert::contains((string) $value, $expectedValue, sprintf(
+            'Expected JSON node "%s" to contain "%s", got "%s"',
+            $node,
+            $expectedValue,
+            is_array($value) ? json_encode($value) : (string) $value
+        ));
+    }
+
+    #[\Behat\Step\Then('the JSON node :node should exist')]
+    public function theJsonNodeShouldExist(string $node): void
+    {
+        Assert::notNull($this->lastResponse, 'Response body is empty');
+
+        try {
+            $this->getJsonNodeValue($node);
+        } catch (\Exception) {
+            Assert::true(false, sprintf('JSON node "%s" does not exist', $node));
+        }
+    }
+
+    private function getJsonNodeValue(string $node): mixed
+    {
+        $parts = preg_split('/[\[\].]/', $node, -1, PREG_SPLIT_NO_EMPTY);
+        $value = $this->lastResponse;
+
+        foreach ($parts as $part) {
+            if (is_numeric($part)) {
+                // Array index
+                Assert::isArray($value, sprintf('Cannot access index %s on non-array', $part));
+                Assert::keyExists($value, (int) $part, sprintf('Array index %s not found', $part));
+                $value = $value[(int) $part];
+            } else {
+                // Object property
+                Assert::isArray($value, sprintf('Cannot access property %s on non-object', $part));
+                Assert::keyExists($value, $part, sprintf('Property "%s" not found', $part));
+                $value = $value[$part];
+            }
+        }
+
+        return $value;
+    }
 }

@@ -28,6 +28,8 @@ final class GatewayTest extends TestCase
                     articleId: $request->articleId,
                     title: $request->title,
                     content: $request->content,
+                    slug: 'auto-saved-slug',
+                    status: 'draft',
                     autoSavedAt: new \DateTimeImmutable(),
                 );
             }
@@ -50,6 +52,8 @@ final class GatewayTest extends TestCase
         $this->assertEquals($articleId->getValue(), $responseData['articleId']);
         $this->assertEquals('Auto-saved Title', $responseData['title']);
         $this->assertEquals('Auto-saved content for the article', $responseData['content']);
+        $this->assertEquals('auto-saved-slug', $responseData['slug']);
+        $this->assertEquals('draft', $responseData['status']);
         $this->assertArrayHasKey('autoSavedAt', $responseData);
     }
 }

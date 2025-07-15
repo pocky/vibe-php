@@ -60,7 +60,7 @@ final class TitleTest extends TestCase
         } catch (ValidationException $e) {
             $this->assertEquals('validation.article.title.too_short', $e->getTranslationKey());
             $this->assertEquals([
-                'min_length' => 5,
+                'min_length' => 3,
                 'actual_length' => 2,
             ], $e->getTranslationParameters());
             throw $e;
@@ -69,9 +69,9 @@ final class TitleTest extends TestCase
 
     public function testAcceptMinimumLengthTitle(): void
     {
-        $title = new Title('Hello');
+        $title = new Title('Min');
 
-        $this->assertSame('Hello', $title->getValue());
+        $this->assertSame('Min', $title->getValue());
     }
 
     public function testRejectTooLongTitle(): void

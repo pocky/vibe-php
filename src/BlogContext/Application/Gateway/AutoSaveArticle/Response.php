@@ -12,6 +12,8 @@ final readonly class Response implements GatewayResponse
         public string $articleId,
         public string $title,
         public string $content,
+        public string $slug,
+        public string $status,
         public \DateTimeImmutable $autoSavedAt,
     ) {
     }
@@ -22,6 +24,8 @@ final readonly class Response implements GatewayResponse
             'articleId' => $this->articleId,
             'title' => $this->title,
             'content' => $this->content,
+            'slug' => $this->slug,
+            'status' => $this->status,
             'autoSavedAt' => $this->autoSavedAt->format(\DateTimeInterface::ATOM),
         ];
     }

@@ -28,12 +28,15 @@ final readonly class Processor
             content: new Content($request->content),
         );
 
-        ($this->commandBus)($command);
+        /** @var \App\BlogContext\Domain\UpdateArticle\DataPersister\Article $updatedArticle */
+        $updatedArticle = ($this->commandBus)($command);
 
         return new Response(
             articleId: $request->articleId,
             title: $request->title,
             content: $request->content,
+            slug: $updatedArticle->slug->getValue(),
+            status: $updatedArticle->status->value,
             autoSavedAt: new \DateTimeImmutable(),
         );
     }

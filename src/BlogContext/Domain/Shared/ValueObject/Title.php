@@ -8,7 +8,7 @@ use App\BlogContext\Domain\Shared\Exception\ValidationException;
 
 final class Title
 {
-    private const int MIN_LENGTH = 5;
+    private const int MIN_LENGTH = 3;
     private const int MAX_LENGTH = 200;
 
     public function __construct(

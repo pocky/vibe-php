@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\BlogContext\Application\Operation\Command\AutoSaveArticle;
 
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Content, Title};
 use App\BlogContext\Domain\UpdateArticle\UpdaterInterface;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -22,15 +21,15 @@ final readonly class Handler
 
     public function __invoke(Command $command): \App\BlogContext\Domain\UpdateArticle\DataPersister\Article
     {
-        // Transform command to value objects
-        $articleId = new ArticleId($command->articleId);
-        $title = new Title($command->title);
-        $content = new Content($command->content);
+        // Get value objects from command
+        $articleId = $command->articleId;
+        $title = $command->title;
+        $content = $command->content;
 
         // Get existing article data to preserve slug and status
         $existingArticle = $this->articleRepository->findById($articleId);
         if (!$existingArticle instanceof \App\BlogContext\Domain\Shared\Repository\ArticleData) {
-            throw new \RuntimeException('Article not found for auto-save');
+            throw new \RuntimeException('Article not found');
         }
 
         // Execute domain operation - AutoSave uses the same business logic as Update

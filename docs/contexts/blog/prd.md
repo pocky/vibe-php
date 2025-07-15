@@ -379,359 +379,56 @@
 
 ## User Stories
 
-### Epic 1: Content Creation (Sarah - Content Creator)
+The detailed user stories for the Blog Context have been organized into individual files for better maintainability and tracking. Each story includes complete acceptance criteria, business value, and implementation details.
 
-#### US-001: Create New Article
-**As a** content creator  
-**I want to** create a new article with title and content  
-**So that** I can publish engaging content for readers
+### Epic Overview
 
-**Acceptance Criteria**:
-- [ ] Can access "New Article" button from dashboard
-- [ ] Can enter article title (1-200 characters)
-- [ ] Can write content using rich text editor
-- [ ] Article automatically saved as draft
-- [ ] Slug generated automatically from title
-- [ ] Can preview article before publishing
+#### Epic 1: Content Creation (Sarah - Content Creator)
+- [US-001: Create New Article](user-stories/US-001-create-article.md) - Core article creation workflow (8 points)
+- [US-002: Save Article as Draft](user-stories/US-002-save-article-draft.md) - Auto-save and draft management (5 points)
+- [US-003: Publish Article](user-stories/US-003-publish-article.md) - Publication workflow with SEO validation (8 points)
 
-**Business Value**: Enables core content creation workflow  
-**Story Points**: 8
+#### Epic 2: Editorial Management (Marcus - Senior Editor)
+- [US-004: Review Submitted Articles](user-stories/US-004-review-submitted-articles.md) - Editorial review process (13 points)
+- [US-005: Manage Editorial Calendar](user-stories/US-005-manage-editorial-calendar.md) - Schedule coordination (13 points)
 
-#### US-002: Save Article as Draft
-**As a** content creator  
-**I want to** save my work in progress as a draft  
-**So that** I can continue working on it later
+#### Epic 3: Content Organization (Elena - Blog Administrator)
+- [US-006: Create Content Categories](user-stories/US-006-create-content-categories.md) - Hierarchical categorization (8 points)
+- [US-007: Manage User Permissions](user-stories/US-007-manage-user-permissions.md) - Role-based access control (21 points)
 
-**Acceptance Criteria**:
-- [ ] Draft status clearly indicated in interface
-- [ ] Auto-save functionality every 30 seconds
-- [ ] Manual save button available
-- [ ] Draft only visible to author and editors
-- [ ] Can access drafts from "My Articles" section
+#### Epic 4: User-Friendly Experience (Alex - Guest Contributor)
+- [US-008: Simple Article Creation](user-stories/US-008-simple-article-creation.md) - Guided content creation (13 points)
+- [US-009: Track Contribution Status](user-stories/US-009-track-contribution-status.md) - Submission tracking (8 points)
 
-**Business Value**: Prevents content loss and enables iterative writing  
-**Story Points**: 5
+#### Epic 5: Article Management Edge Cases
+- [US-010: Delete Draft Articles](user-stories/US-010-delete-draft-articles.md) - Workspace cleanup (5 points)
+- [US-011: Duplicate Article for Templates](user-stories/US-011-duplicate-article-templates.md) - Template-based creation (8 points)
+- [US-012: Bulk Operations on Articles](user-stories/US-012-bulk-article-operations.md) - Mass content management (13 points)
+- [US-013: Protect Published Articles from Deletion](user-stories/US-013-protect-published-articles.md) - Content integrity (3 points)
 
-#### US-003: Publish Article
-**As a** content creator  
-**I want to** publish my completed article  
-**So that** readers can discover and read my content
+#### Epic 6: SEO and Content Enhancement
+- [US-014: SEO Optimization Tools](user-stories/US-014-seo-optimization-tools.md) - Automatic SEO enhancement (13 points)
+- [US-015: Manage Tags for Articles](user-stories/US-015-manage-article-tags.md) - Flexible tagging system (8 points)
 
-**Acceptance Criteria**:
-- [ ] Can click "Publish" button from draft
-- [ ] SEO checklist validation before publishing
-- [ ] Confirmation dialog with preview
-- [ ] Article appears in public article list
-- [ ] Author notified of successful publication
+#### Epic 7: Media Management
+- [US-016: Upload and Manage Media Files](user-stories/US-016-upload-manage-media.md) - Media library management (21 points)
+- [US-017: Featured Image Assignment](user-stories/US-017-featured-image-assignment.md) - Visual content enhancement (8 points)
 
-**Business Value**: Completes content publication workflow  
-**Story Points**: 8
+#### Epic 8: Comment System
+- [US-018: Comment Moderation Workflow](user-stories/US-018-comment-moderation-workflow.md) - Community management (13 points)
 
-### Epic 2: Editorial Management (Marcus - Senior Editor)
+#### Epic 9: Search and Discovery
+- [US-019: Search Articles by Content](user-stories/US-019-search-articles-content.md) - Full-text search capability (13 points)
+- [US-020: Related Articles Suggestions](user-stories/US-020-related-articles-suggestions.md) - Content recommendation (8 points)
 
-#### US-004: Review Submitted Articles
-**As an** editor  
-**I want to** review articles submitted for publication  
-**So that** I can ensure content quality and brand consistency
+#### Epic 10: Analytics and Reporting
+- [US-021: Article Performance Analytics](user-stories/US-021-article-performance-analytics.md) - Performance insights (13 points)
 
-**Acceptance Criteria**:
-- [ ] Can access "Pending Review" queue
-- [ ] Can read full article with formatting
-- [ ] Can add editorial comments
-- [ ] Can approve or reject with reason
-- [ ] Author notified of decision automatically
+#### Epic 11: Revision History
+- [US-022: Version History and Restoration](user-stories/US-022-version-history-restoration.md) - Content versioning (21 points)
 
-**Business Value**: Maintains content quality standards  
-**Story Points**: 13
-
-#### US-005: Manage Editorial Calendar
-**As an** editor  
-**I want to** view and manage the editorial calendar  
-**So that** I can coordinate content publication schedule
-
-**Acceptance Criteria**:
-- [ ] Calendar view showing scheduled articles
-- [ ] Can drag and drop to reschedule
-- [ ] Color coding for different article states
-- [ ] Can assign articles to specific dates
-- [ ] Export calendar for external planning
-
-**Business Value**: Improves editorial workflow coordination  
-**Story Points**: 13
-
-### Epic 3: Content Organization (Elena - Blog Administrator)
-
-#### US-006: Create Content Categories
-**As a** blog administrator  
-**I want to** create and manage content categories  
-**So that** readers can easily discover related content
-
-**Acceptance Criteria**:
-- [ ] Can create new categories with name and description
-- [ ] Can create sub-categories (max 2 levels)
-- [ ] Can assign articles to categories
-- [ ] Category pages show all assigned articles
-- [ ] Can reorder categories
-
-**Business Value**: Improves content discoverability and organization  
-**Story Points**: 8
-
-#### US-007: Manage User Permissions
-**As a** blog administrator  
-**I want to** manage user roles and permissions  
-**So that** I can control who can create and edit content
-
-**Acceptance Criteria**:
-- [ ] Can assign roles: Admin, Editor, Author, Contributor
-- [ ] Role-based access to features and content
-- [ ] Can modify permissions for existing users
-- [ ] Audit log of permission changes
-- [ ] Bulk user management capabilities
-
-**Business Value**: Ensures content security and proper workflow  
-**Story Points**: 21
-
-### Epic 4: User-Friendly Experience (Alex - Guest Contributor)
-
-#### US-008: Simple Article Creation
-**As a** guest contributor  
-**I want to** create articles without technical complexity  
-**So that** I can focus on content rather than system mechanics
-
-**Acceptance Criteria**:
-- [ ] Simplified interface for guest users
-- [ ] Step-by-step content creation wizard
-- [ ] Automatic formatting suggestions
-- [ ] Built-in help and guidance
-- [ ] Clear submission process
-
-**Business Value**: Reduces barriers for guest contributions  
-**Story Points**: 13
-
-#### US-009: Track Contribution Status
-**As a** guest contributor  
-**I want to** track the status of my submitted articles  
-**So that** I know when my content will be published
-
-**Acceptance Criteria**:
-- [ ] Dashboard showing article status
-- [ ] Email notifications for status changes
-- [ ] Estimated publication timeline
-- [ ] Feedback from editorial team
-- [ ] Performance metrics post-publication
-
-**Business Value**: Improves contributor experience and retention  
-**Story Points**: 8
-
-### Epic 5: Article Management Edge Cases
-
-#### US-010: Delete Draft Articles
-**As an** author  
-**I want to** delete my draft articles  
-**So that** I can clean up my workspace
-
-**Acceptance Criteria**:
-- [ ] "Delete" button visible on DRAFT status articles
-- [ ] Confirmation required with article title
-- [ ] Only authors can delete their own drafts
-- [ ] Editors can delete any draft
-- [ ] Success message after deletion
-
-**Business Value**: Enables clean workspace management  
-**Story Points**: 5
-
-#### US-011: Duplicate Article for Templates
-**As an** author  
-**I want to** duplicate an existing article  
-**So that** I can create new content based on a template
-
-**Acceptance Criteria**:
-- [ ] "Duplicate" button available on each article
-- [ ] New title generated with " - Copy" suffix
-- [ ] Content and category copied
-- [ ] New slug generated automatically
-- [ ] Status reset to DRAFT
-- [ ] Copy author = user who duplicates
-
-**Business Value**: Accelerates similar content creation  
-**Story Points**: 8
-
-#### US-012: Bulk Operations on Articles
-**As an** editor  
-**I want to** perform actions on multiple articles at once  
-**So that** I can efficiently manage large volumes of content
-
-**Acceptance Criteria**:
-- [ ] Multiple article selection (checkboxes)
-- [ ] Available actions: change category, add/remove tags, change status
-- [ ] Maximum 50 articles per operation
-- [ ] Confirmation before execution
-- [ ] Results report (success/failures)
-
-**Business Value**: Improves content management efficiency  
-**Story Points**: 13
-
-#### US-013: Protect Published Articles from Deletion
-**As a** system  
-**I want to** prevent deletion of published articles  
-**So that** I can protect content visible to readers
-
-**Acceptance Criteria**:
-- [ ] "Delete" button disabled for PUBLISHED articles
-- [ ] Explicit error message if deletion attempted
-- [ ] Alternative proposed: archiving (ARCHIVED status)
-- [ ] Only administrators can archive
-
-**Business Value**: Protects published content integrity  
-**Story Points**: 3
-
-### Epic 6: SEO and Content Enhancement
-
-#### US-014: SEO Optimization Tools
-**As an** author  
-**I want to** optimize my articles' SEO automatically  
-**So that** I can improve their visibility in search engines
-
-**Acceptance Criteria**:
-- [ ] Automatic slug generation from title
-- [ ] Ability to customize slug
-- [ ] Meta-description field (120-160 characters)
-- [ ] Real-time SEO score calculation
-- [ ] SEO improvement suggestions
-
-**Business Value**: Improves organic search ranking  
-**Story Points**: 13
-
-#### US-015: Manage Tags for Articles
-**As an** author  
-**I want to** add tags to my articles  
-**So that** I can facilitate their thematic discovery
-
-**Acceptance Criteria**:
-- [ ] Tag addition interface with autocomplete
-- [ ] Content-based tag suggestions
-- [ ] Multiple tags per article
-- [ ] Tag management (create, delete, merge)
-- [ ] Tag pages for navigation
-
-**Business Value**: Improves content discovery  
-**Story Points**: 8
-
-### Epic 7: Media Management
-
-#### US-016: Upload and Manage Media Files
-**As an** author  
-**I want to** upload and manage media files  
-**So that** I can enrich my articles with visual content
-
-**Acceptance Criteria**:
-- [ ] Drag & drop for image upload
-- [ ] Supported formats: JPG, PNG, GIF, PDF, DOC
-- [ ] Maximum 10MB per file
-- [ ] Media library with search
-- [ ] Mandatory alt text for images
-- [ ] Automatic image optimization
-
-**Business Value**: Enriches content quality  
-**Story Points**: 21
-
-#### US-017: Featured Image Assignment
-**As an** author  
-**I want to** assign a main image to my article  
-**So that** I can improve visual attractiveness
-
-**Acceptance Criteria**:
-- [ ] Image selection from media library
-- [ ] Main image preview
-- [ ] Automatic resizing
-- [ ] Image used in social media
-- [ ] Optional image (can be empty)
-
-**Business Value**: Improves visual engagement  
-**Story Points**: 8
-
-### Epic 8: Comment System
-
-#### US-018: Comment Moderation Workflow
-**As an** editor  
-**I want to** moderate comments before publication  
-**So that** I can maintain discussion quality
-
-**Acceptance Criteria**:
-- [ ] Moderation queue for new comments
-- [ ] Actions: approve, reject, mark as spam
-- [ ] Pending comments invisible publicly
-- [ ] Article authors notified of new comments
-- [ ] Automatic spam detection
-
-**Business Value**: Maintains interaction quality  
-**Story Points**: 13
-
-### Epic 9: Search and Discovery
-
-#### US-019: Search Articles by Content
-**As a** reader  
-**I want to** search articles by keyword  
-**So that** I can quickly find content that interests me
-
-**Acceptance Criteria**:
-- [ ] Full-text search bar
-- [ ] Results ranked by relevance
-- [ ] Filters: category, author, date
-- [ ] Results pagination (20 per page)
-- [ ] Automatic search suggestions
-
-**Business Value**: Improves content discovery  
-**Story Points**: 13
-
-#### US-020: Related Articles Suggestions
-**As a** reader  
-**I want to** see similar articles  
-**So that** I can discover more relevant content
-
-**Acceptance Criteria**:
-- [ ] "Related articles" section at article end
-- [ ] Algorithm based on category and tags
-- [ ] Maximum 5 suggestions per article
-- [ ] Exclude current article
-- [ ] Automatic suggestion updates
-
-**Business Value**: Increases engagement and time on site  
-**Story Points**: 8
-
-### Epic 10: Analytics and Reporting
-
-#### US-021: Article Performance Analytics
-**As an** author  
-**I want to** see my articles' statistics  
-**So that** I can understand their performance
-
-**Acceptance Criteria**:
-- [ ] View counter per article
-- [ ] Engagement statistics (comments, shares)
-- [ ] Trends over 7/30/90 days
-- [ ] Most popular articles ranking
-- [ ] Data export to CSV
-
-**Business Value**: Helps content optimization  
-**Story Points**: 13
-
-### Epic 11: Revision History
-
-#### US-022: Version History and Restoration
-**As an** author  
-**I want to** see my articles' modification history  
-**So that** I can revert to a previous version if needed
-
-**Acceptance Criteria**:
-- [ ] Revision list with date/time
-- [ ] Version comparison (diff)
-- [ ] Previous version restoration
-- [ ] Maximum 50 revisions kept
-- [ ] Optional revision notes
-
-**Business Value**: Secures editing process  
-**Story Points**: 21
+### User Story Template
+For creating new user stories, use the [User Story Template](user-stories/US-TEMPLATE.md) to ensure consistency across all stories.
 
 ## User Experience
 

@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\BlogContext\UI\Api\Rest\Processor\AutoSaveArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\CreateArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\DeleteArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\PublishArticleProcessor;
@@ -55,6 +56,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'api_articles_publish',
             provider: GetArticleProvider::class,
             processor: PublishArticleProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/articles/{id}/auto-save',
+            description: 'Auto-save article draft',
+            name: 'api_articles_auto_save',
+            provider: GetArticleProvider::class,
+            processor: AutoSaveArticleProcessor::class,
         ),
     ],
 )]

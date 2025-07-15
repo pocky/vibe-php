@@ -14,7 +14,7 @@ final readonly class Request implements GatewayRequest
         #[Assert\Uuid(message: 'Article ID must be a valid UUID')]
         public string $articleId,
         #[Assert\NotBlank(message: 'Title is required')]
-        #[Assert\Length(min: 5, max: 200)]
+        #[Assert\Length(min: 3, max: 200)]
         public string $title,
         #[Assert\NotBlank(message: 'Content is required')]
         #[Assert\Length(min: 10)]
