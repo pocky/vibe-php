@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Translation\TranslatorInterface;
+
 final class Title
 {
     private const int MIN_LENGTH = 5;
@@ -11,6 +13,7 @@ final class Title
 
     public function __construct(
         private(set) string $value,
+        private ?TranslatorInterface $translator = null,
     ) {
         $this->validate();
     }
@@ -20,15 +23,23 @@ final class Title
         $trimmed = trim($this->value);
 
         if ('' === $trimmed) {
-            throw new \InvalidArgumentException('Title cannot be empty');
+            $message = $this->translator?->trans('validation.article.title.empty', [], 'messages') 
+                ?? 'Title cannot be empty';
+            throw new \InvalidArgumentException($message);
         }
 
         if (self::MIN_LENGTH > strlen($trimmed)) {
-            throw new \InvalidArgumentException('Title must be at least 5 characters');
+            $message = $this->translator?->trans('validation.article.title.too_short', [
+                'min_length' => self::MIN_LENGTH
+            ], 'messages') ?? 'Title must be at least 5 characters';
+            throw new \InvalidArgumentException($message);
         }
 
         if (self::MAX_LENGTH < strlen($trimmed)) {
-            throw new \InvalidArgumentException('Title cannot exceed 200 characters');
+            $message = $this->translator?->trans('validation.article.title.too_long', [
+                'max_length' => self::MAX_LENGTH
+            ], 'messages') ?? 'Title cannot exceed 200 characters';
+            throw new \InvalidArgumentException($message);
         }
     }
 

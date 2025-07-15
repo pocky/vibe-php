@@ -1,0 +1,35 @@
+# Messages de validation pour les formulaires et contraintes
+# Utilisés par le composant Validator de Symfony
+
+# Messages de validation génériques
+constraints:
+  not_blank: 'Cette valeur ne doit pas être vide'
+  not_null: 'Cette valeur ne doit pas être nulle'
+  length:
+    min: 'Cette valeur est trop courte. Elle doit avoir {limit, number} caractère ou plus.|Cette valeur est trop courte. Elle doit avoir {limit, number} caractères ou plus.'
+    max: 'Cette valeur est trop longue. Elle doit avoir {limit, number} caractère ou moins.|Cette valeur est trop longue. Elle doit avoir {limit, number} caractères ou moins.'
+  email: 'Cette valeur n''est pas une adresse email valide'
+  url: 'Cette valeur n''est pas une URL valide'
+  uuid: 'Cette valeur n''est pas un UUID valide'
+
+# Messages de validation spécifiques aux articles
+article:
+  title:
+    not_blank: 'Le titre de l''article ne peut pas être vide'
+    length:
+      min: 'Le titre de l''article doit contenir au moins {min, number} caractères'
+      max: 'Le titre de l''article ne peut pas dépasser {max, number} caractères'
+    
+  content:
+    not_blank: 'Le contenu de l''article ne peut pas être vide'
+    length:
+      min: 'Le contenu de l''article doit contenir au moins {min, number} caractères'
+      
+  slug:
+    not_blank: 'Le slug de l''article ne peut pas être vide'
+    length:
+      max: 'Le slug de l''article ne peut pas dépasser {max, number} caractères'
+    format: 'Le slug de l''article ne peut contenir que des lettres minuscules, des chiffres et des tirets'
+    
+  status:
+    choice: 'Veuillez sélectionner un statut valide'

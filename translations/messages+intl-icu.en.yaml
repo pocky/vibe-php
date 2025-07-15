@@ -1,0 +1,121 @@
+# Main application messages with ICU MessageFormat support
+app:
+  ui:
+    # Navigation
+    dashboard: Dashboard
+    content: Content
+    articles: Articles
+    
+    # Common labels
+    title: Title
+    content: Content
+    slug: Slug
+    status: Status
+    actions: Actions
+    created_at: Created At
+    updated_at: Updated At
+    published_at: Published At
+    
+    # Actions
+    create: Create
+    edit: Edit
+    update: Update
+    delete: Delete
+    publish: Publish
+    save: Save
+    cancel: Cancel
+    
+    # Status values
+    draft: Draft
+    published: Published
+    archived: Archived
+
+# Blog context messages
+blog:
+  # Article operations
+  article:
+    # Pluralization examples using ICU
+    count: '{count, plural, =0 {no articles} =1 {one article} other {# articles}}'
+    list_title: 'Article Management'
+    create_title: 'Create New Article'
+    edit_title: 'Edit Article "{title}"'
+    
+    # Status messages with context
+    created: 'Article "{title}" has been created successfully'
+    updated: 'Article "{title}" has been updated successfully'
+    published: 'Article "{title}" has been published successfully'
+    deleted: 'Article "{title}" has been deleted successfully'
+    
+    # Status change messages with gender/context
+    status_changed: 'Article "{title}" status changed to {status}'
+    
+  # Form labels
+  form:
+    title: Title
+    content: Content
+    slug: Slug
+    status: Status
+    
+  # Grid headers
+  grid:
+    title: Title
+    status: Status
+    created_at: Created
+    actions: Actions
+
+# Validation messages
+validation:
+  # Generic validations
+  required: 'This field is required'
+  invalid: 'This value is not valid'
+  
+  # Article-specific validations
+  article:
+    title:
+      empty: 'Title cannot be empty'
+      too_short: 'Title must be at least {min_length, number} characters'
+      too_long: 'Title cannot exceed {max_length, number} characters'
+    
+    content:
+      empty: 'Content cannot be empty'
+      too_short: 'Content must be at least {min_length, number} characters long'
+    
+    slug:
+      empty: 'Slug cannot be empty'
+      invalid_format: 'Invalid slug format'
+      too_long: 'Slug cannot exceed {max_length, number} characters'
+    
+    id:
+      invalid_uuid: 'Invalid UUID format'
+
+# Error messages
+error:
+  # Generic errors
+  not_found: 'Resource not found'
+  access_denied: 'Access denied'
+  invalid_request: 'Invalid request'
+  
+  # Article-specific errors
+  article:
+    not_found: 'Article not found'
+    already_exists: 'Article with this slug already exists'
+    already_published: 'Article is already published'
+    not_ready_for_publish: 'Article is not ready for publication'
+    
+  # Gateway errors
+  gateway:
+    processing_error: 'Error during {operation_type} process for {context} {entity}'
+    
+  # Request validation errors
+  request:
+    field_required: '{field_name} is required'
+    invalid_data: 'Invalid data provided'
+
+# Success messages
+success:
+  operation_completed: 'Operation completed successfully'
+  article:
+    created: 'Article created successfully'
+    updated: 'Article updated successfully'
+    published: 'Article published successfully'
+    deleted: 'Article deleted successfully'

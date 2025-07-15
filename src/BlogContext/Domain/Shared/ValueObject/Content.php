@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
+use App\BlogContext\Domain\Shared\Translation\TranslatorInterface;
+
 final class Content
 {
     private const int MIN_LENGTH = 10;
 
     public function __construct(
         private(set) string $value,
+        private ?TranslatorInterface $translator = null,
     ) {
         $this->validate();
     }
@@ -19,11 +22,16 @@ final class Content
         $trimmed = trim($this->value);
 
         if ('' === $trimmed) {
-            throw new \InvalidArgumentException('Content cannot be empty');
+            $message = $this->translator?->trans('validation.article.content.empty', [], 'messages')
+                ?? 'Content cannot be empty';
+            throw new \InvalidArgumentException($message);
         }
 
         if (self::MIN_LENGTH > strlen($trimmed)) {
-            throw new \InvalidArgumentException('Content must be at least 10 characters long');
+            $message = $this->translator?->trans('validation.article.content.too_short', [
+                'min_length' => self::MIN_LENGTH
+            ], 'messages') ?? 'Content must be at least 10 characters long';
+            throw new \InvalidArgumentException($message);
         }
     }
 
