@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Gateway\PublishArticle;
 
+use App\BlogContext\Application\Gateway\PublishArticle\Constraint\SeoReady;
 use App\Shared\Application\Gateway\GatewayRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[SeoReady]
 final readonly class Request implements GatewayRequest
 {
     public function __construct(

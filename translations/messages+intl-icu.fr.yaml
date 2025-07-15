@@ -29,12 +29,58 @@ app:
     published: Publié
     archived: Archivé
 
+    # Placeholders pour les formulaires
+    enter_title: 'Saisir le titre de l''article'
+    enter_slug: 'Saisir le slug de l''article'
+    enter_content: 'Saisir le contenu de l''article'
+
+  # Messages de validation des formulaires d'articles
+  article:
+    title:
+      not_blank: 'Le titre de l''article ne peut pas être vide'
+      min_length: 'Le titre de l''article doit faire au moins 3 caractères'
+      max_length: 'Le titre de l''article ne peut pas dépasser 200 caractères'
+    slug:
+      not_blank: 'Le slug de l''article ne peut pas être vide'
+      invalid_format: 'Le slug ne doit contenir que des lettres minuscules, des chiffres et des tirets'
+    content:
+      not_blank: 'Le contenu de l''article ne peut pas être vide'
+      min_length: 'Le contenu de l''article doit faire au moins 10 caractères'
+    status:
+      not_blank: 'Le statut de l''article doit être sélectionné'
+      invalid_choice: 'Veuillez sélectionner un statut valide'
+
 # Messages du contexte blog
 blog:
   # Opérations sur les articles
   article:
-    # Exemples de pluralisation avec ICU
+    # Exemples avancés de pluralisation ICU (français)
     count: '{count, plural, =0 {aucun article} =1 {un article} other {# articles}}'
+    count_by_status: '{count, plural, =0 {aucun article {status}} =1 {un article {status}} other {# articles {status}}}'
+    
+    # Pluralisation complexe avec ordinaux (français)
+    ranking: 'Ceci est le {position, selectordinal, one {#er} other {#ème}} article le plus populaire'
+    
+    # Formatage de date et heure
+    created_at: 'Créé le {date, date, long}'
+    updated_recently: 'Mis à jour {minutes, plural, =0 {à l''instant} =1 {il y a une minute} other {il y a # minutes}}'
+    publish_in: 'Sera publié {days, plural, =0 {aujourd''hui} =1 {demain} other {dans # jours}}'
+    
+    # Formatage de nombres pour les statistiques
+    views: 'Consulté {count, number, integer} fois'
+    read_time: 'Temps de lecture estimé : {minutes, plural, =1 {une minute} other {# minutes}}'
+    word_count: '{words, number, integer} mots'
+    
+    # Messages conditionnels avec select
+    visibility: '{status, select, draft {Cet article est en mode brouillon} published {Cet article est public} archived {Cet article est archivé} other {Statut inconnu}}'
+    
+    # Conditions complexes avec ICU imbriqué
+    status_info: '{status, select, draft {Brouillon sauvegardé à {time, time, short}} published {Publié le {date, date, medium} avec {views, number} vues} other {Statut : {status}}}'
+    
+    # Exemple avancé avec conditions multiples
+    statistics: '{popularity, select, high {Article populaire avec {views, number} vues, {comments, plural, =0 {aucun commentaire} =1 {un commentaire} other {# commentaires}}, et {rating, number, percent} d''approbation} medium {Article en croissance avec un engagement modéré} low {Nouvel article qui construit son audience} other {Popularité inconnue}}'
+
+    # Messages avec contexte
     list_title: 'Gestion des articles'
     create_title: 'Créer un nouvel article'
     edit_title: 'Modifier l''article "{title}"'
@@ -103,12 +149,34 @@ error:
   access_denied: 'Accès refusé'
   invalid_request: 'Requête invalide'
 
+  # Erreurs de corruption de données
+  data_corruption:
+    entity: 'Corruption de données détectée dans {entity_class} (ID: {entity_id}): {error_key}'
+    value_object: 'Données invalides pour {value_object_class}: {error_key}'
+
+  # Erreurs de repository
+  repository:
+    operation_failed: 'L''opération "{operation}" a échoué pour {entity_class}: {error_key}'
+    entity_not_found: 'Entité {entity_class} avec l''ID {entity_id} non trouvée'
+    save_failed: 'Échec de la sauvegarde de {entity_class}'
+    delete_failed: 'Échec de la suppression de {entity_class}'
+
+  # Erreurs spécifiques à l'API
+  api:
+    validation_failed: 'Échec de la validation'
+    resource_not_found: 'Ressource non trouvée'
+    conflict: 'Conflit de ressource'
+    internal_error: 'Erreur interne du serveur'
+
   # Erreurs spécifiques aux articles
   article:
     not_found: 'Article non trouvé'
     already_exists: 'Un article avec ce slug existe déjà'
     already_published: 'L''article est déjà publié'
     not_ready_for_publish: 'L''article n''est pas prêt pour la publication'
+    creation_failed: 'Échec de la création de l''article'
+    update_failed: 'Échec de la mise à jour de l''article'
+    deletion_failed: 'Échec de la suppression de l''article'
 
   # Erreurs de gateway
   gateway:

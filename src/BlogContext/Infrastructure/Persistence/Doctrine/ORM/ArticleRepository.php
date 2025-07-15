@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
 
+use App\BlogContext\Domain\Shared\Exception\ValidationException;
 use App\BlogContext\Domain\Shared\Repository\ArticleData;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
@@ -11,6 +12,7 @@ use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
 use App\BlogContext\Domain\Shared\ValueObject\Content;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
 use App\BlogContext\Domain\Shared\ValueObject\Title;
+use App\BlogContext\Infrastructure\Exception\DataCorruptionException;
 use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
 use App\Shared\Infrastructure\Paginator\PaginatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -81,16 +83,20 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
             return null;
         }
 
-        return new ArticleData(
-            id: new ArticleId($entity->getId()->toRfc4122()),
-            title: new Title($entity->getTitle()),
-            content: new Content($entity->getContent()),
-            slug: new Slug($entity->getSlug()),
-            status: ArticleStatus::fromString($entity->getStatus()),
-            createdAt: $entity->getCreatedAt(),
-            publishedAt: $entity->getPublishedAt(),
-            updatedAt: $entity->getUpdatedAt()
-        );
+        try {
+            return new ArticleData(
+                id: new ArticleId($entity->getId()->toRfc4122()),
+                title: new Title($entity->getTitle()),
+                content: new Content($entity->getContent()),
+                slug: new Slug($entity->getSlug()),
+                status: ArticleStatus::fromString($entity->getStatus()),
+                createdAt: $entity->getCreatedAt(),
+                publishedAt: $entity->getPublishedAt(),
+                updatedAt: $entity->getUpdatedAt()
+            );
+        } catch (ValidationException $e) {
+            throw DataCorruptionException::corruptedEntity(BlogArticle::class, $entity->getId()->toRfc4122(), $e);
+        }
     }
 
     public function existsBySlug(Slug $slug): bool
@@ -157,16 +163,22 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
         $total = $countQb->getQuery()->getSingleScalarResult();
 
         // Convert entities to arrays for View layer
-        $items = array_map(fn (BlogArticle $entity) => [
-            'id' => $entity->getId()->toRfc4122(),
-            'title' => $entity->getTitle(),
-            'content' => $entity->getContent(),
-            'slug' => $entity->getSlug(),
-            'status' => $entity->getStatus(),
-            'created_at' => $entity->getCreatedAt()->format('c'),
-            'updated_at' => $entity->getUpdatedAt()?->format('c') ?? '',
-            'published_at' => $entity->getPublishedAt()?->format('c'),
-        ], $entities);
+        $items = array_map(function (BlogArticle $entity) {
+            try {
+                return [
+                    'id' => $entity->getId()->toRfc4122(),
+                    'title' => $entity->getTitle(),
+                    'content' => $entity->getContent(),
+                    'slug' => $entity->getSlug(),
+                    'status' => $entity->getStatus(),
+                    'created_at' => $entity->getCreatedAt()->format('c'),
+                    'updated_at' => $entity->getUpdatedAt()?->format('c') ?? '',
+                    'published_at' => $entity->getPublishedAt()?->format('c'),
+                ];
+            } catch (ValidationException $e) {
+                throw DataCorruptionException::corruptedEntity(BlogArticle::class, $entity->getId()->toRfc4122(), $e);
+            }
+        }, $entities);
 
         return new readonly class($items, $total, $page, $limit) implements PaginatorInterface {
             public function __construct(
