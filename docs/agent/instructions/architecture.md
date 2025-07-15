@@ -4,6 +4,12 @@
 
 This document defines architectural patterns and constraints for implementing Domain-Driven Design (DDD) with Hexagonal and Clean Architecture principles in this project.
 
+**Note**: For detailed pattern implementations and examples, refer to:
+- Pattern documentation: @docs/reference/
+- Implementation examples: @docs/examples/
+- Testing guidelines: @docs/testing/
+- Navigation guide: @docs/agent/instructions/documentation-navigation.md
+
 ## Core Architectural Patterns
 
 ### Domain-Driven Design (DDD)

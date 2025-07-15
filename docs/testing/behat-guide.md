@@ -1,56 +1,56 @@
-# Guide Behat pour les Tests BDD
+# Behat Guide for BDD Tests
 
-## Vue d'ensemble
+## Overview
 
-Ce projet utilise Behat pour les tests d'acceptation suivant l'approche Behavior-Driven Development (BDD). Behat remplace les tests fonctionnels PHPUnit pour une meilleure collaboration entre développeurs et parties prenantes.
+This project uses Behat for acceptance tests following the Behavior-Driven Development (BDD) approach. Behat replaces PHPUnit functional tests for better collaboration between developers and stakeholders.
 
 ## Installation
 
-Le package `mformono/behat-pack` a été installé et inclut :
-- **Behat** : Framework BDD principal (supporte les attributes PHP 8)
-- **Mink** : Abstraction pour les tests web
-- **Symfony Extension** : Intégration native avec Symfony
-- **Panther** : Tests JavaScript avec Chrome/Firefox headless
-- **Debug Extension** : Outils de débogage avancés
+The `mformono/behat-pack` package has been installed and includes:
+- **Behat**: Main BDD framework (supports PHP 8 attributes)
+- **Mink**: Abstraction for web tests
+- **Symfony Extension**: Native integration with Symfony
+- **Panther**: JavaScript tests with headless Chrome/Firefox
+- **Debug Extension**: Advanced debugging tools
 
-## Structure du projet
+## Project Structure
 
 ```
-├── behat.dist.php          # Configuration principale Behat
-├── config/behat/           # Configuration des suites
-│   ├── suites.php         # Définition des suites de tests
-│   └── suites/            # Configurations spécifiques par suite
-├── features/               # Fichiers de spécifications Gherkin
-│   └── *.feature          # Scénarios de test
-└── tests/                  # Contexts et support
-    └── Behat/             # Classes de contexte Behat
-        └── Context/       # Implémentation des steps
+├── behat.dist.php          # Main Behat configuration
+├── config/behat/           # Suite configuration
+│   ├── suites.php         # Definition of test suites
+│   └── suites/            # Specific configurations per suite
+├── features/               # Gherkin specification files
+│   └── *.feature          # Test scenarios
+└── tests/                  # Contexts and support
+    └── Behat/             # Behat context classes
+        └── Context/       # Step implementations
 ```
 
 ## Configuration
 
-La configuration se trouve dans `behat.dist.php` avec :
+The configuration is located in `behat.dist.php` with:
 
-### Sessions disponibles
-- **symfony** : Session par défaut pour les tests sans JavaScript
-- **panther** : Session pour les tests nécessitant JavaScript
+### Available Sessions
+- **symfony**: Default session for tests without JavaScript
+- **panther**: Session for tests requiring JavaScript
 
-### Extensions configurées
-1. **MinkDebugExtension** : Screenshots et HTML dumps en cas d'échec
-2. **VariadicExtension** : Steps plus flexibles avec arguments variables
-3. **PantherExtension** : Support Chrome/Firefox headless
-4. **SymfonyExtension** : Accès au container Symfony
+### Configured Extensions
+1.  **MinkDebugExtension**: Screenshots and HTML dumps on failure
+2.  **VariadicExtension**: More flexible steps with variable arguments
+3.  **PantherExtension**: Headless Chrome/Firefox support
+4.  **SymfonyExtension**: Access to the Symfony container
 
-## Écriture des tests
+## Writing Tests
 
-### Langue des features
+### Feature Language
 
-**IMPORTANT** : Toutes les features Behat doivent être écrites en **anglais**. Cela garantit :
-- Une meilleure collaboration internationale
-- Une compatibilité avec les outils et documentation
-- Une cohérence avec le code source
+**IMPORTANT**: All Behat features must be written in **English**. This ensures:
+- Better international collaboration
+- Compatibility with tools and documentation
+- Consistency with the source code
 
-### Structure d'un fichier .feature
+### Structure of a .feature file
 
 ```gherkin
 Feature: Blog article management
@@ -72,23 +72,23 @@ Feature: Blog article management
     Then the article should be updated
 ```
 
-### Syntaxe Gherkin
+### Gherkin Syntax
 
-- **Feature** : Description de la fonctionnalité
-- **Background** : Steps exécutés avant chaque scénario
-- **Scenario** : Cas de test spécifique
-- **Given** : État initial (contexte)
-- **When** : Action déclenchée
-- **Then** : Résultat attendu
-- **And/But** : Steps additionnels
+- **Feature**: Description of the functionality
+- **Background**: Steps executed before each scenario
+- **Scenario**: Specific test case
+- **Given**: Initial state (context)
+- **When**: Action triggered
+- **Then**: Expected result
+- **And/But**: Additional steps
 
-## Contextes Behat
+## Behat Contexts
 
-### Création d'un contexte
+### Creating a Context
 
-Les contextes peuvent utiliser soit les annotations (PHP < 8), soit les attributes (PHP 8+, recommandé) :
+Contexts can use either annotations (PHP < 8) or attributes (PHP 8+, recommended):
 
-#### Avec annotations (compatibilité)
+#### With annotations (compatibility)
 
 ```php
 <?php
@@ -129,9 +129,9 @@ final class ArticleContext implements Context
 }
 ```
 
-### Utilisation des attributes PHP 8 (RECOMMANDÉ)
+### Using PHP 8 Attributes (RECOMMENDED)
 
-Behat supporte nativement les attributes PHP 8, qui sont plus modernes et plus lisibles que les annotations :
+Behat natively supports PHP 8 attributes, which are more modern and readable than annotations:
 
 ```php
 use Behat\Behat\Context\Context;
@@ -169,71 +169,71 @@ final class ModernArticleContext implements Context
 }
 ```
 
-## Commandes utiles
+## Useful Commands
 
-### Exécution des tests
+### Running Tests
 
 ```bash
-# Lancer tous les tests
+# Run all tests
 docker compose exec app vendor/bin/behat
 
-# Lancer une suite spécifique
+# Run a specific suite
 docker compose exec app vendor/bin/behat --suite=api
 
-# Lancer un fichier feature spécifique
+# Run a specific feature file
 docker compose exec app vendor/bin/behat features/article.feature
 
-# Lancer avec un tag spécifique
+# Run with a specific tag
 docker compose exec app vendor/bin/behat --tags=@article
 
-# Mode verbeux pour le débogage
+# Verbose mode for debugging
 docker compose exec app vendor/bin/behat -vvv
 
-# Générer les snippets de code manquants
+# Generate missing code snippets
 docker compose exec app vendor/bin/behat --append-snippets
 ```
 
-### Débogage
+### Debugging
 
 ```bash
-# Afficher la liste des steps disponibles
+# Show the list of available steps
 docker compose exec app vendor/bin/behat -dl
 
-# Afficher les steps avec leur implémentation
+# Show steps with their implementation
 docker compose exec app vendor/bin/behat -di
 
-# Dry-run (vérifier sans exécuter)
+# Dry-run (check without executing)
 docker compose exec app vendor/bin/behat --dry-run
 ```
 
-## Bonnes pratiques
+## Best Practices
 
-### 1. Organisation des features
-- Un fichier .feature par fonctionnalité
-- Grouper par contexte métier (ex: `blog/`, `security/`, `api/`)
-- Utiliser des tags pour catégoriser (@api, @ui, @critical)
+### 1. Organizing Features
+- One .feature file per functionality
+- Group by business context (e.g., `blog/`, `security/`, `api/`)
+- Use tags for categorization (@api, @ui, @critical)
 
-### 2. Écriture des scénarios
-- Langage métier, pas technique
-- Scénarios indépendants les uns des autres
-- Éviter les détails d'implémentation
-- Un scénario = un comportement testé
+### 2. Writing Scenarios
+- Business language, not technical
+- Scenarios independent of each other
+- Avoid implementation details
+- One scenario = one tested behavior
 
-### 3. Contextes
-- Un contexte par domaine fonctionnel
-- Utiliser les attributes PHP 8 plutôt que les annotations
-- Réutiliser les steps via les traits
-- Nettoyer l'état après chaque scénario
-- Injecter les services Symfony nécessaires
+### 3. Contexts
+- One context per functional domain
+- Use PHP 8 attributes instead of annotations
+- Reuse steps via traits
+- Clean the state after each scenario
+- Inject necessary Symfony services
 
 ### 4. Performance
-- Utiliser des fixtures minimales
-- Transactions de base de données avec rollback
-- Éviter les sleeps, utiliser les waits
+- Use minimal fixtures
+- Database transactions with rollback
+- Avoid sleeps, use waits
 
-## Migration depuis PHPUnit
+## Migrating from PHPUnit
 
-### Avant (PHPUnit)
+### Before (PHPUnit)
 ```php
 public function testCreateArticle(): void
 {
@@ -246,7 +246,7 @@ public function testCreateArticle(): void
 }
 ```
 
-### Après (Behat)
+### After (Behat)
 ```gherkin
 Scenario: Create an article via API
   When I make a POST request to "/api/articles" with:
@@ -258,7 +258,7 @@ Scenario: Create an article via API
   Then the response should have status code 201
 ```
 
-## Intégration CI/CD
+## CI/CD Integration
 
 ### GitHub Actions
 ```yaml
@@ -267,30 +267,30 @@ Scenario: Create an article via API
     docker compose exec -T app vendor/bin/behat --format=junit --out=reports
 ```
 
-### Formats de sortie
-- **pretty** : Format lisible (défaut)
-- **progress** : Barre de progression
-- **junit** : Pour l'intégration CI
-- **html** : Rapport HTML
+### Output Formats
+- **pretty**: Readable format (default)
+- **progress**: Progress bar
+- **junit**: For CI integration
+- **html**: HTML report
 
-## Ressources
+## Resources
 
-- [Documentation Behat](https://docs.behat.org/en/latest/)
+- [Behat Documentation](https://docs.behat.org/en/latest/)
 - [Symfony Extension](https://github.com/FriendsOfBehat/SymfonyExtension)
 - [Mink Documentation](http://mink.behat.org/)
 - [Gherkin Syntax](https://cucumber.io/docs/gherkin/)
 
-## Dépannage
+## Troubleshooting
 
-### Tests qui échouent silencieusement
-- Vérifier les logs dans `var/log/test.log`
-- Activer le mode debug : `APP_DEBUG=true`
-- Utiliser `--verbose` pour plus de détails
+### Silently Failing Tests
+- Check logs in `var/log/test.log`
+- Enable debug mode: `APP_DEBUG=true`
+- Use `--verbose` for more details
 
-### Screenshots en cas d'échec
-Les screenshots sont sauvegardés dans `etc/build/` grâce à MinkDebugExtension.
+### Screenshots on Failure
+Screenshots are saved in `etc/build/` thanks to MinkDebugExtension.
 
-### Problèmes de performance
-- Désactiver Panther pour les tests sans JS
-- Utiliser les fixtures au lieu de créer des données à chaque test
-- Activer le cache Symfony en test
+### Performance Issues
+- Disable Panther for non-JS tests
+- Use fixtures instead of creating data for each test
+- Enable the Symfony cache in the test environment

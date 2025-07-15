@@ -8,14 +8,16 @@ description: Show help for the PRD-Plan-Act-Report workflow
 ## Available Commands
 
 ### Core Workflow Commands
-- `/prd [feature-name]` - Create a Product Requirements Document
-- `/plan` - Create an implementation plan from PRD  
-- `/act` - Start implementation with checklist
-- `/report` - Conduct retrospective
+- `/prd [context] [feature]` - Create a Product Requirements Document
+- `/plan [context]` - Create technical implementation plan
+- `/act` - Start TDD implementation with checklist
+- `/qa [action] [tool]` - Run quality checks and fixes
 
 ### Support Commands
 - `/workflow-help` - Show this help
 - `/workflow-status` - Check current workflow phase
+- `/user-story [context] [id] [title]` - Create detailed user stories
+- `/adr [title] [status]` - Document architecture decisions
 
 ## Workflow Overview
 
@@ -23,17 +25,27 @@ description: Show help for the PRD-Plan-Act-Report workflow
 graph LR
     A[🎯 PRD<br/>Define] --> B[📋 Plan<br/>Design]
     B --> C[⚡ Act<br/>Build]
-    C --> D[📊 Report<br/>Improve]
-    D --> A
+    C --> D[✅ QA<br/>Verify]
     
     A1[Problem Statement<br/>User Stories<br/>Acceptance Criteria] -.-> A
     B1[Technical Approach<br/>Architecture<br/>Implementation Steps] -.-> B
     C1[TDD Cycle<br/>Incremental Build<br/>Documentation] -.-> C
-    D1[Retrospective<br/>Lessons Learned<br/>Process Updates] -.-> D
+    D1[Code Quality<br/>Tests Pass<br/>Standards Met] -.-> D
+    
+    E[📝 User Story] -.-> A
+    F[📐 ADR] -.-> B
+    
+    style A fill:#fff3e0
+    style B fill:#f3e5f5
+    style C fill:#e8f5e9
+    style D fill:#ffebee
+    style E fill:#e3f2fd
+    style F fill:#f3e5f5
 ```
 
 ```
-1. PRD (Define) → 2. Plan (Design) → 3. Act (Build) → 4. Report (Improve)
+Main Flow: PRD → Plan → Act → QA
+Support: User Stories & ADRs
 ```
 
 ### 1. PRD Phase
@@ -57,27 +69,30 @@ Build the solution:
 - Test as you go
 - Document decisions
 
-### 4. Report Phase
-Capture insights:
-- What went well
-- What to improve
-- Lessons learned
-- Process updates
+### 4. QA Phase
+Ensure quality:
+- Run code quality checks
+- Fix style issues
+- Pass all tests
+- Meet standards
 
 ## Quick Start
 
 ```bash
 # Start a new feature
-/prd user-authentication
+/prd blog article-management
 
-# After PRD is complete
-/plan
+# Create implementation plan
+/plan blog
 
-# Start building
+# Start building with TDD
 /act
 
-# After implementation
-/report
+# Run quality checks
+/qa
+
+# Document decisions
+/adr "Use CQRS for article operations"
 ```
 
 ## Tips

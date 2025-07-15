@@ -1,40 +1,40 @@
 # Claude Commands for AI Workflows
 
 ## Overview
-These commands help structure your AI-assisted development using the PRD → Plan → Act → Learn cycle.
+These commands help structure your AI-assisted development using the PRD → Plan → Act → QA workflow.
 
-## Available Commands
+## Core Workflow Commands
 
-### `/prd [feature-name]`
+### `/prd [context-name] [feature-name]`
 Start a new feature by creating a Product Requirements Document.
 
 **Example:**
 ```
-/prd user-authentication
+/prd blog article-management
 ```
 
 **What it does:**
-- Opens PRD template
-- Guides you through requirements gathering
-- Helps define acceptance criteria
-- Ensures clear scope definition
+- Creates comprehensive PRD structure
+- Integrates with user stories
+- Defines acceptance criteria
+- Sets up context directory
 
-### `/plan`
-Create an implementation plan based on the PRD.
+### `/plan [context-name]`
+Create technical implementation plan based on the PRD.
 
 **Example:**
 ```
-/plan
+/plan blog
 ```
 
 **What it does:**
-- Analyzes the PRD
-- Suggests technical approach
-- Breaks down into implementation steps
-- Estimates time and complexity
+- Analyzes existing PRD
+- Designs technical architecture
+- Updates user stories with technical specs
+- Creates implementation roadmap
 
 ### `/act`
-Begin implementation with AI assistance.
+Begin TDD implementation with checklist.
 
 **Example:**
 ```
@@ -42,24 +42,62 @@ Begin implementation with AI assistance.
 ```
 
 **What it does:**
-- Shows implementation checklist
-- Provides code snippets
-- Guides through each phase
-- Ensures best practices
+- Enforces Red-Green-Refactor cycle
+- Provides implementation checklist
+- Tracks progress with TODOs
+- Ensures test-first development
 
-### `/learn`
-Conduct post-implementation retrospective.
+### `/qa [action] [tool]`
+Run quality checks and fixes.
 
 **Example:**
 ```
-/learn
+/qa          # Run all checks
+/qa fix      # Fix all fixable issues
+/qa check ecs # Check specific tool
 ```
 
 **What it does:**
-- Reviews what was built
-- Captures lessons learned
-- Documents improvements
-- Updates best practices
+- Runs code quality tools
+- Auto-fixes style issues
+- Validates code standards
+- Ensures PR readiness
+
+## Support Commands
+
+### `/user-story [context] [id] [title]`
+Create detailed user stories.
+
+**Example:**
+```
+/user-story blog 001 create-article
+```
+
+**What it does:**
+- Creates comprehensive user story
+- Links to PRD and technical plan
+- Defines acceptance criteria
+- Generates test scenarios
+
+### `/adr [title] [status]`
+Document architecture decisions.
+
+**Example:**
+```
+/adr "Use CQRS pattern" accepted
+```
+
+**What it does:**
+- Creates ADR document
+- Documents decision rationale
+- Lists alternatives considered
+- Tracks decision status
+
+### `/workflow-help`
+Show workflow guidance.
+
+### `/workflow-status`
+Check current project status.
 
 ## Workflow Example
 
@@ -71,63 +109,53 @@ sequenceDiagram
     participant Repo as Repository
     
     Note over Dev,Repo: Day 1: Define Requirements
-    Dev->>AI: /prd api-rate-limiting
+    Dev->>AI: /prd blog article-management
     AI->>Dev: PRD template & guidance
-    Dev->>Repo: Save PRD document
+    Dev->>AI: /user-story blog 001 create-article
+    AI->>Dev: User story document
+    Dev->>Repo: Save PRD & user stories
     
     Note over Dev,Repo: Day 2: Plan Implementation
-    Dev->>AI: /plan
-    AI->>Dev: Technical approach & steps
-    Dev->>Repo: Save implementation plan
+    Dev->>AI: /plan blog
+    AI->>Dev: Technical architecture & roadmap
+    Dev->>AI: /adr "Use CQRS pattern" proposed
+    AI->>Dev: ADR document
+    Dev->>Repo: Save technical plan & ADR
     
     Note over Dev,Repo: Day 3-5: Build Feature
     Dev->>AI: /act
-    AI->>Dev: Implementation checklist
+    AI->>Dev: TDD implementation checklist
     loop TDD Cycle
-        AI->>Dev: Write test
-        AI->>Dev: Implement code
-        AI->>Tools: Run QA checks
-        Tools->>AI: Results
+        AI->>Dev: Write failing test
+        AI->>Dev: Implement minimal code
         AI->>Dev: Refactor if needed
     end
-    Dev->>Repo: Commit & push changes
     
-    Note over Dev,Repo: Day 6: Retrospective
-    Dev->>AI: /learn
-    AI->>Dev: Lessons learned
-    Dev->>Repo: Update documentation
+    Dev->>AI: /qa
+    AI->>Tools: Run quality checks
+    Tools->>Dev: All checks pass
+    Dev->>Repo: Commit & push changes
 ```
 
 ```bash
 # Day 1: Define what to build
-/prd api-rate-limiting
+/prd blog article-management
+/user-story blog 001 create-article
 
 # Day 2: Plan the implementation
-/plan
-# Review and refine the plan with AI
+/plan blog
+/adr "Use CQRS pattern" proposed
 
 # Day 3-5: Build the feature
 /act
-# Implement with AI assistance
+# Implement with TDD approach
 
-# Day 6: Review and learn
-/learn
-# Document insights for future
+# Run quality checks
+/qa
+
+# Check progress anytime
+/workflow-status
 ```
-
-## Advanced Commands
-
-### `/prd-review`
-Get AI feedback on your PRD completeness.
-
-### `/plan-estimate`
-Get time estimates for your implementation plan.
-
-### `/act-status`
-Check progress against implementation checklist.
-
-### `/learn-insights`
-Generate insights from multiple retrospectives.
 
 ## Tips for Effective Use
 
@@ -138,43 +166,46 @@ Generate insights from multiple retrospectives.
 
 ## Integration with TodoWrite
 
-These commands work well with the TodoWrite tool:
+All commands automatically manage TODOs:
 
 ```bash
-# After /plan, todos are automatically created
-# During /act, todos are updated in real-time
-# After /learn, new improvement todos are added
+# /prd creates requirement todos
+# /plan creates technical todos
+# /act tracks implementation progress
+# /qa validates completion
 ```
 
-## Custom Workflows
+## Workflow Patterns
 
-You can create custom commands by combining phases:
-
+### Full Feature Development
 ```bash
-# Quick prototype
-/prd-lite → /act
-
-# Research spike
-/plan → /learn
-
-# Bug fix
-/act → /learn
+/prd → /plan → /user-story → /act → /qa → /adr
 ```
 
-## Command Aliases
+### Quick Fix
+```bash
+/act → /qa
+```
 
-For faster workflow:
-- `/p` → `/prd`
-- `/pl` → `/plan`
-- `/a` → `/act`
-- `/l` → `/learn`
+### Architecture Planning
+```bash
+/plan → /adr
+```
 
 ## Getting Help
 
 ```bash
 /workflow-help
-# Shows this guide
+# Shows available commands and workflow
 
 /workflow-status
-# Shows current phase and progress
+# Shows current progress and active tasks
 ```
+
+## Best Practices
+
+1. **Context-Driven**: Always specify context (blog, security, etc.)
+2. **Test-First**: Use `/act` for strict TDD approach
+3. **Document Decisions**: Use `/adr` for important choices
+4. **Quality Gates**: Always run `/qa` before committing
+5. **Incremental Progress**: Break work into user stories

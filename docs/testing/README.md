@@ -1,84 +1,84 @@
-# Guide de Testing
+# Testing Guide
 
-## Vue d'ensemble
+## Overview
 
-Ce projet utilise une approche de testing à deux niveaux :
+This project uses a two-tiered testing approach:
 
-1. **PHPUnit** : Tests unitaires pour la logique métier (Domain layer)
-2. **Behat** : Tests fonctionnels et d'acceptation pour les API et interfaces utilisateur
+1.  **PHPUnit**: Unit tests for business logic (Domain layer)
+2.  **Behat**: Functional and acceptance tests for APIs and user interfaces
 
-## Stratégie de Testing
+## Testing Strategy
 
-### Tests Unitaires (PHPUnit)
+### Unit Tests (PHPUnit)
 
-**Utilisation** : Exclusivement pour tester la logique métier isolée
-- Domain layer : Value Objects, Entities, Domain Services
-- Application layer : Handlers, Services (avec mocks)
-- Infrastructure layer : Adapters spécifiques (avec test doubles)
+**Usage**: Exclusively for testing isolated business logic
+- Domain layer: Value Objects, Entities, Domain Services
+- Application layer: Handlers, Services (with mocks)
+- Infrastructure layer: Specific adapters (with test doubles)
 
-**Caractéristiques** :
-- Tests rapides et isolés
-- Aucune dépendance externe
-- Focus sur la logique métier
-- Couverture de code élevée (>95% pour Domain)
+**Characteristics**:
+- Fast and isolated tests
+- No external dependencies
+- Focus on business logic
+- High code coverage (>95% for Domain)
 
-### Tests Fonctionnels (Behat) - EXCLUSIVEMENT
+### Functional Tests (Behat) - EXCLUSIVELY
 
-**IMPORTANT** : Tous les tests fonctionnels doivent être écrits en Behat. PHPUnit ne doit plus être utilisé pour les tests fonctionnels.
+**IMPORTANT**: All functional tests must be written in Behat. PHPUnit should no longer be used for functional tests.
 
-**Utilisation** : Pour tous les tests qui impliquent :
-- API REST endpoints
-- Intégrations complètes
-- Scénarios utilisateur
-- Tests end-to-end
-- Validation du comportement système
+**Usage**: For all tests involving:
+- REST API endpoints
+- Full integrations
+- User scenarios
+- End-to-end tests
+- System behavior validation
 
-**Avantages** :
-- Documentation vivante du comportement
-- Langage naturel (Gherkin)
-- Collaboration avec les parties prenantes
-- Tests orientés comportement (BDD)
+**Advantages**:
+- Living documentation of behavior
+- Natural language (Gherkin)
+- Collaboration with stakeholders
+- Behavior-Driven Development (BDD)
 
-## Structure des Tests
+## Test Structure
 
 ```
 tests/
-├── Behat/                  # Tests fonctionnels Behat
-│   └── Context/           # Contextes Behat (step definitions)
-├── [Context]/             # Tests unitaires PHPUnit par contexte
-│   ├── Unit/             # Tests unitaires purs
-│   └── Integration/      # Tests d'intégration (si nécessaire)
-└── bootstrap.php         # Configuration des tests
+├── Behat/                  # Behat functional tests
+│   └── Context/           # Behat contexts (step definitions)
+├── [Context]/             # PHPUnit unit tests by context
+│   ├── Unit/             # Pure unit tests
+│   └── Integration/      # Integration tests (if necessary)
+└── bootstrap.php         # Test configuration
 
-features/                  # Spécifications Behat
-├── [context]/            # Features groupées par contexte
-│   └── *.feature        # Scénarios en anglais
+features/                  # Behat specifications
+├── [context]/            # Features grouped by context
+│   └── *.feature        # Scenarios in English
 ```
 
-## Workflow de Testing
+## Testing Workflow
 
-### 1. Développement d'une nouvelle fonctionnalité
+### 1. Developing a new feature
 
 ```bash
-# 1. Écrire la feature Behat (comportement attendu)
+# 1. Write the Behat feature (expected behavior)
 vim features/blog/my-feature.feature
 
-# 2. Implémenter les tests unitaires PHPUnit (TDD)
+# 2. Implement the PHPUnit unit tests (TDD)
 vim tests/BlogContext/Unit/Domain/MyFeatureTest.php
 
-# 3. Implémenter le code de production
+# 3. Implement the production code
 vim src/BlogContext/Domain/MyFeature.php
 
-# 4. Implémenter les steps Behat
+# 4. Implement the Behat steps
 vim tests/Behat/Context/BlogContext.php
 
-# 5. Vérifier que tout passe
+# 5. Verify that everything passes
 docker compose exec app composer qa
 ```
 
-### 2. Testing d'API
+### 2. API Testing
 
-**TOUJOURS utiliser Behat pour les tests d'API** :
+**ALWAYS use Behat for API tests**:
 
 ```gherkin
 Feature: Article management API
@@ -97,65 +97,73 @@ Feature: Article management API
     Then the response should have status code 201
 ```
 
-### 3. Migration depuis PHPUnit fonctionnel
+### 3. Migrating from functional PHPUnit
 
-Si vous trouvez des tests fonctionnels PHPUnit :
-1. Migrer vers Behat immédiatement
-2. Supprimer l'ancien test PHPUnit
-3. Documenter la migration
+If you find functional PHPUnit tests:
+1.  Migrate to Behat immediately
+2.  Delete the old PHPUnit test
+3.  Document the migration
 
-## Commandes de Test
+## Test Commands
 
-### Tests complets
+### Full Tests
 ```bash
-# Lancer tous les tests (PHPUnit + Behat)
+# Run all tests (PHPUnit + Behat)
 docker compose exec app composer qa
 
-# PHPUnit seulement (tests unitaires)
+# PHPUnit only (unit tests)
 docker compose exec app bin/phpunit
 
-# Behat seulement (tests fonctionnels)
+# Behat only (functional tests)
 docker compose exec app vendor/bin/behat
 ```
 
-### Tests spécifiques
+### Specific Tests
 ```bash
-# PHPUnit - Un fichier spécifique
+# PHPUnit - A specific file
 docker compose exec app bin/phpunit tests/BlogContext/Unit/Domain/ArticleTest.php
 
-# Behat - Une feature spécifique
+# Behat - A specific feature
 docker compose exec app vendor/bin/behat features/blog/article-api.feature
 
-# Behat - Un scénario tagué
+# Behat - A tagged scenario
 docker compose exec app vendor/bin/behat --tags=@critical
 ```
 
 ## Best Practices
 
-### PHPUnit (Tests Unitaires)
-1. Un test par comportement
-2. Noms de tests descriptifs
-3. Arrange-Act-Assert pattern
-4. Isolation complète
-5. Pas d'I/O (DB, fichiers, réseau)
+### PHPUnit (Unit Tests)
+1.  One test per behavior
+2.  Descriptive test names
+3.  Arrange-Act-Assert pattern
+4.  Complete isolation
+5.  No I/O (DB, files, network)
 
-### Behat (Tests Fonctionnels)
-1. Features en anglais obligatoire
-2. Scénarios indépendants
-3. Background pour setup commun
-4. Steps réutilisables
-5. Contexts organisés par domaine
+### Behat (Functional Tests)
+1.  Features must be in English
+2.  Independent scenarios
+3.  Background for common setup
+4.  Reusable steps
+5.  Contexts organized by domain
 
-## Références
+## Test Patterns and Guidelines
 
-- [Guide Behat complet](behat-guide.md)
-- [TDD Implementation Guide](../agent/workflows/tdd-implementation-guide.md)
-- [QA Tools](../agent/instructions/qa-tools.md)
+### ID Generation in Tests
+- **Pattern**: [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md)
+- **Purpose**: Avoid hardcoded IDs, maintain consistency
+- **Usage**: All entity IDs should use generator traits
 
-## Points Clés à Retenir
+## References
 
-⚠️ **IMPORTANT** :
-- **PHPUnit** = Tests unitaires uniquement
-- **Behat** = TOUS les tests fonctionnels
-- Aucune exception à cette règle
-- Si vous hésitez : tests avec I/O = Behat
+- [Complete Behat Guide](behat-guide.md)
+- [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md)
+- [TDD Implementation Guide](@docs/agent/workflows/tdd-implementation-guide.md)
+- [QA Tools](@docs/agent/instructions/qa-tools.md)
+
+## Key Takeaways
+
+⚠️ **IMPORTANT**:
+- **PHPUnit** = Unit tests only
+- **Behat** = ALL functional tests
+- No exceptions to this rule
+- If in doubt: tests with I/O = Behat

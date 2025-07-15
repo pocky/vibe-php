@@ -364,7 +364,3 @@ Define context-specific terms:
 **Document Status**: Template
 **Last Updated**: [Date]
 **Version**: 1.0
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>

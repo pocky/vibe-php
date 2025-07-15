@@ -2,22 +2,75 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚀 Quick Start Guide
+
+```mermaid
+graph TB
+    subgraph "🎯 Quick Commands"
+        QS1["/understand<br/>📋 Analyze codebase"]
+        QS2["/prd<br/>🎯 Define requirements"]
+        QS3["/plan<br/>📐 Design solution"]
+        QS4["/act<br/>⚡ Implement TDD"]
+        QS5["/qa<br/>✅ Verify quality"]
+        QS6["/workflow-status<br/>📊 Check progress"]
+    end
+    
+    subgraph "📚 Essential Docs"
+        D1["🧭 Navigation Guide<br/>@docs/agent/instructions/documentation-navigation.md"]
+        D2["🏗️ Architecture<br/>@docs/agent/instructions/architecture.md"]
+        D3["🔧 Patterns<br/>@docs/reference/"]
+        D4["🧪 Testing<br/>@docs/testing/"]
+        D5["💡 Examples<br/>@docs/examples/"]
+    end
+    
+    subgraph "📦 Business Contexts"
+        C1["📝 Blog<br/>@docs/contexts/blog/"]
+        C2["🔐 Security<br/>@docs/contexts/security/"]
+        C3["💰 Billing<br/>@docs/contexts/billing/"]
+    end
+    
+    QS1 --> D1
+    QS2 --> C1
+    QS2 --> C2
+    QS2 --> C3
+    QS3 --> D2
+    QS4 --> D3
+    QS4 --> D4
+    QS5 --> D5
+    
+    style QS1 fill:#e1f5fe
+    style QS2 fill:#fff3e0
+    style QS3 fill:#f3e5f5
+    style QS4 fill:#e8f5e9
+    style QS5 fill:#ffebee
+    style QS6 fill:#fce4ec
+```
+
 ## License
 
 This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2). See the [LICENSE](LICENSE) file for details.
 
 ## Instructions
 
+### 🧭 Navigation & Getting Started
+- **Start here**: Documentation navigation guide in @docs/agent/instructions/documentation-navigation.md
+- **Quick reference**: Check the visual guide above for common tasks
+
+### 📖 Core Instructions
 - Follow global instructions in @docs/agent/instructions/global.md
 - Follow cognitive preservation principles in @docs/agent/instructions/cognitive-preservation.md
 - Follow Git workflow standards in @docs/agent/instructions/git-workflow.md
 - Follow PR management standards in @docs/agent/instructions/pr-management.md
 - Follow QA tools standards in @docs/agent/instructions/qa-tools.md
+
+### 🛠️ Technical Guidelines
 - Follow Docker best practices in @docs/agent/instructions/docker.md
 - Follow Symfony best practices in @docs/agent/instructions/symfony.md
 - Follow architecture patterns in @docs/agent/instructions/architecture.md
 - Follow Doctrine Migrations standards in @docs/agent/instructions/doctrine-migrations.md
 - Follow API Platform integration patterns in @docs/agent/instructions/api-platform-integration.md
+
+### 📚 References & Resources
 - Reference implementation patterns in @docs/reference/ for specific patterns
 - External documentation references in @docs/reference/external-docs.md
 - Available commands are in @composer.json scripts section

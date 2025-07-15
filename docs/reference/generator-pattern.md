@@ -2,6 +2,8 @@
 
 This document describes the implementation of the Generator pattern in the project, used for consistent and testable unique identifier generation.
 
+**See also**: [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md) for test-specific usage guidelines.
+
 ## Overview
 
 The Generator pattern provides an abstraction for unique identifier generation in the application. It allows decoupling business logic from specific ID generation implementation, facilitating testing and maintenance.

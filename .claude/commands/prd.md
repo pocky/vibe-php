@@ -1,13 +1,58 @@
 ---
 name: prd
-description: Create a comprehensive Product Requirements Document
+description: Create a comprehensive Product Requirements Document with integrated structure
 args:
+  - name: context-name
+    description: Name of the bounded context (e.g., blog, security, payment)
+    required: true
   - name: feature-name
     description: Name of the feature or product to document
     required: true
 ---
 
-I'll help you create a comprehensive Product Requirements Document for "{{feature-name}}". Let me gather information and structure the PRD.
+I'll help you create a comprehensive Product Requirements Document for "{{feature-name}}" in the {{context-name}} context with integrated documentation structure.
+
+## 📊 Visual PRD Creation Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> GatherRequirements
+    GatherRequirements --> DefinePersonas
+    DefinePersonas --> DocumentRequirements
+    DocumentRequirements --> CreateUserStories
+    CreateUserStories --> OrganizeDocumentation
+    OrganizeDocumentation --> Review
+    Review --> [*]
+    
+    GatherRequirements : 📋 Gather Requirements
+    GatherRequirements : • Problem identification
+    GatherRequirements : • Business goals
+    GatherRequirements : • Success metrics
+    
+    DefinePersonas : 👥 Define User Personas
+    DefinePersonas : • Target users
+    DefinePersonas : • User needs
+    DefinePersonas : • Pain points
+    
+    DocumentRequirements : 🎯 Document Requirements
+    DocumentRequirements : • Functional specs
+    DocumentRequirements : • Non-functional specs
+    DocumentRequirements : • Business rules
+    
+    CreateUserStories : 📝 Create User Stories
+    CreateUserStories : • Story breakdown
+    CreateUserStories : • Acceptance criteria
+    CreateUserStories : • Priority mapping
+    
+    OrganizeDocumentation : 📁 Organize Documentation
+    OrganizeDocumentation : • Context structure
+    OrganizeDocumentation : • File creation
+    OrganizeDocumentation : • Linking
+    
+    Review : ✅ Review & Validate
+    Review : • Completeness check
+    Review : • Stakeholder approval
+```
 
 <function_calls>
 <invoke name="TodoWrite">
@@ -19,7 +64,7 @@ I'll help you create a comprehensive Product Requirements Document for "{{featur
     "priority": "high"
   },
   {
-    "id": "2",
+    "id": "2", 
     "content": "👥 Define user personas - Identify target users and their needs",
     "status": "pending",
     "priority": "high"
@@ -27,18 +72,18 @@ I'll help you create a comprehensive Product Requirements Document for "{{featur
   {
     "id": "3",
     "content": "🎯 Document functional requirements - List all feature capabilities",
-    "status": "pending",
+    "status": "pending", 
     "priority": "high"
   },
   {
     "id": "4",
-    "content": "📐 Design user experience - Define interfaces and workflows",
+    "content": "📝 Create user stories - Break down into implementable stories",
     "status": "pending",
     "priority": "medium"
   },
   {
     "id": "5",
-    "content": "📝 Write user stories - Create testable acceptance criteria",
+    "content": "📁 Organize documentation - Create structured files in contexts/",
     "status": "pending",
     "priority": "medium"
   }
@@ -50,7 +95,7 @@ I'll help you create a comprehensive Product Requirements Document for "{{featur
 
 ### Information I Need
 
-To create a comprehensive PRD, please provide:
+To create a comprehensive PRD with integrated user stories, please provide:
 
 1. **What problem does {{feature-name}} solve?**
 2. **Who are the primary users?**
@@ -58,7 +103,23 @@ To create a comprehensive PRD, please provide:
 4. **Any business constraints?** (budget, timeline, regulations)
 5. **What does success look like for this feature?**
 
-### PRD Structure I'll Create
+### Documentation Structure I'll Create
+
+```
+docs/contexts/{{context-name}}/
+├── README.md                    # Context overview
+├── prd.md                       # Complete PRD
+├── technical-plan.md            # Technical architecture (from plan command)
+├── user-stories/
+│   ├── US-001-[story-name].md  # Individual user stories
+│   ├── US-002-[story-name].md
+│   └── ...
+└── iterations/
+    ├── iteration-1.md           # Sprint/iteration planning
+    └── ...
+```
+
+### PRD Sections
 
 1. **Product Overview**
    - Purpose and problem statement
@@ -68,7 +129,7 @@ To create a comprehensive PRD, please provide:
 2. **Goals and Success Metrics**
    - Business objectives
    - User goals
-   - Measurable KPIs and success criteria
+   - Measurable KPIs
 
 3. **User Personas**
    - Target user profiles
@@ -77,52 +138,63 @@ To create a comprehensive PRD, please provide:
 
 4. **Functional Requirements**
    - Core features and capabilities
-   - Must-have vs nice-to-have features
    - Business rules and constraints
+   - User journey mapping
 
-5. **User Experience**
-   - User journeys and workflows
-   - Key interactions and touchpoints
-   - Accessibility requirements
+5. **User Stories Summary**
+   - High-level story map
+   - Story priorities and dependencies
+   - Links to detailed stories
 
-6. **User Stories**
-   - Detailed scenarios (US-001, US-002, etc.)
-   - Acceptance criteria from user perspective
-   - Business value for each story
+6. **Non-Functional Requirements**
+   - Performance expectations
+   - Security requirements
+   - Compliance needs
 
-7. **Non-Functional Requirements**
-   - Performance expectations (user-facing)
-   - Security requirements (business level)
-   - Compliance and regulatory needs
-
-8. **Success Criteria & Metrics**
-   - How to measure feature success
+7. **Success Criteria**
+   - How to measure success
    - Key performance indicators
    - User satisfaction metrics
 
+### User Story Integration
+
+Each user story will be created as a separate file with:
+- Business context from PRD
+- Technical details (added by plan command)
+- Acceptance criteria
+- Test scenarios
+- Implementation notes
+
 ### My Approach
 
-- **Business-Focused**: Document WHAT needs to be built, not HOW
-- **User-Centric**: Focus on solving real user problems
-- **Testable Requirements**: Clear acceptance criteria from user perspective
-- **Architecture-Agnostic**: No technical implementation details
-- **Iterative Business Rules**: Follow the iterative approach for business rules development
+- **Context-Driven**: All documentation organized by bounded context
+- **Integrated**: PRD, technical plan, and user stories linked together
+- **Iterative**: Support for phased development
+- **Traceable**: Clear relationships between requirements and implementation
+
+<function_calls>
+<invoke name="Bash">
+<parameter name="command">mkdir -p docs/contexts/{{context-name}}/{user-stories,iterations}</parameter>
+<parameter name="description">Ensure context directory structure exists</parameter>
+</invoke>
+</function_calls>
 
 ### Business Rules Development
 
-I follow an **iterative approach** for business rules as documented in `@docs/agent/workflows/iterative-business-rules.md`:
+Following the **iterative approach** as documented:
 
 1. **Start Simple**: Define basic business rules focusing on the happy path
-2. **Identify Edge Cases**: List all constraints, validations, and exceptional scenarios  
-3. **Create Dedicated User Stories**: One User Story per constraint or edge case
-4. **Iterate**: Implement basic rules first, then add constraints progressively
+2. **Identify Edge Cases**: List constraints and exceptional scenarios
+3. **Create Dedicated User Stories**: One story per constraint
+4. **Iterate**: Implement basic rules first, then add constraints
 
-This approach ensures:
-- ✅ **Fast delivery** of working MVP
-- ✅ **Flexibility** to adjust priorities based on feedback
-- ✅ **Testability** with isolated, independent constraints
-- ✅ **Risk reduction** by avoiding over-engineering
+### Next Steps
 
-**Note**: Technical architecture and implementation details should be documented separately in a technical plan or architecture document.
+Once you provide the requirements, I'll:
+1. Create the context directory structure
+2. Generate the comprehensive PRD
+3. Break down requirements into user stories
+4. Create individual user story files
+5. Set up iteration planning documents
 
-Please share the details about {{feature-name}} and I'll create a detailed PRD following best practices.
+Please share the details about {{feature-name}} and I'll create the integrated documentation structure.

@@ -1,200 +1,251 @@
 ---
 name: plan
-description: Create a comprehensive technical architecture and implementation plan
+description: Create technical architecture plan integrated with PRD and user stories
+args:
+  - name: context-name
+    description: Name of the bounded context (e.g., blog, security, payment)
+    required: true
 ---
 
-I'll help you create a detailed technical architecture and implementation plan. Let me analyze your requirements and design a robust solution.
+I'll help you create a detailed technical architecture and implementation plan for the {{context-name}} context, fully integrated with the PRD and user stories.
 
 <function_calls>
 <invoke name="TodoWrite">
 <parameter name="todos">[
   {
     "id": "1",
-    "content": "📋 Requirements Analysis - Extract and validate all requirements",
+    "content": "📋 Analyze PRD - Review business requirements from PRD",
     "status": "in_progress",
     "priority": "high"
   },
   {
     "id": "2",
-    "content": "🔍 System Context - Analyze existing codebase and boundaries",
+    "content": "🔍 System Analysis - Analyze existing architecture and patterns",
     "status": "pending",
     "priority": "high"
   },
   {
     "id": "3",
-    "content": "🏗️ Architecture Design - Design components and patterns",
+    "content": "🏗️ Technical Design - Design components and architecture",
     "status": "pending",
     "priority": "high"
   },
   {
     "id": "4",
-    "content": "📐 Technical Specification - Define implementation details",
+    "content": "📐 Update User Stories - Add technical specs to each story",
     "status": "pending",
     "priority": "medium"
   },
   {
     "id": "5",
-    "content": "📝 Implementation Roadmap - Create phased delivery plan",
+    "content": "📝 Create Roadmap - Define implementation phases",
     "status": "pending",
     "priority": "medium"
   }
 ]</parameter>
 </invoke>
 </function_calls>
-  
-## Architecture Planning Process
 
-### Phase 1: Requirements Analysis 📋
+## Technical Planning Process for {{context-name}}
 
-First, I need to understand your requirements completely. Please provide:
+### 🔄 Visual Planning Flow
 
-1. **What are you trying to build?** (Main functionality)
-2. **Who will use this?** (Target users/systems)
-3. **What are the key constraints?** (Performance, budget, timeline)
-4. **Any specific technical requirements?** (Frameworks, integrations)
+```mermaid
+graph TD
+    subgraph "Analysis Phase"
+        PRD[📋 Review PRD]
+        AS[🔍 Analyze System]
+        PRD --> AS
+    end
+    
+    subgraph "Design Phase"
+        ARCH[🏗️ Architecture Design]
+        COMP[🧩 Component Design]
+        API[🔌 API Design]
+        DB[🗄️ Database Design]
+        AS --> ARCH
+        ARCH --> COMP
+        ARCH --> API
+        ARCH --> DB
+    end
+    
+    subgraph "Planning Phase"
+        US[📐 Update User Stories]
+        TECH[⚙️ Technical Specs]
+        PHASES[📅 Implementation Phases]
+        COMP --> US
+        API --> US
+        DB --> US
+        US --> TECH
+        TECH --> PHASES
+    end
+    
+    subgraph "Documentation"
+        TP[📄 Technical Plan]
+        RM[🗺️ Roadmap]
+        PHASES --> TP
+        PHASES --> RM
+    end
+    
+    style PRD fill:#fff3e0
+    style ARCH fill:#e1f5fe
+    style US fill:#f3e5f5
+    style TP fill:#e8f5e9
+```
 
-I'll analyze:
-- Explicit functional requirements
-- Implied non-functional requirements (performance, security, scalability)
-- Technical constraints and dependencies
-- Success criteria and metrics
+### Integration with PRD
 
-### My Architectural Approach
-
-I follow these principles:
-- **Domain-Driven Design**: Align architecture with business domains using bounded contexts
-- **Hexagonal Architecture**: Separate domain logic from infrastructure concerns
-- **CQRS + Event Sourcing**: Command/Query separation with domain events
-- **Migration-First Database**: Use Doctrine migrations for schema evolution
-- **Gateway Pattern**: Standardized entry points with middleware pipelines
-- **Modular Design**: Components should be loosely coupled and highly cohesive
-- **Future-Proof**: Architecture should accommodate reasonable future changes
-- **Technical Debt Awareness**: Identify and plan for managing technical debt
-- **Risk Mitigation**: Proactive identification and mitigation of technical risks
-
-### What I'll Deliver
-
-1. **Architecture Options** - 2-3 viable approaches with trade-offs
-2. **Component Design** - Detailed component specifications
-3. **Technical Stack** - Recommended technologies and justifications
-4. **Implementation Phases** - Broken down into manageable deliverables
-5. **Risk Assessment** - Technical risks and mitigation strategies
-6. **PRD Integration** - Automatic integration of technical plan into corresponding PRD
-
-### Plan Documentation
-
-I will create a comprehensive plan document in `docs/plan/` with:
-- Descriptive filename for tracking
-- Structured markdown format
-- Technical specifications
-- Implementation roadmap
-- Risk analysis
-
-**PRD Integration**: After creating the technical plan, I will automatically integrate the technical sections into the corresponding PRD document in `docs/prd/` to ensure consistency and completeness of the product documentation.
+First, I'll analyze the existing PRD to ensure technical alignment:
 
 <function_calls>
-<invoke name="Bash">
-<parameter name="command">mkdir -p docs/plan</parameter>
-<parameter name="description">Ensure plan directory exists</parameter>
+<invoke name="Read">
+<parameter name="file_path">docs/contexts/{{context-name}}/prd.md</parameter>
 </invoke>
 </function_calls>
 
-### Next Steps
+### My Technical Approach
 
-Once you provide the requirements, I'll:
-1. Analyze the existing codebase structure
-2. Design appropriate architecture patterns
-3. Create detailed technical specifications
-4. **Save the complete plan to `docs/plan/[descriptive-name]-plan.md`**
-5. **Integrate technical sections into corresponding PRD** in `docs/prd/`
-6. Provide a phased implementation roadmap
+Following our architecture principles:
+- **Domain-Driven Design**: Bounded contexts with clear boundaries
+- **Hexagonal Architecture**: Separate domain from infrastructure
+- **CQRS Pattern**: Command/Query separation
+- **Gateway Pattern**: Standardized entry points
+- **Event-Driven**: Domain events for loose coupling
 
-Please share your requirements and any existing documentation or constraints I should consider.
+### What I'll Deliver
 
-After gathering requirements, I will create a complete plan document in the `docs/plan/` directory following this process:
+1. **Technical Architecture Document** (`technical-plan.md`)
+   - System design and component architecture
+   - Technology stack and justifications
+   - Integration patterns and APIs
+   - Performance and security considerations
 
-1. **Generate descriptive filename** based on the feature/context name
-2. **Create structured plan document** with all sections populated
-3. **Save only in docs/plan/ directory** - no files created elsewhere
-4. **Automatically integrate technical sections into the corresponding PRD**
+2. **Updated User Stories** (in `user-stories/`)
+   - Technical implementation details added
+   - Architecture components specified
+   - Database changes defined
+   - API endpoints documented
 
-### Plan Document Template
+3. **Implementation Roadmap** (`iterations/`)
+   - Phased delivery plan
+   - Technical dependencies
+   - Risk mitigation strategies
 
-The generated plan will include:
+### Technical Plan Structure
 
 ```markdown
-# Technical Architecture Plan - [DATE-TIME]
+# Technical Architecture Plan - {{context-name}}
 
-## Project Overview
-- Requirements summary
-- Stakeholders and users
-- Success criteria
+## Overview
+- Link to PRD sections
+- Technical goals and constraints
 
-## Architecture Analysis  
-- Current system analysis
-- Proposed architecture options
-- Trade-offs and recommendations
+## Architecture Design
+### Domain Model
+- Aggregates and entities
+- Value objects
+- Domain events
 
-## Technical Specifications
-- Component designs
-- Technology stack
-- Integration patterns
+### Application Layer
+- Commands and handlers
+- Queries and handlers
+- Gateways and middleware
 
-## Implementation Roadmap
-- Phased delivery plan
-- Timeline and milestones
-- Resource requirements
+### Infrastructure
+- Persistence strategy
+- External integrations
+- Security implementation
+
+### API Design
+- REST endpoints
+- GraphQL schema (if applicable)
+- API documentation
+
+## Implementation Details
+### For Each User Story
+- Technical approach
+- Component interactions
+- Database migrations
+- Performance considerations
+
+## Technology Stack
+- Languages and frameworks
+- Libraries and tools
+- Infrastructure requirements
+
+## Testing Strategy
+- Unit test approach
+- Integration test plan
+- Performance testing
+
+## Deployment Architecture
+- Environment setup
+- CI/CD pipeline
+- Monitoring and logging
 
 ## Risk Assessment
-- Technical risks identified
+- Technical risks
 - Mitigation strategies
 - Contingency plans
-
-## Appendices
-- Reference materials
-- Additional resources
 ```
 
-**Note**: All planning artifacts will be saved in the `docs/plan/` directory structure to ensure proper documentation and traceability. No files will be created outside of the documentation structure.
+### User Story Technical Integration
 
-## PRD Integration Process
-
-After creating the technical plan, I will automatically:
-
-1. **Identify corresponding PRD**: Locate the matching PRD document in `docs/prd/` 
-2. **Extract technical sections**: Pull relevant technical details from the plan
-3. **Create Technical Implementation section**: Add a comprehensive technical section to the PRD
-4. **Maintain consistency**: Ensure technical details align with business requirements
-5. **Update both documents**: Keep plan and PRD synchronized
-
-### Technical Sections Added to PRD
-
-The following sections will be integrated into the PRD:
+For each user story, I'll add:
 
 ```markdown
-## Technical Implementation Plan
+## Technical Implementation
 
-### Architecture Overview
-- [Technical approach and patterns from plan]
-- [Key technology decisions and justifications]
+### Architecture Components
+- **Domain**: [Specific domain objects]
+- **Application**: [Commands, Queries, Gateways]
+- **Infrastructure**: [Repositories, Services]
+- **UI**: [API endpoints, Controllers]
 
-### Implementation Roadmap
-- [Phased delivery timeline from plan]
-- [Technical milestones and dependencies]
+### Database Schema
+- Tables affected
+- Migrations required
+- Indexes needed
 
-### Technical Specifications
-- [Component designs and interfaces]
-- [Database schema and migrations strategy]
-- [Performance and security considerations]
+### API Specification
+- Endpoint: [HTTP method and path]
+- Request/Response format
+- Error handling
 
-### Development Standards
-- [Code quality requirements]
-- [Testing strategy and coverage targets]
-- [Documentation and review processes]
+### Performance Requirements
+- Expected load
+- Response time targets
+- Caching strategy
 
-### Risk Assessment & Mitigation
-- [Technical risks identified in plan]
-- [Mitigation strategies and contingency plans]
+### Security Considerations
+- Authentication required
+- Authorization rules
+- Data validation
 ```
 
-This integration ensures that business stakeholders have complete visibility into both the requirements AND the technical implementation strategy in a single, comprehensive document.
+### Process Flow
+
+1. **Read PRD** → Extract business requirements
+2. **Design Architecture** → Create technical solutions
+3. **Update User Stories** → Add technical details to each story
+4. **Create Roadmap** → Plan iterative implementation
+5. **Document Risks** → Identify and plan mitigations
+
+### Next Steps
+
+I'll need to:
+1. Access the PRD for {{context-name}} context
+2. Analyze existing code structure
+3. Create the technical plan document
+4. Update each user story with technical details
+5. Create iteration plans with technical milestones
+
+<function_calls>
+<invoke name="LS">
+<parameter name="path">docs/contexts/{{context-name}}</parameter>
+</invoke>
+</function_calls>
+
+Once I have access to the PRD and user stories, I'll create a comprehensive technical plan that integrates seamlessly with the business documentation.
+
+Please confirm the context name and I'll begin the technical planning process.
