@@ -9,9 +9,8 @@ use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
-use App\Shared\Application\Gateway\Middleware\MiddlewareInterface;
 
-final readonly class Validation implements MiddlewareInterface
+final readonly class Validation
 {
     public function __construct(
         private ArticleRepositoryInterface $articleRepository,

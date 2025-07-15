@@ -266,6 +266,17 @@ This ensures code quality is maintained throughout development, not just checked
       └── UI/
   ```
 
+### Shared Code Restrictions
+- **CRITICAL**: The `src/Shared/` directory contains core framework code
+- **NEVER** modify any file in `src/Shared/` unless explicitly requested by the user
+- **ALWAYS** ask for confirmation before making changes to `src/Shared/`
+- The Shared directory includes:
+  - Gateway infrastructure (DefaultGateway, middleware, etc.)
+  - Message Bus interfaces and implementations
+  - Core abstractions (Specifications, Generators, etc.)
+  - Infrastructure utilities (Slugger, Paginator, etc.)
+- When implementing features, use the existing Shared components, don't modify them
+
 ### Testing Structure
 - Tests should be in the `tests/` directory
 - The structure of `tests/` should mirror that of `src/`

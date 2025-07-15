@@ -20,17 +20,12 @@ final readonly class Pipe
 
     public function __invoke(GatewayRequest $request, callable|null $next = null): GatewayResponse
     {
-        $current = $next;
-        for ($i = count($this->middlewares) - 1; 0 <= $i; --$i) {
-            $middleware = $this->middlewares[$i];
-            $current = static fn ($request) => $middleware($request, $current);
+        foreach (array_reverse($this->middlewares) as $middleware) {
+            $next = static fn ($request) => $middleware($request, $next);
         }
 
-        Assert::notNull($current);
+        Assert::notNull($next);
 
-        /** @var GatewayResponse $response */
-        $response = $current($request);
-
-        return $response;
+        return $next($request);
     }
 }
