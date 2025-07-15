@@ -10,6 +10,8 @@ final readonly class Query
         public int $page = 1,
         public int $limit = 20,
         public string|null $status = null,
+        public string|null $search = null,
+        public string|null $articleId = null,
     ) {
     }
 }

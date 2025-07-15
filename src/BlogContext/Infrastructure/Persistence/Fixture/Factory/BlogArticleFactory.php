@@ -32,6 +32,12 @@ final class BlogArticleFactory extends PersistentProxyObjectFactory
             'createdAt' => new \DateTimeImmutable(),
             'updatedAt' => null,
             'publishedAt' => 'published' === $status ? new \DateTimeImmutable() : null,
+            'authorId' => Uuid::v7(),
+            'submittedAt' => null,
+            'reviewedAt' => null,
+            'reviewerId' => null,
+            'approvalReason' => null,
+            'rejectionReason' => null,
         ];
     }
 
@@ -63,6 +69,63 @@ final class BlogArticleFactory extends PersistentProxyObjectFactory
     {
         return $this->with([
             'slug' => $slug,
+        ]);
+    }
+
+    public function pendingReview(): static
+    {
+        return $this->with([
+            'status' => 'pending_review',
+            'submittedAt' => new \DateTimeImmutable(),
+            'publishedAt' => null,
+            'reviewedAt' => null,
+            'reviewerId' => null,
+            'approvalReason' => null,
+            'rejectionReason' => null,
+        ]);
+    }
+
+    public function approved(): static
+    {
+        $reviewedAt = new \DateTimeImmutable();
+
+        return $this->with([
+            'status' => 'approved',
+            'submittedAt' => new \DateTimeImmutable('-2 days'),
+            'reviewedAt' => $reviewedAt,
+            'reviewerId' => Uuid::v7(),
+            'approvalReason' => self::faker()->sentence(8),
+            'rejectionReason' => null,
+            'publishedAt' => null,
+        ]);
+    }
+
+    public function rejected(): static
+    {
+        $reviewedAt = new \DateTimeImmutable();
+
+        return $this->with([
+            'status' => 'rejected',
+            'submittedAt' => new \DateTimeImmutable('-3 days'),
+            'reviewedAt' => $reviewedAt,
+            'reviewerId' => Uuid::v7(),
+            'approvalReason' => null,
+            'rejectionReason' => self::faker()->paragraphs(2, true),
+            'publishedAt' => null,
+        ]);
+    }
+
+    public function withAuthor(string $authorId): static
+    {
+        return $this->with([
+            'authorId' => Uuid::fromString($authorId),
+        ]);
+    }
+
+    public function withReviewer(string $reviewerId): static
+    {
+        return $this->with([
+            'reviewerId' => Uuid::fromString($reviewerId),
         ]);
     }
 }

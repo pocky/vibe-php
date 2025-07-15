@@ -520,6 +520,67 @@ class ArticleController
 4. **Read models**: Queries return optimized view objects
 5. **Service container**: Auto-wire all Gateway dependencies
 
+### 🔍 Pattern Recognition for Gateway Requests
+
+**CRITICAL**: Always analyze existing patterns before creating new Gateway Request classes.
+
+#### Existing Request Patterns in BlogContext
+
+**Pattern A: Simple Operations** (Get, Delete, Single Parameter)
+- **Model**: `GetArticle/Request.php`
+- **Use for**: ID-based operations, minimal validation
+- **Validation**: Basic checks with `\InvalidArgumentException`
+- **Example**: `SubmitForReview`, `ApproveArticle`, `RejectArticle`
+
+```php
+// ✅ CORRECT: Follow GetArticle pattern
+public static function fromData(array $data): self
+{
+    if (empty($data['id'] ?? '')) {
+        throw new \InvalidArgumentException('Article ID is required');
+    }
+    return new self($data['id']);
+}
+```
+
+**Pattern B: Complex Operations** (Create, Update, Multiple Fields)
+- **Model**: `CreateArticle/Request.php` 
+- **Use for**: Form-like operations, rich business rules
+- **Validation**: Symfony Validator attributes + `\InvalidArgumentException`
+- **Example**: `CreateArticle`, `UpdateArticle`
+
+```php
+// ✅ CORRECT: Follow CreateArticle pattern
+public function __construct(
+    #[Assert\NotBlank(message: 'Title is required')]
+    #[Assert\Length(min: 5, max: 200)]
+    public string $title,
+) {}
+```
+
+#### 🚨 Common Pattern Recognition Errors
+
+**❌ DON'T Create New Validation Patterns**:
+```php
+// ❌ WRONG: Creating inconsistent pattern
+throw new GatewayException('Message', 400, new \InvalidArgumentException(...));
+```
+
+**✅ DO Follow Existing Patterns**:
+```php
+// ✅ CORRECT: Use established exception handling
+throw new \InvalidArgumentException('Message');
+```
+
+#### Pattern Selection Decision Matrix
+
+| Operation Complexity | Fields Count | Best Model | Exception Type |
+|---------------------|--------------|------------|----------------|
+| Simple ID operations | 1-2 | `GetArticle/Request.php` | `\InvalidArgumentException` |
+| Rich business forms | 3+ | `CreateArticle/Request.php` | Symfony Validator |
+
+**See**: `@docs/reference/pattern-recognition-guide.md` for complete pattern analysis.
+
 ### 🚫 Anti-Patterns to Avoid
 
 1. **Business logic in Gateway**: Domain logic stays in aggregates
@@ -528,6 +589,7 @@ class ArticleController
 4. **Direct handler calls**: Always use Processor middleware for CQRS
 5. **Missing validation**: Every Gateway must have Validation middleware
 6. **Inconsistent responses**: Always implement GatewayResponse interface
+7. **🆕 Pattern inconsistency**: Always follow existing Request patterns, never create new validation approaches
 
 ## Instrumentation System
 

@@ -14,6 +14,11 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Index(columns: ['status'], name: 'idx_articles_status')]
 #[ORM\Index(columns: ['slug'], name: 'idx_articles_slug')]
 #[ORM\Index(columns: ['published_at'], name: 'idx_articles_published_at')]
+#[ORM\Index(columns: ['author_id'], name: 'idx_articles_author_id')]
+#[ORM\Index(columns: ['submitted_at'], name: 'idx_articles_submitted_at')]
+#[ORM\Index(columns: ['reviewed_at'], name: 'idx_articles_reviewed_at')]
+#[ORM\Index(columns: ['reviewer_id'], name: 'idx_articles_reviewer_id')]
+#[ORM\Index(columns: ['status', 'submitted_at'], name: 'idx_articles_review_queue')]
 class BlogArticle
 {
     public function __construct(
@@ -33,7 +38,19 @@ class BlogArticle
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
         private \DateTimeImmutable|null $updatedAt = null,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-        private \DateTimeImmutable|null $publishedAt = null
+        private \DateTimeImmutable|null $publishedAt = null,
+        #[ORM\Column(type: UuidType::NAME, nullable: true)]
+        private Uuid|null $authorId = null,
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+        private \DateTimeImmutable|null $submittedAt = null,
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+        private \DateTimeImmutable|null $reviewedAt = null,
+        #[ORM\Column(type: UuidType::NAME, nullable: true)]
+        private Uuid|null $reviewerId = null,
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
+        private string|null $approvalReason = null,
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
+        private string|null $rejectionReason = null
     ) {
     }
 
@@ -105,6 +122,66 @@ class BlogArticle
     public function setPublishedAt(\DateTimeImmutable $publishedAt): void
     {
         $this->publishedAt = $publishedAt;
+    }
+
+    public function getAuthorId(): Uuid|null
+    {
+        return $this->authorId;
+    }
+
+    public function setAuthorId(Uuid|null $authorId): void
+    {
+        $this->authorId = $authorId;
+    }
+
+    public function getSubmittedAt(): \DateTimeImmutable|null
+    {
+        return $this->submittedAt;
+    }
+
+    public function setSubmittedAt(\DateTimeImmutable|null $submittedAt): void
+    {
+        $this->submittedAt = $submittedAt;
+    }
+
+    public function getReviewedAt(): \DateTimeImmutable|null
+    {
+        return $this->reviewedAt;
+    }
+
+    public function setReviewedAt(\DateTimeImmutable|null $reviewedAt): void
+    {
+        $this->reviewedAt = $reviewedAt;
+    }
+
+    public function getReviewerId(): Uuid|null
+    {
+        return $this->reviewerId;
+    }
+
+    public function setReviewerId(Uuid|null $reviewerId): void
+    {
+        $this->reviewerId = $reviewerId;
+    }
+
+    public function getApprovalReason(): string|null
+    {
+        return $this->approvalReason;
+    }
+
+    public function setApprovalReason(string|null $approvalReason): void
+    {
+        $this->approvalReason = $approvalReason;
+    }
+
+    public function getRejectionReason(): string|null
+    {
+        return $this->rejectionReason;
+    }
+
+    public function setRejectionReason(string|null $rejectionReason): void
+    {
+        $this->rejectionReason = $rejectionReason;
     }
 
     public function updateContent(string $title, string $content, string $slug): void

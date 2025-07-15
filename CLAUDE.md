@@ -21,6 +21,7 @@ graph TB
         D3["🔧 Patterns<br/>@docs/reference/"]
         D4["🧪 Testing<br/>@docs/testing/"]
         D5["💡 Examples<br/>@docs/examples/"]
+        D6["🔍 Pattern Recognition<br/>@docs/reference/pattern-recognition-guide.md"]
     end
     
     subgraph "📦 Business Contexts"
@@ -34,6 +35,7 @@ graph TB
     QS2 --> C2
     QS2 --> C3
     QS3 --> D2
+    QS4 --> D6
     QS4 --> D3
     QS4 --> D4
     QS5 --> D5
@@ -44,6 +46,7 @@ graph TB
     style QS4 fill:#e8f5e9
     style QS5 fill:#ffebee
     style QS6 fill:#fce4ec
+    style D6 fill:#fff9c4
 ```
 
 ## License

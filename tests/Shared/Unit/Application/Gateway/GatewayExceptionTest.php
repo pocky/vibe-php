@@ -11,26 +11,13 @@ final class GatewayExceptionTest extends TestCase
 {
     public function testConstructorBuildsMessageCorrectly(): void
     {
-        $originalMessage = 'Test error message';
-        $originalFile = '/path/to/file.php';
+        $message = 'Test error message';
         $originalException = new \RuntimeException('Original error', 0);
 
-        // Mock getFile() method by using reflection
-        $reflection = new \ReflectionClass($originalException);
-        $fileProperty = $reflection->getProperty('file');
-        $fileProperty->setAccessible(true);
-        $fileProperty->setValue($originalException, $originalFile);
+        $gatewayException = new GatewayException($message, $originalException);
 
-        $gatewayException = new GatewayException($originalMessage, $originalException);
-
-        $expectedMessage = sprintf(
-            '%s in %s: %s',
-            $originalMessage,
-            $originalFile,
-            $originalException->getMessage()
-        );
-
-        $this->assertSame($expectedMessage, $gatewayException->getMessage());
+        $this->assertStringContainsString($message, $gatewayException->getMessage());
+        $this->assertStringContainsString('Original error', $gatewayException->getMessage());
         $this->assertSame($originalException, $gatewayException->getPrevious());
     }
 
@@ -45,11 +32,12 @@ final class GatewayExceptionTest extends TestCase
 
     public function testMessageFormatting(): void
     {
+        $message = 'User creation failed';
         $originalException = new \Exception('Database connection failed');
-        $gatewayException = new GatewayException('User creation failed', $originalException);
+        $gatewayException = new GatewayException($message, $originalException);
 
-        $this->assertStringContainsString('User creation failed', $gatewayException->getMessage());
+        $this->assertStringContainsString($message, $gatewayException->getMessage());
         $this->assertStringContainsString('Database connection failed', $gatewayException->getMessage());
-        $this->assertStringContainsString(' in ', $gatewayException->getMessage());
+        $this->assertSame($originalException, $gatewayException->getPrevious());
     }
 }

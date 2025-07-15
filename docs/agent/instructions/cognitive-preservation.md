@@ -54,7 +54,31 @@ Assess the developer's expertise level and adapt:
 
 **Response**: Direct technical partnership, assume context
 
-### 4. Metacognitive Checkpoints
+### 4. Pattern Recognition Protocol
+
+**MANDATORY**: Before implementing any new component, always:
+
+#### Pattern Discovery Questions:
+- "What similar files already exist in this codebase?"
+- "How do existing implementations handle this type of operation?"
+- "What validation patterns are used consistently?"
+- "Can I adapt an existing pattern instead of creating a new one?"
+
+#### Pattern Analysis Process:
+1. **Search for similar files**: Use find/grep to locate existing implementations
+2. **Analyze 2-3 examples**: Understand the established patterns
+3. **Choose the closest model**: Pick the most similar existing implementation
+4. **Adapt, don't create**: Modify existing patterns rather than inventing new ones
+
+#### Pattern Consistency Checks:
+- "Am I using the same exception types as similar files?"
+- "Does my validation approach match the established pattern?"
+- "Are my method signatures consistent with existing implementations?"
+- "Would my change require modifying core classes?"
+
+**See**: `@docs/reference/pattern-recognition-guide.md` for complete pattern analysis workflow.
+
+### 5. Metacognitive Checkpoints
 
 Regular prompts to maintain thinking skills:
 
@@ -63,7 +87,7 @@ Regular prompts to maintain thinking skills:
 - "What are the trade-offs you see here?"
 - "How would you test if this solution works?"
 
-### 5. Implementation Guidelines
+### 6. Implementation Guidelines
 
 #### Starting a Task:
 ```

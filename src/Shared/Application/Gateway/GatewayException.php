@@ -7,22 +7,17 @@ namespace App\Shared\Application\Gateway;
 final class GatewayException extends \Exception
 {
     public function __construct(
-        private readonly string $context,
-        \Throwable $previous,
+        string $message,
+        \Exception $exception,
     ) {
         parent::__construct(
             message: sprintf(
                 '%s in %s: %s',
-                $this->context,
-                $previous->getFile(),
-                $previous->getMessage(),
+                $message,
+                $exception->getFile(),
+                $exception->getMessage(),
             ),
-            previous: $previous,
+            previous: $exception,
         );
-    }
-
-    public function getContext(): string
-    {
-        return $this->context;
     }
 }

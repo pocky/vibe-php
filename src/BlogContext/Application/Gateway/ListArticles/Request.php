@@ -13,6 +13,7 @@ final readonly class Request implements GatewayRequest
         public int $limit = 20,
         public string|null $status = null,
         public string|null $search = null,
+        public string|null $articleId = null,
     ) {
     }
 
@@ -22,6 +23,7 @@ final readonly class Request implements GatewayRequest
         $limit = $data['limit'] ?? 20;
         $status = $data['status'] ?? null;
         $search = $data['search'] ?? null;
+        $articleId = $data['articleId'] ?? null;
 
         if (0 >= $page) {
             throw new \InvalidArgumentException('Page must be greater than 0');
@@ -31,7 +33,7 @@ final readonly class Request implements GatewayRequest
             throw new \InvalidArgumentException('Limit must be between 1 and 100');
         }
 
-        return new self($page, $limit, $status, $search);
+        return new self($page, $limit, $status, $search, $articleId);
     }
 
     public function data(): array
@@ -41,6 +43,7 @@ final readonly class Request implements GatewayRequest
             'limit' => $this->limit,
             'status' => $this->status,
             'search' => $this->search,
+            'articleId' => $this->articleId,
         ];
     }
 }

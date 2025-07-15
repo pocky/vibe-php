@@ -45,6 +45,7 @@ final class RequestTest extends TestCase
             'limit' => 5,
             'status' => 'draft',
             'search' => null,
+            'articleId' => null,
         ];
 
         $request = Request::fromData($originalData);

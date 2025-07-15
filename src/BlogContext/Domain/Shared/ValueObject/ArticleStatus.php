@@ -7,6 +7,9 @@ namespace App\BlogContext\Domain\Shared\ValueObject;
 enum ArticleStatus: string
 {
     case DRAFT = 'draft';
+    case PENDING_REVIEW = 'pending_review';
+    case APPROVED = 'approved';
+    case REJECTED = 'rejected';
     case PUBLISHED = 'published';
     case ARCHIVED = 'archived';
 
@@ -38,6 +41,39 @@ enum ArticleStatus: string
     public function isArchived(): bool
     {
         return self::ARCHIVED === $this;
+    }
+
+    public function isPendingReview(): bool
+    {
+        return self::PENDING_REVIEW === $this;
+    }
+
+    public function isApproved(): bool
+    {
+        return self::APPROVED === $this;
+    }
+
+    public function isRejected(): bool
+    {
+        return self::REJECTED === $this;
+    }
+
+    public function canBeSubmittedForReview(): bool
+    {
+        return match ($this) {
+            self::DRAFT, self::REJECTED => true,
+            default => false,
+        };
+    }
+
+    public function canBeReviewed(): bool
+    {
+        return self::PENDING_REVIEW === $this;
+    }
+
+    public function canBePublished(): bool
+    {
+        return self::APPROVED === $this;
     }
 
     public function equals(self $other): bool

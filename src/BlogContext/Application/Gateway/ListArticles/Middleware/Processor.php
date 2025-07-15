@@ -25,6 +25,8 @@ final readonly class Processor
             page: $request->page,
             limit: $request->limit,
             status: $request->status,
+            search: $request->search,
+            articleId: $request->articleId,
         );
 
         $result = ($this->handler)($query);

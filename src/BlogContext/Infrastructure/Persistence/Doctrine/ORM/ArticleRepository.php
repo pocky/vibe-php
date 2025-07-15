@@ -68,6 +68,18 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
                 $entity->setPublishedAt($article->publishedAt);
                 $entity->setUpdatedAt(new \DateTimeImmutable());
             }
+        } elseif ($article instanceof \App\BlogContext\Domain\SubmitForReview\DataPersister\Article) {
+            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->getArticleId()->getValue()));
+            if ($entity instanceof BlogArticle) {
+                $entity->setStatus($article->getStatus()->value);
+                $entity->setUpdatedAt(new \DateTimeImmutable());
+            }
+        } elseif ($article instanceof \App\BlogContext\Domain\ReviewArticle\DataPersister\ReviewedArticle) {
+            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($article->getArticleId()->getValue()));
+            if ($entity instanceof BlogArticle) {
+                $entity->setStatus($article->getStatus()->value);
+                $entity->setUpdatedAt(new \DateTimeImmutable());
+            }
         } else {
             throw new \InvalidArgumentException('Unsupported article type: ' . $article::class);
         }

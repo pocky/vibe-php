@@ -10,10 +10,13 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\BlogContext\UI\Api\Rest\Processor\ApproveArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\AutoSaveArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\CreateArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\DeleteArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\PublishArticleProcessor;
+use App\BlogContext\UI\Api\Rest\Processor\RejectArticleProcessor;
+use App\BlogContext\UI\Api\Rest\Processor\SubmitForReviewProcessor;
 use App\BlogContext\UI\Api\Rest\Processor\UpdateArticleProcessor;
 use App\BlogContext\UI\Api\Rest\Provider\GetArticleProvider;
 use App\BlogContext\UI\Api\Rest\Provider\ListArticlesProvider;
@@ -63,6 +66,33 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'api_articles_auto_save',
             provider: GetArticleProvider::class,
             processor: AutoSaveArticleProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/articles/{id}/submit-for-review',
+            description: 'Submit article for editorial review',
+            read: true,
+            deserialize: false,
+            name: 'api_articles_submit_for_review',
+            provider: GetArticleProvider::class,
+            processor: SubmitForReviewProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/articles/{id}/approve',
+            description: 'Approve article for publication',
+            read: true,
+            deserialize: false,
+            name: 'api_articles_approve',
+            provider: GetArticleProvider::class,
+            processor: ApproveArticleProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/articles/{id}/reject',
+            description: 'Reject article with feedback',
+            read: true,
+            deserialize: false,
+            name: 'api_articles_reject',
+            provider: GetArticleProvider::class,
+            processor: RejectArticleProcessor::class,
         ),
     ],
 )]
