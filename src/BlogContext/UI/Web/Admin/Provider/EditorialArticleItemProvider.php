@@ -37,12 +37,12 @@ final readonly class EditorialArticleItemProvider implements ProviderInterface
             $response = ($this->getArticleGateway)($getRequest);
             $data = $response->data();
 
-            if (!isset($data['article'])) {
+            if ([] === $data) {
                 return null;
             }
 
             /** @var array<string, mixed> $article */
-            $article = $data['article'];
+            $article = $data;
 
             return new EditorialArticleResource(
                 id: $article['id'],

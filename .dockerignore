@@ -19,5 +19,4 @@ vendor/
 auth.json
 
 .ecs_cache/
-etc/
 features/

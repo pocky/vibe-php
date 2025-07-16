@@ -7,7 +7,7 @@ namespace App\BlogContext\UI\Web\Admin\Provider;
 use App\BlogContext\Application\Gateway\ListArticles\Gateway as ListArticlesGateway;
 use App\BlogContext\Application\Gateway\ListArticles\Request as ListArticlesRequest;
 use App\BlogContext\UI\Web\Admin\Resource\EditorialArticleResource;
-use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\FixedAdapter;
 use Pagerfanta\Pagerfanta;
 use Sylius\Component\Grid\Data\DataProviderInterface;
 use Sylius\Component\Grid\Definition\Grid;
@@ -23,7 +23,7 @@ final readonly class EditorialArticleGridProvider implements DataProviderInterfa
     public function getData(Grid $grid, Parameters $parameters): Pagerfanta
     {
         $page = (int) $parameters->get('page', 1);
-        $limit = (int) $parameters->get('limit', 20);
+        $limit = (int) $parameters->get('limit', 10);
         $criteria = $parameters->get('criteria', []);
         $status = is_array($criteria) ? ($criteria['status'] ?? 'pending_review') : 'pending_review';
         $sorting = $parameters->get('sorting', []);
@@ -48,7 +48,11 @@ final readonly class EditorialArticleGridProvider implements DataProviderInterfa
             }
         }
 
-        $adapter = new ArrayAdapter($articles);
+        // Get total count from response
+        $totalCount = $responseData['total'] ?? count($articles);
+
+        // Create a FixedAdapter with the pre-paginated data
+        $adapter = new FixedAdapter($totalCount, $articles);
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setCurrentPage($page);

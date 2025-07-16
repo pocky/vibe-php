@@ -28,6 +28,7 @@ final class ArticleGrid extends AbstractGrid implements ResourceAwareGridInterfa
     {
         $gridBuilder
             ->setProvider(ArticleGridProvider::class)
+            ->setLimits([10, 20, 50])
             ->addField(StringField::create('title'))
             ->addField(StringField::create('status'))
             ->addField(DateTimeField::create('createdAt'))

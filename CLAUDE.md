@@ -125,9 +125,16 @@ When working with AI agents in this codebase, follow the two-step approach docum
 
 This separation ensures better control, higher quality results, and easier debugging.
 
-## TDD Protocol for /act Command
+### 🚨 CRITICAL: Test-Driven Development is MANDATORY
 
-When using the `/act` command, **MANDATORY Test-Driven Development approach**:
+**ALL code in this project MUST be built using Test-Driven Development (TDD). No exceptions.**
+- Write failing tests FIRST, then implement code to make them pass
+- Direct implementation without tests is STRICTLY FORBIDDEN
+- See the "Mandatory TDD Protocol" section below for detailed requirements
+
+## Mandatory TDD Protocol for All Code Development
+
+**For ALL code development, Test-Driven Development is MANDATORY**. No exceptions.
 
 ### 1. Strict Red-Green-Refactor Cycle
 - **RED Phase**: Write failing tests FIRST, implementation comes AFTER
@@ -148,9 +155,9 @@ git commit -m "refactor: improve [aspect] while keeping tests green"
 
 ### 3. Cognitive Preservation Questions
 Before using `exit_plan_mode`, ALWAYS ask:
-- "Do you want me to follow strict TDD Red-Green-Refactor cycles?"
-- "Should I stop after each phase for your validation?"
+- "TDD is mandatory. Should I stop after each phase for your validation?"
 - "What specific testing approach do you prefer for this feature?"
+- "Are there any special testing considerations I should be aware of?"
 
 ### 4. Plan Structure Requirements
 All `/act` plans MUST explicitly include:
@@ -160,7 +167,9 @@ All `/act` plans MUST explicitly include:
 - **Validation Points** - Where to pause for developer confirmation
 
 ### 5. Never Skip Tests
-- NEVER implement code before writing failing tests
+- **NEVER write implementation code without failing tests first**
+- **ALL code must be built using TDD - no exceptions**
+- **Direct implementation bypassing TDD is strictly prohibited**
 - NEVER use `exit_plan_mode` without TDD phases in the plan
 - ALWAYS write tests that fail for the right reasons
 - Implementation must be driven by making tests pass
@@ -173,9 +182,10 @@ This ensures developer skill preservation and prevents over-automation.
 
 When implementing ANY feature or fixing ANY bug, you MUST:
 
-1. **ALWAYS use `/act` command** for new feature implementations
-   - This ensures TDD approach is followed systematically
-   - Never bypass TDD by implementing directly
+1. **Follow the Mandatory TDD Protocol** for ALL code development
+   - TDD is the ONLY acceptable approach for building code
+   - Use the `/act` command as it enforces proper TDD workflow
+   - Direct implementation without tests is FORBIDDEN
 
 2. **Run QA continuously during development**:
    ```bash

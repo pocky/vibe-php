@@ -7,7 +7,7 @@ namespace App\BlogContext\UI\Web\Admin\Provider;
 use App\BlogContext\Application\Gateway\ListArticles\Gateway as ListArticlesGateway;
 use App\BlogContext\Application\Gateway\ListArticles\Request as ListArticlesRequest;
 use App\BlogContext\UI\Web\Admin\Resource\ArticleResource;
-use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Adapter\FixedAdapter;
 use Pagerfanta\Pagerfanta;
 use Sylius\Component\Grid\Data\DataProviderInterface;
 use Sylius\Component\Grid\Definition\Grid;
@@ -24,7 +24,7 @@ final readonly class ArticleGridProvider implements DataProviderInterface
     {
         // Get current page and items per page from grid parameters
         $page = max(1, (int) $parameters->get('page', 1));
-        $itemsPerPage = max(1, (int) $parameters->get('limit', 20));
+        $itemsPerPage = max(1, (int) $parameters->get('limit', 10));
 
         // Get criteria from parameters (for filtering)
         $criteria = $parameters->get('criteria', []);
@@ -51,8 +51,11 @@ final readonly class ArticleGridProvider implements DataProviderInterface
             }
         }
 
-        // Create pagerfanta adapter
-        $adapter = new ArrayAdapter($articles);
+        // Get total count from response
+        $totalCount = $responseData['total'] ?? count($articles);
+
+        // Create a FixedAdapter with the pre-paginated data
+        $adapter = new FixedAdapter($totalCount, $articles);
         $pagerfanta = new Pagerfanta($adapter);
 
         // Set current page and max per page

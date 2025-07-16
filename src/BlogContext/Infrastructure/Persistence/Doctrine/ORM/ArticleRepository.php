@@ -137,7 +137,7 @@ final readonly class ArticleRepository implements ArticleRepositoryInterface
                 ->setParameter('status', $filters['status']);
         }
 
-        $total = $countQb->getQuery()->getSingleScalarResult();
+        $total = (int) $countQb->getQuery()->getSingleScalarResult();
 
         // Convert entities to domain models
         $items = array_map(

@@ -6,6 +6,8 @@
       "WebFetch(domain:www.doctrine-project.org)",
       "WebFetch(domain:docs.behat.org)",
       "WebFetch(domain:packagist.org)",
+      "WebFetch(domain:stack.sylius.com)",
+      "WebFetch(domain:github.com)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
       "Bash(docker compose exec:*)",
@@ -18,9 +20,7 @@
       "Bash(grep:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "WebFetch(domain:stack.sylius.com)",
-      "WebFetch(domain:github.com)",
-      "Bash(docker compose logs:*)"
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": [],
     "hooks": {

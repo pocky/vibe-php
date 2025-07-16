@@ -7,6 +7,8 @@ namespace App\BlogContext\UI\Web\Admin\Provider;
 use App\BlogContext\Application\Gateway\ListArticles\Gateway as ListArticlesGateway;
 use App\BlogContext\Application\Gateway\ListArticles\Request as ListArticlesRequest;
 use App\BlogContext\UI\Web\Admin\Resource\ArticleResource;
+use Pagerfanta\Adapter\FixedAdapter;
+use Pagerfanta\Pagerfanta;
 use Sylius\Resource\Context\Context;
 use Sylius\Resource\Context\Option\RequestOption;
 use Sylius\Resource\Metadata\Operation;
@@ -19,16 +21,13 @@ final readonly class ArticleCollectionProvider implements ProviderInterface
     ) {
     }
 
-    /**
-     * @return array<ArticleResource>
-     */
-    public function provide(Operation $operation, Context $context): array
+    public function provide(Operation $operation, Context $context): Pagerfanta
     {
         $request = $context->get(RequestOption::class)?->request();
 
         // Get pagination parameters from request
-        $page = $request ? (int) $request->query->get('page', 1) : 1;
-        $limit = $request ? (int) $request->query->get('limit', 20) : 20;
+        $page = $request ? (int) $request->query->get('page', '1') : 1;
+        $limit = $request ? (int) $request->query->get('limit', '20') : 20;
 
         // Create gateway request
         $gatewayRequest = ListArticlesRequest::fromData([
@@ -51,7 +50,18 @@ final readonly class ArticleCollectionProvider implements ProviderInterface
             }
         }
 
-        return $articles;
+        // Get total count from response
+        $totalCount = $responseData['total'] ?? count($articles);
+
+        // Create a FixedAdapter with the pre-paginated data
+        $adapter = new FixedAdapter($totalCount, $articles);
+
+        // Create Pagerfanta instance
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta->setMaxPerPage($limit);
+        $pagerfanta->setCurrentPage($page);
+
+        return $pagerfanta;
     }
 
     private function transformToResource(array $data): ArticleResource

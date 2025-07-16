@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\BlogContext\UI\Web\Admin\Resource;
 
 use App\BlogContext\UI\Web\Admin\Grid\EditorialArticleGrid;
+use App\BlogContext\UI\Web\Admin\Processor\ApproveArticleProcessor;
+use App\BlogContext\UI\Web\Admin\Processor\RejectArticleProcessor;
 use App\BlogContext\UI\Web\Admin\Provider\EditorialArticleItemProvider;
 use Sylius\Resource\Metadata\AsResource;
 use Sylius\Resource\Metadata\Index;
 use Sylius\Resource\Metadata\Show;
+use Sylius\Resource\Metadata\Update;
 use Sylius\Resource\Model\ResourceInterface;
 
 #[AsResource(
@@ -23,6 +26,22 @@ use Sylius\Resource\Model\ResourceInterface;
 )]
 #[Show(
     provider: EditorialArticleItemProvider::class,
+)]
+#[Update(
+    name: 'approve',
+    methods: ['POST'],
+    path: 'editorial-articles/{id}/approve',
+    provider: EditorialArticleItemProvider::class,
+    processor: ApproveArticleProcessor::class,
+    redirectToRoute: 'app_admin_editorial_article_index',
+)]
+#[Update(
+    name: 'reject',
+    methods: ['POST'],
+    path: 'editorial-articles/{id}/reject',
+    provider: EditorialArticleItemProvider::class,
+    processor: RejectArticleProcessor::class,
+    redirectToRoute: 'app_admin_editorial_article_index',
 )]
 final class EditorialArticleResource implements ResourceInterface
 {

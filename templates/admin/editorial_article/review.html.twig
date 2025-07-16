@@ -1,0 +1,85 @@
+{% extends '@SyliusAdminUi/base.html.twig' %}
+
+{% block title %}Review Article - {{ resource.title }}{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="page-title">Review Article</h1>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-8">
+                {# Article Content #}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ resource.title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Author:</strong> {{ resource.authorName ?? 'Unknown' }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Submitted:</strong> {{ resource.submittedAt ? resource.submittedAt|date('Y-m-d H:i') : 'N/A' }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Status:</strong>
+                            <span class="badge bg-warning">{{ resource.status }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Slug:</strong> {{ resource.slug }}
+                        </div>
+
+                        <hr>
+
+                        <h4>Content</h4>
+                        <div class="article-content">
+                            {{ resource.content|raw }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4">
+                {# Review Actions #}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Review Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{ path('app_admin_editorial_article_approve', {id: resource.id}) }}" class="mb-3">
+                            <div class="mb-3">
+                                <label for="approve-reason" class="form-label">Approval Notes (optional)</label>
+                                <textarea class="form-control" id="approve-reason" name="reason" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                Approve Article
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <form method="post" action="{{ path('app_admin_editorial_article_reject', {id: resource.id}) }}">
+                            <div class="mb-3">
+                                <label for="reject-reason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="reject-reason" name="reason" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                Reject Article
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {# Back to List #}
+                <div class="mt-3">
+                    <a href="{{ path('app_admin_editorial_article_index') }}" class="btn btn-secondary w-100">
+                        Back to Editorial Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
