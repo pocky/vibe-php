@@ -15,7 +15,7 @@ use Sylius\Resource\Metadata\Update;
 use Sylius\Resource\Model\ResourceInterface;
 
 #[AsResource(
-    alias: 'app.editorial_article',
+    alias: 'app.editorial',
     section: 'admin',
     templatesDir: '@SyliusAdminUi/crud',
     routePrefix: '/admin',
@@ -30,18 +30,18 @@ use Sylius\Resource\Model\ResourceInterface;
 #[Update(
     name: 'approve',
     methods: ['POST'],
-    path: 'editorial-articles/{id}/approve',
+    path: 'editorials/{id}/approve',
     provider: EditorialArticleItemProvider::class,
     processor: ApproveArticleProcessor::class,
-    redirectToRoute: 'app_admin_editorial_article_index',
+    redirectToRoute: 'app_admin_editorial_index',
 )]
 #[Update(
     name: 'reject',
     methods: ['POST'],
-    path: 'editorial-articles/{id}/reject',
+    path: 'editorials/{id}/reject',
     provider: EditorialArticleItemProvider::class,
     processor: RejectArticleProcessor::class,
-    redirectToRoute: 'app_admin_editorial_article_index',
+    redirectToRoute: 'app_admin_editorial_index',
 )]
 final class EditorialArticleResource implements ResourceInterface
 {

@@ -27,15 +27,40 @@ final class EditorialArticleGrid extends AbstractGrid implements ResourceAwareGr
         $gridBuilder
             ->setProvider(EditorialArticleGridProvider::class)
             ->setLimits([10, 20, 50])
-            ->addField(StringField::create('title')->setLabel('Title'))
-            ->addField(StringField::create('authorName')->setLabel('Author'))
-            ->addField(DateTimeField::create('submittedAt')->setLabel('Submitted At'))
-            ->addField(StringField::create('status')->setLabel('Status'))
+            ->addField(StringField::create('title')->setLabel('Title')->setEnabled(true))
+            ->addField(StringField::create('authorName')->setLabel('Author')->setEnabled(true))
+            ->addField(DateTimeField::create('submittedAt')->setLabel('Submitted At')->setEnabled(true))
+            ->addField(StringField::create('status')->setLabel('Status')->setEnabled(true))
             ->addFilter(StringFilter::create('status', ['pending_review']))
             ->addActionGroup(
                 ItemActionGroup::create(
                     Action::create('review', 'show')
                         ->setLabel('Review')
+                        ->setIcon('tabler:eye'),
+                    Action::create('approve', 'update')
+                        ->setLabel('Approve')
+                        ->setIcon('tabler:check')
+                        ->setOptions([
+                            'link' => [
+                                'route' => 'app_admin_editorial_update',
+                                'parameters' => [
+                                    'id' => 'resource.id',
+                                    'name' => 'approve',
+                                ],
+                            ],
+                        ]),
+                    Action::create('reject', 'update')
+                        ->setLabel('Reject')
+                        ->setIcon('tabler:x')
+                        ->setOptions([
+                            'link' => [
+                                'route' => 'app_admin_editorial_update',
+                                'parameters' => [
+                                    'id' => 'resource.id',
+                                    'name' => 'reject',
+                                ],
+                            ],
+                        ])
                 )
             );
         // Bulk actions temporarily disabled due to template issue

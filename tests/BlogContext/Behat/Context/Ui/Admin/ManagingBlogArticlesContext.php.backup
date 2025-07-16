@@ -20,24 +20,6 @@ class ManagingBlogArticlesContext implements Context
     ) {
     }
 
-    #[\Behat\Step\Given('I am on the admin dashboard')]
-    public function iAmOnTheAdminDashboard(): void
-    {
-        $this->session->visit('/admin');
-    }
-
-    #[\Behat\Step\When('I go to :path')]
-    public function iGoTo(string $path): void
-    {
-        $this->session->visit($path);
-    }
-
-    #[\Behat\Step\Then('I should see :text in the title')]
-    public function iShouldSeeInTheTitle(string $text): void
-    {
-        $this->assertPageContainsText($text);
-    }
-
     #[\Behat\Step\Then('I should see the articles grid')]
     public function iShouldSeeTheArticlesGrid(): void
     {
@@ -205,12 +187,6 @@ class ManagingBlogArticlesContext implements Context
     public function iShouldSeeTheArticlesAwaitingReviewGrid(): void
     {
         $this->assertElementExists('table.review-grid, table[data-grid="review"], .review-articles table');
-    }
-
-    #[\Behat\Step\Given('there are no articles pending review')]
-    public function thereAreNoArticlesPendingReview(): void
-    {
-        // Placeholder - handled by fixtures
     }
 
     #[\Behat\Step\Then('I should see :message message')]

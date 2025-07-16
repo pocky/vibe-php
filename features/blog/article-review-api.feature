@@ -4,11 +4,10 @@ Feature: Article Review API
   So that I can approve or reject articles for publication
 
   Background:
-    Given the database is empty
-    And the following reviewers exist:
-      | id                                   | name              |
-      | 770e8400-e29b-41d4-a716-446655440001 | Editor Smith      |
-      | 770e8400-e29b-41d4-a716-446655440002 | Senior Editor Doe |
+    Given the following articles exist
+      | id                                   | title                  | content                                     | slug                   | status         | submittedAt         |
+      | 550e8400-e29b-41d4-a716-446655440010 | Article Pending Review | This article is submitted for review.      | article-pending-review | pending_review | 2025-01-01 10:00:00 |
+      | 550e8400-e29b-41d4-a716-446655440011 | Article Draft Base     | This article is still a draft.             | article-draft-base     | draft          |                     |
 
   Scenario: Submit article for review
     Given an article exists with the following data:
@@ -179,7 +178,7 @@ Feature: Article Review API
       """
 
   Scenario: List articles pending review
-    Given the following articles exist for review:
+    Given the following articles exist
       | id                                   | title                    | status         | submittedAt              | authorId                             |
       | 550e8400-e29b-41d4-a716-446655440001 | First Pending Article    | pending_review | 2024-01-01T09:00:00+00:00 | 660e8400-e29b-41d4-a716-446655440001 |
       | 550e8400-e29b-41d4-a716-446655440002 | Second Pending Article   | pending_review | 2024-01-01T10:00:00+00:00 | 660e8400-e29b-41d4-a716-446655440002 |
@@ -189,7 +188,7 @@ Feature: Article Review API
     When I make a GET request to "/api/articles?status=pending_review"
     Then the response should have status code 200
     And the response should have header "content-type" with value "application/ld+json; charset=utf-8"
-    And the collection should contain 3 items
+    And the collection should contain 4 items
     And the response should contain articles with status "pending_review"
 
   Scenario: Attempt to review non-existent article

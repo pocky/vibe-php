@@ -4,7 +4,7 @@ Feature: Auto-save article draft
   I want to auto-save my work as draft
 
   Background:
-    Given the following articles exist:
+    Given the following articles exist
       | id                                   | title             | content                       | slug              | status    |
       | 550e8400-e29b-41d4-a716-446655440001 | Draft Article     | This is a draft article       | draft-article     | draft     |
       | 550e8400-e29b-41d4-a716-446655440002 | Published Article | This is a published article   | published-article | published |

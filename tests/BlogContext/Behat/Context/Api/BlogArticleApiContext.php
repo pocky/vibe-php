@@ -68,19 +68,37 @@ final class BlogArticleApiContext implements Context
         ];
     }
 
+    #[\Behat\Step\Given(':count articles exist')]
+    #[\Behat\Step\Given(':count additional articles exist')]
     #[\Behat\Step\Given(':count articles exist with alternating statuses')]
-    public function articlesExistWithAlternatingStatuses(int $count): void
+    #[\Behat\Step\Given(':count additional articles exist with alternating statuses')]
+    public function articlesExist(int $count, string $type = 'alternating'): void
     {
         for ($i = 0; $i < $count; ++$i) {
             $id = Uuid::v7();
-            $status = 0 === $i % 2 ? 'draft' : 'published';
+
+            // Determine status based on type
+            if ('published' === $type) {
+                $status = 'published';
+                $titlePrefix = 'Published Article';
+                $slugPrefix = 'published-article';
+            } elseif ('alternating' === $type || 'mixed' === $type) {
+                $status = 0 === $i % 2 ? 'draft' : 'published';
+                $titlePrefix = 'Article';
+                $slugPrefix = 'article';
+            } else {
+                // Default to draft for any other type
+                $status = 'draft';
+                $titlePrefix = 'Article';
+                $slugPrefix = 'article';
+            }
 
             // Create article in database using factory
             $articleData = [
                 'id' => $id,
-                'title' => sprintf('Article %d', $i + 1),
-                'content' => sprintf('Content for article %d', $i + 1),
-                'slug' => sprintf('article-%d', $i + 1),
+                'title' => sprintf('%s %d', $titlePrefix, $i + 1),
+                'content' => sprintf('Content for %s %d', strtolower($titlePrefix), $i + 1),
+                'slug' => sprintf('%s-%d', $slugPrefix, $i + 1),
                 'status' => $status,
                 'createdAt' => new \DateTimeImmutable(),
                 'updatedAt' => new \DateTimeImmutable(),
@@ -94,9 +112,9 @@ final class BlogArticleApiContext implements Context
 
             $this->articles[$id->toRfc4122()] = [
                 'id' => $id->toRfc4122(),
-                'title' => sprintf('Article %d', $i + 1),
-                'content' => sprintf('Content for article %d', $i + 1),
-                'slug' => sprintf('article-%d', $i + 1),
+                'title' => sprintf('%s %d', $titlePrefix, $i + 1),
+                'content' => sprintf('Content for %s %d', strtolower($titlePrefix), $i + 1),
+                'slug' => sprintf('%s-%d', $slugPrefix, $i + 1),
                 'status' => $status,
                 'createdAt' => new \DateTimeImmutable()->format('c'),
                 'updatedAt' => new \DateTimeImmutable()->format('c'),
@@ -107,32 +125,7 @@ final class BlogArticleApiContext implements Context
     #[\Behat\Step\Given(':count published articles exist')]
     public function publishedArticlesExist(int $count): void
     {
-        for ($i = 0; $i < $count; ++$i) {
-            $id = Uuid::v7();
-
-            // Create article in database using factory
-            BlogArticleFactory::createOne([
-                'id' => $id,
-                'title' => sprintf('Published Article %d', $i + 1),
-                'content' => sprintf('Content for published article %d', $i + 1),
-                'slug' => sprintf('published-article-%d', $i + 1),
-                'status' => 'published',
-                'createdAt' => new \DateTimeImmutable(),
-                'updatedAt' => new \DateTimeImmutable(),
-                'publishedAt' => new \DateTimeImmutable(),
-            ]);
-
-            $this->articles[$id->toRfc4122()] = [
-                'id' => $id->toRfc4122(),
-                'title' => sprintf('Published Article %d', $i + 1),
-                'content' => sprintf('Content for published article %d', $i + 1),
-                'slug' => sprintf('published-article-%d', $i + 1),
-                'status' => 'published',
-                'createdAt' => new \DateTimeImmutable()->format('c'),
-                'updatedAt' => new \DateTimeImmutable()->format('c'),
-                'publishedAt' => new \DateTimeImmutable()->format('c'),
-            ];
-        }
+        $this->articlesExist($count, 'published');
     }
 
     #[\Behat\Step\When('I make a GET request to :path')]
@@ -276,7 +269,11 @@ final class BlogArticleApiContext implements Context
         Assert::true(true, 'Article verification');
     }
 
-    #[\Behat\Step\Given('the following articles exist:')]
+    #[\Behat\Step\Given('the following articles exist')]
+    #[\Behat\Step\Given('the following base articles exist')]
+    #[\Behat\Step\Given('the following reference articles exist')]
+    #[\Behat\Step\Given('the following articles exist for review')]
+    #[\Behat\Step\Given('the following base articles exist for review')]
     public function theFollowingArticlesExist(TableNode $table): void
     {
         foreach ($table->getHash() as $row) {
@@ -286,14 +283,41 @@ final class BlogArticleApiContext implements Context
             $articleData = [
                 'id' => $id,
                 'title' => $row['title'],
-                'content' => $row['content'],
-                'slug' => $row['slug'],
+                'content' => $row['content'] ?? sprintf('Content for %s with enough text for validation requirements.', $row['title']),
+                'slug' => $row['slug'] ?? strtolower(str_replace(' ', '-', $row['title'])),
                 'status' => $row['status'],
-                'createdAt' => new \DateTimeImmutable(),
+                'createdAt' => isset($row['createdAt']) ? new \DateTimeImmutable($row['createdAt']) : new \DateTimeImmutable(),
                 'updatedAt' => new \DateTimeImmutable(),
             ];
 
-            if ('published' === $row['status']) {
+            // Handle optional fields for review articles
+            if (isset($row['authorId'])) {
+                $articleData['authorId'] = Uuid::fromString($row['authorId']);
+            }
+
+            if (isset($row['submittedAt']) && '' !== $row['submittedAt']) {
+                $articleData['submittedAt'] = new \DateTimeImmutable($row['submittedAt']);
+            }
+
+            if (isset($row['reviewedAt']) && '' !== $row['reviewedAt']) {
+                $articleData['reviewedAt'] = new \DateTimeImmutable($row['reviewedAt']);
+            }
+
+            if (isset($row['reviewerId'])) {
+                $articleData['reviewerId'] = Uuid::fromString($row['reviewerId']);
+            }
+
+            if (isset($row['approvalReason'])) {
+                $articleData['approvalReason'] = $row['approvalReason'];
+            }
+
+            if (isset($row['rejectionReason'])) {
+                $articleData['rejectionReason'] = $row['rejectionReason'];
+            }
+
+            if (isset($row['publishedAt']) && '' !== $row['publishedAt']) {
+                $articleData['publishedAt'] = new \DateTimeImmutable($row['publishedAt']);
+            } elseif ('published' === $row['status']) {
                 $articleData['publishedAt'] = new \DateTimeImmutable();
             }
 
@@ -416,38 +440,6 @@ final class BlogArticleApiContext implements Context
                 'id' => $row['id'],
                 'name' => $row['name'],
             ];
-        }
-    }
-
-    #[\Behat\Step\Given('the following articles exist for review:')]
-    public function theFollowingArticlesExistForReview(TableNode $table): void
-    {
-        foreach ($table->getHash() as $row) {
-            $id = Uuid::fromString($row['id']);
-
-            // Create article in database using factory
-            $articleData = [
-                'id' => $id,
-                'title' => $row['title'],
-                'content' => sprintf('Content for %s with enough text for validation requirements.', $row['title']),
-                'slug' => strtolower(str_replace(' ', '-', $row['title'])),
-                'status' => $row['status'],
-                'createdAt' => new \DateTimeImmutable(),
-                'updatedAt' => new \DateTimeImmutable(),
-                'authorId' => Uuid::fromString($row['authorId']),
-            ];
-
-            if (isset($row['submittedAt']) && (isset($row['submittedAt']) && ('' !== $row['submittedAt'] && '0' !== $row['submittedAt']))) {
-                $articleData['submittedAt'] = new \DateTimeImmutable($row['submittedAt']);
-            }
-
-            if ('published' === $row['status']) {
-                $articleData['publishedAt'] = new \DateTimeImmutable();
-            }
-
-            BlogArticleFactory::createOne($articleData);
-
-            $this->articles[$row['id']] = $row;
         }
     }
 

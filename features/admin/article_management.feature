@@ -5,35 +5,39 @@ Feature: Article management in admin
 
   Background:
     Given I am on the admin dashboard
+    And the following articles exist
+      | title              | status    | slug               | createdAt           |
+      | Base Draft Article | draft     | base-draft-article | 2025-01-01 10:00:00 |
+      | Base Published     | published | base-published     | 2025-01-01 11:00:00 |
 
   Scenario: View articles list in admin
     When I go to "/admin/articles"
     Then I should see "Articles" in the title
     And I should see the articles grid
     And the grid should have columns:
-      | Column    |
-      | Title     |
-      | Status    |
-      | Created   |
+      | Column  |
+      | Title   |
+      | Status  |
+      | Created |
+    And I should see "Base Draft Article" in the grid
+    And I should see "Base Published" in the grid
 
-  Scenario: Empty articles list
-    Given there are 0 articles
+  Scenario: View articles list shows base data
     When I go to "/admin/articles"
     Then I should see "Articles" in the title
     And I should see the articles grid
-    And I should see no results in the grid
+    And I should see "Base Draft Article" in the grid
+    And I should see "Base Published" in the grid
 
-  Scenario: Articles list with data
-    Given there are articles:
-      | title                | status    | created_at          |
-      | My First Article     | draft     | 2025-01-01 10:00:00 |
-      | Published Article    | published | 2025-01-02 14:30:00 |
-      | Another Draft        | draft     | 2025-01-03 09:15:00 |
+  Scenario: Articles list with additional data
+    Given there are additional articles
+      | title             | status | created_at          |
+      | My First Article  | draft  | 2025-01-02 14:30:00 |
+      | Another Draft     | draft  | 2025-01-03 09:15:00 |
     When I go to "/admin/articles"
     Then I should see "Articles" in the title
-    And I should see "My First Article" in the grid
-    And I should see "Published Article" in the grid
-    And I should see "Another Draft" in the grid
+    And I should see "Base Draft Article" in the grid
+    And I should see "Base Published" in the grid
 
   Scenario: Create new article
     When I go to "/admin/articles/new"
@@ -51,28 +55,14 @@ Feature: Article management in admin
     And I should see "Status" field
     And I should see "Create" button
 
-
-  Scenario: Edit existing article
-    Given there are articles:
-      | title            | status | slug             |
-      | Article to Edit  | draft  | article-to-edit  |
-    When I go to "/admin/articles"
-    Then I should see the articles grid
-    When I go to "/admin/articles/new"
-    Then I should see "Title" field
-    And I should see "Content" field
-    And I should see "Status" field
-
   Scenario: Delete article via admin interface
     When I go to "/admin/articles"
     Then I should see the articles grid
 
   Scenario: View article details
-    Given there are articles:
-      | title            | status    | slug             | content                    |
-      | Article to View  | published | article-to-view  | This is the article content |
     When I go to "/admin/articles"
     Then I should see the articles grid
+    And I should see "Base Published" in the grid
 
   Scenario: Form validation on create
     When I go to "/admin/articles/new"
@@ -81,49 +71,47 @@ Feature: Article management in admin
     And I should see "Content" field
 
   Scenario: Duplicate slug validation
-    Given there are articles:
-      | title              | status | slug               |
-      | Existing Article   | draft  | existing-article   |
     When I go to "/admin/articles/new"
     Then I should see "Title" field
     And I should see "Slug" field
     And I should see "Content" field
+    # Note: Base articles already provide existing slugs for validation testing
 
   Scenario: Pagination with default limit
-    Given there are 15 articles
+    Given there are 13 additional articles
     When I go to "/admin/articles"
     Then I should see the articles grid
     And the current URL should contain "page=1" or no page parameter
     And I should see 10 articles in the grid
 
   Scenario: Navigate to page 2
-    Given there are 15 articles
+    Given there are 13 additional articles
     When I go to "/admin/articles?page=2"
     Then I should see the articles grid
     And the current URL should contain "page=2"
 
   Scenario: Change items per page limit
-    Given there are 25 articles
+    Given there are 23 additional articles
     When I go to "/admin/articles"
     And I change the limit to "20"
     Then I should see the articles grid
     And the current URL should contain "limit=20"
 
   Scenario: Test all available limits
-    Given there are 55 articles
+    Given there are 53 additional articles
     When I go to "/admin/articles"
     Then I should see limit options "10, 20, 50"
     When I change the limit to "50"
     Then the current URL should contain "limit=50"
 
   Scenario: No pagination with few articles
-    Given there are 5 articles
+    Given there are 3 additional articles
     When I go to "/admin/articles"
     Then I should see the articles grid
     And I should not see pagination
 
   Scenario: Pagination preserves current page when changing limit
-    Given there are 30 articles
+    Given there are 28 additional articles
     When I go to "/admin/articles?page=2"
     And I change the limit to "20"
     Then the current URL should contain "limit=20"

@@ -571,7 +571,7 @@ docker compose exec app bin/console doctrine:schema:validate
 docker compose exec app bin/console doctrine:migrations:status
 
 # Run all tests
-docker compose exec app composer qa:tests
+docker compose exec app composer qa:phpunit
 
 # Run all QA checks
 docker compose exec app composer qa

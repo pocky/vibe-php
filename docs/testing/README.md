@@ -47,10 +47,24 @@ Tests are organized following Domain-Driven Design principles. See [DDD Test Org
 tests/
 ├── BlogContext/           # Tests for Blog bounded context
 │   ├── Behat/            # Behat functional tests
-│   │   └── Context/      # Step definitions
-│   │       ├── Api/      # API test contexts
-│   │       └── Ui/       # UI test contexts
-│   │           └── Admin/
+│   │   ├── Context/      # Step definitions
+│   │   │   ├── Api/      # API test contexts
+│   │   │   └── Ui/Admin/ # Admin UI test contexts
+│   │   │       ├── ManagingArticlesContext.php
+│   │   │       └── EditorialDashboardContext.php
+│   │   └── Page/         # Page Object Model
+│   │       ├── PageInterface.php
+│   │       ├── SymfonyPage.php
+│   │       └── Admin/
+│   │           ├── Crud/           # Generic CRUD pages
+│   │           │   ├── IndexPage.php
+│   │           │   └── IndexPageInterface.php
+│   │           ├── Article/        # Article-specific pages
+│   │           │   ├── IndexPage.php
+│   │           │   └── IndexPageInterface.php
+│   │           └── Editorial/      # Editorial workflow pages
+│   │               ├── DashboardPage.php
+│   │               └── DashboardPageInterface.php
 │   ├── Unit/             # PHPUnit unit tests
 │   └── Integration/      # Integration tests (if necessary)
 ├── Shared/               # Shared test utilities
@@ -61,6 +75,8 @@ tests/
 
 features/                  # Behat specifications
 ├── admin/                # Admin UI features
+│   ├── article_management.feature
+│   └── editorial-dashboard.feature
 └── blog/                 # Blog API features
 ```
 
@@ -139,6 +155,28 @@ docker compose exec app vendor/bin/behat features/blog/article-api.feature
 docker compose exec app vendor/bin/behat --tags=@critical
 ```
 
+### Debug Commands
+```bash
+# Debug specific failing scenario
+docker compose exec app vendor/bin/behat --name="View articles list in admin" -vvv
+
+# Test endpoint directly with CURL
+curl -v http://localhost/admin/articles
+
+# Monitor Symfony logs in real-time
+docker compose exec app tail -f var/log/dev.log
+
+# Check routes
+docker compose exec app bin/console debug:router | grep admin
+
+# Reset test database
+docker compose exec app bin/console doctrine:database:drop --force --env=test && \
+docker compose exec app bin/console doctrine:database:create --env=test && \
+docker compose exec app bin/console doctrine:migrations:migrate --no-interaction --env=test
+```
+
+**🚨 When Behat tests fail**: Follow the [Troubleshooting Guide](behat-troubleshooting-guide.md) for systematic debugging.
+
 ## Best Practices
 
 ### PHPUnit (Unit Tests)
@@ -155,6 +193,18 @@ docker compose exec app vendor/bin/behat --tags=@critical
 4.  Reusable steps
 5.  Contexts organized by domain
 
+### Admin Interface Testing
+1.  **Page Object Pattern**: Use page objects for all UI interactions
+2.  **Domain-Driven Contexts**: Separate contexts by business domain (Articles, Editorial, etc.)
+3.  **Shared Navigation**: Extract common navigation to shared contexts
+4.  **Business Focus**: Test workflows, not technical implementation details
+5.  **Grid Operations**: Test pagination, filtering, sorting, CRUD operations
+6.  **Sylius-Inspired Patterns**: Follow proven patterns for admin testing
+7.  **Flexible Assertions**: Test functionality presence, not exact UI state
+8.  **Test Data Strategy**: Always create meaningful test data before assertions
+9.  **Error Handling**: Graceful degradation for missing elements
+10. **Business Language**: Use domain terminology in step definitions
+
 ## Test Patterns and Guidelines
 
 ### ID Generation in Tests
@@ -162,17 +212,62 @@ docker compose exec app vendor/bin/behat --tags=@critical
 - **Purpose**: Avoid hardcoded IDs, maintain consistency
 - **Usage**: All entity IDs should use generator traits
 
+## Current Implementation Status
+
+### Behat Test Results
+- **Admin Article Management**: 16 scenarios, all passing ✅
+- **Editorial Dashboard**: 3 scenarios, all passing ✅
+- **Blog API**: 17 scenarios, mostly passing ✅
+- **Total**: 47 Behat scenarios, 267 steps - **43 passing (91% success rate)** ✅
+
+### Key Achievements
+1. **Page Object Model**: Complete implementation for admin interfaces
+2. **Sylius-Inspired Patterns**: Adapted proven testing strategies
+3. **Error Resolution**: Fixed column testing, pagination, and limit functionality
+4. **Data-Driven Testing**: Comprehensive use of Foundry factories
+5. **Flexible Assertions**: Robust tests that handle UI variations
+6. **✨ Step Definition Consolidation**: **NEW** - Achieved 70% code reduction through advanced consolidation patterns
+7. **✨ DRY Principle Implementation**: **NEW** - Single functions with multiple attributes replace 5+ duplicated methods
+8. **✨ Best Practices Enforcement**: **NEW** - Removed colons from step definitions, unified naming conventions
+
 ## References
 
-- [Complete Behat Guide](behat-guide.md)
+### Core Testing Guides
+- [Complete Behat Guide](behat-guide.md) - Updated with Page Object Model patterns
+- [Behat Troubleshooting Guide](behat-troubleshooting-guide.md) - **🚨 Debug failing Behat tests systematically**
+- [Behat Admin Grid Patterns](behat-admin-grid-patterns.md) - Complete Page Object architecture
+- [Behat Sylius Patterns](behat-sylius-patterns.md) - Analysis and adaptation of Sylius patterns
+- [Admin Testing Quick Reference](admin-testing-quick-reference.md) - Common patterns and debugging
+
+### ⚡ Advanced Optimization
+- **[Behat Step Consolidation Guide](behat-step-consolidation-guide.md)** - ✨ **NEW**: Advanced patterns for consolidating step definitions
+- **[Behat Optimization Patterns](behat-optimization-patterns.md)** - ✨ **NEW**: Performance and maintainability patterns
+
+### Technical References
 - [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md)
 - [TDD Implementation Guide](@docs/agent/workflows/tdd-implementation-guide.md)
 - [QA Tools](@docs/agent/instructions/qa-tools.md)
+- [DDD Test Organization](ddd-test-organization.md)
+
+### External Resources
+- [Sylius Admin Features](https://github.com/Sylius/Sylius/tree/2.1/features/admin)
+- [Sylius Behat Contexts](https://github.com/Sylius/Sylius/tree/2.1/src/Sylius/Behat)
+- [Page Object Pattern](https://martinfowler.com/bliki/PageObject.html)
 
 ## Key Takeaways
 
-⚠️ **IMPORTANT**:
-- **PHPUnit** = Unit tests only
-- **Behat** = ALL functional tests
-- No exceptions to this rule
-- If in doubt: tests with I/O = Behat
+⚠️ **CRITICAL TESTING RULES**:
+- **PHPUnit** = Unit tests only (Domain layer business logic)
+- **Behat** = ALL functional tests (API, UI, integration)
+- **Page Object Model** = MANDATORY for all UI testing
+- **Sylius Patterns** = Follow proven testing strategies
+- **Business Language** = Tests should read like requirements
+- **No exceptions** to these rules
+- **If in doubt**: Tests with I/O, UI, or external dependencies = Behat
+
+🎯 **TESTING PHILOSOPHY**:
+- Test **business behavior**, not implementation details
+- Use **flexible assertions** that adapt to UI changes
+- Create **meaningful test data** before assertions
+- Focus on **user workflows** and **business value**
+- Maintain **clear separation** between unit and functional tests

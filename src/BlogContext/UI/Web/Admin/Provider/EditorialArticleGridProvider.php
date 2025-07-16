@@ -26,7 +26,6 @@ final readonly class EditorialArticleGridProvider implements DataProviderInterfa
         $limit = (int) $parameters->get('limit', 10);
         $criteria = $parameters->get('criteria', []);
         $status = is_array($criteria) ? ($criteria['status'] ?? 'pending_review') : 'pending_review';
-        $sorting = $parameters->get('sorting', []);
 
         $request = ListArticlesRequest::fromData([
             'page' => $page,

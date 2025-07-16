@@ -4,6 +4,8 @@ app:
     # Navigation
     dashboard: Dashboard
     articles: Articles
+    editorials: Editorial Dashboard
+    editorial_articles: Editorial Articles
 
     # Common labels
     title: Title

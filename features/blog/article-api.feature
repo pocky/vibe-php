@@ -4,7 +4,10 @@ Feature: Blog article API management
   So that I can publish and maintain my content
 
   Background:
-    Given the database is empty
+    Given the following articles exist
+      | id                                   | title            | content                                     | slug             | status    | createdAt           |
+      | 550e8400-e29b-41d4-a716-446655440010 | Reference Draft  | This is a reference draft article content.  | reference-draft  | draft     | 2025-01-01 10:00:00 |
+      | 550e8400-e29b-41d4-a716-446655440011 | Reference Publish | This is a reference published article.      | reference-pub    | published | 2025-01-01 11:00:00 |
 
   Scenario: Retrieve an existing article
     Given an article exists with the following data:
@@ -35,7 +38,7 @@ Feature: Blog article API management
     Then the response should have status code 404
 
   Scenario: List articles
-    Given 5 articles exist with alternating statuses
+    Given 3 additional articles exist with alternating statuses
     When I make a GET request to "/api/articles"
     Then the response should have status code 200
     And the response should have header "content-type" with value "application/ld+json; charset=utf-8"
@@ -84,13 +87,12 @@ Feature: Blog article API management
     Then the response should have status code 422
 
   Scenario: Create an article with duplicate slug
-    Given an article exists with slug "duplicate-slug"
     When I make a POST request to "/api/articles" with JSON:
       """
       {
         "title": "New Article",
         "content": "Content with at least 10 characters",
-        "slug": "duplicate-slug"
+        "slug": "reference-draft"
       }
       """
     Then the response should have status code 409
@@ -143,7 +145,7 @@ Feature: Blog article API management
     And the collection should contain 20 items
     When I make a GET request to "/api/articles?page=2"
     Then the response should have status code 200
-    And the collection should contain 5 items
+    And the collection should contain 7 items
 
   Scenario: Publish a draft article
     Given an article exists with the following data:
@@ -165,14 +167,7 @@ Feature: Blog article API management
       """
 
   Scenario: Attempt to publish an already published article
-    Given an article exists with the following data:
-      | id          | 550e8400-e29b-41d4-a716-446655440000                                  |
-      | title       | Already Published Article with SEO Title                              |
-      | content     | This article is already published and has enough content for SEO.   |
-      | slug        | already-published                                                     |
-      | status      | published                                                             |
-      | publishedAt | 2024-01-01T13:00:00+00:00                                             |
-    When I make a POST request to "/api/articles/550e8400-e29b-41d4-a716-446655440000/publish" with JSON:
+    When I make a POST request to "/api/articles/550e8400-e29b-41d4-a716-446655440011/publish" with JSON:
       """
       {}
       """

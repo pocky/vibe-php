@@ -7,13 +7,14 @@ use Behat\Config\Extension;
 use Behat\Config\Filter\TagFilter;
 use Behat\Config\Formatter\PrettyFormatter;
 use Behat\Config\Profile;
-use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Output\Printer\Factory\OutputFactory;
 use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
 
-use App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingBlogArticlesContext;
+use App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialDashboardContext;
+use App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingArticlesContext;
 use App\Tests\BlogContext\Behat\Context\Api\BlogArticleApiContext;
 use App\Tests\Shared\Behat\Context\Hook\DoctrineORMContext;
+use App\Tests\Shared\Behat\Context\Ui\CommonNavigationContext;
 use Behat\Config\Suite;
 
 $profile = (new Profile('default'))
@@ -28,14 +29,17 @@ $profile = (new Profile('default'))
             ->withContexts(
                 BlogArticleApiContext::class,
                 DoctrineORMContext::class,
+                CommonNavigationContext::class,
             )
     )
     ->withSuite(
         (new Suite('admin'))
             ->withPaths('features/admin')
             ->withContexts(
-                ManagingBlogArticlesContext::class,
+                ManagingArticlesContext::class,
+                EditorialDashboardContext::class,
                 DoctrineORMContext::class,
+                CommonNavigationContext::class,
             )
     )
 

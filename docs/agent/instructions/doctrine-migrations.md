@@ -241,7 +241,7 @@ docker compose exec app bin/console doctrine:migrations:diff
 # 4. Apply migration
 docker compose exec app bin/console doctrine:migrations:migrate
 # 5. Run tests - should now pass
-docker compose exec app composer qa:tests
+docker compose exec app composer qa:phpunit
 ```
 
 ### With PR Creation

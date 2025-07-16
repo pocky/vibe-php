@@ -50,7 +50,7 @@ final readonly class MenuBuilder implements MenuBuilderInterface
         ;
 
         $content->addChild('editorial', [
-            'route' => 'app_admin_editorial_article_index',
+            'route' => 'app_admin_editorial_index',
         ])
             ->setLabel('app.ui.editorial_articles')
             ->setLabelAttribute('icon', 'tabler:article')

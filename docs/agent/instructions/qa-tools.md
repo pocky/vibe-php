@@ -18,7 +18,7 @@ This document defines standards for using QA tools to maintain code quality. All
 # Run all unit tests
 docker compose exec app bin/phpunit
 # or
-docker compose exec app composer qa:tests
+docker compose exec app composer qa:phpunit
 
 # Run specific test class
 docker compose exec app bin/phpunit tests/ExampleTest.php
@@ -142,7 +142,7 @@ docker compose exec app composer qa
 
 ```bash
 # Run unit tests frequently
-docker compose exec app composer qa:tests
+docker compose exec app composer qa:phpunit
 
 # Run functional tests frequently
 docker compose exec app composer qa:behat

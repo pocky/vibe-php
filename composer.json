@@ -88,10 +88,10 @@
             "@qa:rector",
             "@qa:twig",
             "@qa:phpstan",
-            "@qa:tests",
+            "@qa:phpunit",
             "@qa:behat"
         ],
-        "qa:tests": "bin/phpunit",
+        "qa:phpunit": "bin/phpunit",
         "qa:behat": "vendor/bin/behat",
         "qa:ecs": "vendor/bin/ecs",
         "qa:ecs:fix": "vendor/bin/ecs --fix",
