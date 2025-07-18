@@ -36,6 +36,9 @@ Extensive documentation has been created to guide AI agents:
 - `docs/agent/` - AI agent-specific instructions and workflows
 - `docs/reference/` - Pattern documentation and guidelines
 - `.claude/commands/` - Custom Claude commands for development workflow
+- `docs/makers/` - **DDD Makers documentation**:
+  - `ddd-makers-guide.md` - Comprehensive guide for all DDD Makers
+  - `quick-reference.md` - Quick reference for common commands
 
 ## 🚀 If You Must Use This Project
 
@@ -108,6 +111,28 @@ This project includes optimized documentation for AI agents:
 - Structured command system for development workflow
 - Comprehensive pattern documentation
 - Testing guidelines and best practices
+
+### 🛠️ DDD Code Generation Tools
+
+The project includes powerful Symfony Maker commands for DDD code generation:
+
+**Infrastructure Layer:**
+- `make:infrastructure:entity` - Create Doctrine entities with repositories
+
+**Domain Layer:**
+- `make:domain:aggregate` - Create domain aggregates with events
+- `make:domain:value-object` - Create value objects with validation
+
+**Application Layer:**
+- `make:application:gateway` - Create gateways with middleware
+- `make:application:command` - Create CQRS commands
+- `make:application:query` - Create CQRS queries
+
+**UI Layer:**
+- `make:admin:resource` - Create Sylius Admin UI resources
+- `make:api:resource` - Create API Platform resources
+
+See `docs/makers/ddd-makers-guide.md` for complete documentation.
 
 ## 📝 License
 

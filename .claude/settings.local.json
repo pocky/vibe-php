@@ -8,6 +8,7 @@
       "WebFetch(domain:packagist.org)",
       "WebFetch(domain:stack.sylius.com)",
       "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(git checkout:*)",
       "Bash(git commit:*)",
       "Bash(docker compose exec:*)",
@@ -20,7 +21,9 @@
       "Bash(grep:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "Bash(cat:*)",
+      "Bash(bin/console list:*)",
+      "Bash(bin/console make:*)"
     ],
     "deny": [],
     "hooks": {

@@ -11,7 +11,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    $services->defaults()
+    $services
+        ->defaults()
         ->autowire()
         ->autoconfigure()
     ;

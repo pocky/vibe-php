@@ -1,0 +1,36 @@
+The <info>%command.name%</info> command generates a CQRS Command pattern
+implementation with Command and Handler classes.
+
+<info>php %command.full_name% BlogContext CreateArticle</info>
+
+This creates:
+  * <comment>src/BlogContext/Application/Operation/Command/CreateArticle/Command.php</comment>
+    Command DTO with all operation data
+
+  * <comment>src/BlogContext/Application/Operation/Command/CreateArticle/Handler.php</comment>
+    Command handler that orchestrates the domain operation
+
+The Command features:
+  * Readonly class with constructor property promotion
+  * Built-in validation in constructor
+  * Immutable after creation
+  * Clear property types
+
+The Handler features:
+  * Orchestrates domain operations via Creator
+  * Calls the domain Creator with command data
+  * Dispatches domain events via EventBus
+  * Returns void (Command pattern)
+  * No business logic (delegates to Domain)
+
+Common command examples:
+  * CreateArticle, UpdateArticle, DeleteArticle
+  * PublishArticle, ArchiveArticle
+  * SubmitForReview, ApproveArticle, RejectArticle
+
+Next steps:
+  1. Define command properties based on your use case
+  2. Ensure the domain Creator exists
+  3. Update handler to map command data to domain
+  4. Create corresponding Gateway if needed
+  5. Write tests for command validation

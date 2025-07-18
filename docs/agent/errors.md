@@ -132,3 +132,53 @@ docker compose exec app composer diagnose
 ---
 
 <!-- Error entries will be added below this line -->
+
+## Error: DDD Makers Generated Code Issues
+**Date**: 2025-01-18 23:00
+**Task**: Creating Category domain components using DDD Makers
+**Context**: Using make:domain:aggregate and make:application:gateway commands
+
+### Error Messages
+```
+Attempt 1: PHPStan error - Interface "App\Shared\Application\Gateway\Middleware\Middleware" not found
+Attempt 2: PHP error - Call to undefined static method App\Shared\Application\Gateway\GatewayException::badRequest()
+Attempt 3: Namespace error - use App\Blog\Domain\... instead of App\BlogContext\Domain\...
+```
+
+### Approaches Attempted
+1. **First approach**: Generated files using makers as-is
+   - Result: Multiple errors in generated code requiring manual fixes
+   
+2. **Second approach**: Tried to find missing Middleware interface
+   - Result: Interface doesn't exist; middlewares use __invoke() convention
+   
+3. **Third approach**: Fixed namespace generation in MakeDomainAggregate
+   - Result: Corrected the context parameter passing to Event template
+
+### Analysis
+- **Root Cause**: 
+  1. Templates referenced non-existent Middleware interface
+  2. Event template received context without "Context" suffix
+  3. GatewayException doesn't have static factory methods
+- **Missing Prerequisites**: None - these were bugs in the Maker templates
+- **Environmental Factors**: Not applicable
+
+### Recommendations
+- Always run QA tools after generating code with makers
+- Check generated namespaces match the expected pattern
+- Verify that referenced interfaces/classes exist
+- Use standard exceptions for validation instead of custom static methods
+
+### Lessons Learned
+1. **Maker templates need regular maintenance** as the codebase evolves
+2. **Generated code should be reviewed** before running QA tools
+3. **Namespace consistency** is critical - context should always include "Context" suffix
+4. **Middleware pattern** in this project doesn't use a common interface
+
+### Resolution Applied
+1. Updated `MakeDomainAggregate.php` line 126 to pass full context name
+2. Updated `Event.tpl.php` to handle context properly in eventType()
+3. Removed Middleware interface from `Processor.tpl.php` template
+4. Updated validation to use standard \InvalidArgumentException
+
+---

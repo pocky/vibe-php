@@ -115,6 +115,13 @@ $response = $gateway($request);
 
 ## Middleware System
 
+### Middleware Convention
+
+**Important**: Middlewares in this project don't implement a common interface. Instead, they follow a convention:
+- Each middleware is a callable class with an `__invoke()` method
+- The signature is: `__invoke(GatewayRequest $request, callable $next): GatewayResponse`
+- This allows for flexibility while maintaining consistency
+
 ### Processing Pipeline
 
 The middleware system uses a Pipe pattern to orchestrate request processing:
@@ -792,6 +799,120 @@ src/BlogContext/Domain/Article/
 └── Event/
     └── ArticleCreated.php      # Domain event
 ```
+
+## Automatic Code Generation via Makers
+
+### Gateway Maker Command
+
+The project includes a sophisticated maker command that automatically generates Gateway components with intelligent code generation:
+
+```bash
+bin/console make:application:gateway <Context> <Operation>
+```
+
+### Smart Operation Detection
+
+The maker automatically detects operation types from the operation name and generates appropriate code:
+
+**Supported Patterns:**
+- `Create*` operations → Command-based with ID generation
+- `Update*` operations → Command-based with existing ID
+- `Delete*` operations → Command-based with minimal parameters
+- `Get*` operations → Query-based for single item retrieval
+- `List*` operations → Query-based with pagination
+
+### Generated Components
+
+For each gateway, the maker generates:
+
+1. **Gateway Class** extending DefaultGateway
+2. **Request Class** implementing GatewayRequest
+3. **Response Class** implementing GatewayResponse
+4. **Processor Middleware** with operation-specific implementation
+
+### Example Generated Processor (Create Operation)
+
+```php
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+        private ArticleIdGenerator $idGenerator,
+    ) {}
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Generate new article ID
+        $articleId = $this->idGenerator->nextIdentity();
+
+        // Create command
+        $command = new Command(
+            articleId: $articleId->getValue(),
+            title: $request->title,
+            content: $request->content,
+        );
+
+        // Execute command through handler
+        ($this->handler)($command);
+
+        // Return response with generated ID
+        return new Response(
+            articleId: $articleId->getValue(),
+        );
+    }
+}
+```
+
+### Example Generated Processor (List Operation)
+
+```php
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+    ) {}
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Create query
+        $query = new Query(
+            page: $request->page ?? 1,
+            limit: $request->limit ?? 20,
+        );
+
+        // Execute query through handler
+        $result = ($this->handler)($query);
+
+        // Return response with collection data
+        return new Response(
+            articles: $result['items'] ?? [],
+            total: $result['total'] ?? 0,
+            page: $request->page ?? 1,
+            limit: $request->limit ?? 20,
+        );
+    }
+}
+```
+
+### Automatic Dependency Injection
+
+The maker intelligently determines required dependencies:
+
+- **Create operations**: Injects Handler + IdGenerator
+- **Update/Delete operations**: Injects Handler only
+- **Query operations**: Injects Handler only
+
+### CQRS Integration
+
+Generated Processors automatically:
+- Import correct Command/Query classes based on operation type
+- Use Command handlers for write operations
+- Use Query handlers for read operations
+- Follow established CQRS patterns
 
 ## Performance and Monitoring
 

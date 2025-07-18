@@ -1,0 +1,35 @@
+The <info>%command.name%</info> command generates a complete infrastructure entity
+structure following DDD patterns.
+
+<info>php %command.full_name% BlogContext Article</info>
+
+This creates:
+  * <comment>src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/Entity/Article.php</comment>
+    Doctrine entity with constructor injection
+
+  * <comment>src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php</comment>
+    Repository implementing domain interface
+
+  * <comment>src/BlogContext/Domain/Shared/ValueObject/ArticleId.php</comment>
+    Value object for entity identifier
+
+  * <comment>src/BlogContext/Domain/Shared/Repository/ArticleRepositoryInterface.php</comment>
+    Domain repository interface
+
+  * <comment>src/BlogContext/Infrastructure/Identity/ArticleIdGenerator.php</comment>
+    ID generator service using UUID v7
+
+The entity features:
+  * UUID v7 as primary key
+  * Constructor injection pattern
+  * Immutable timestamps (createdAt, updatedAt)
+  * Proper Doctrine mappings
+  * DDD naming conventions
+
+Next steps:
+  1. Add domain-specific properties to the entity
+  2. Update the repository interface with business methods
+  3. Implement domain aggregate if needed
+  4. Generate and run migrations:
+     <info>php bin/console doctrine:migrations:diff</info>
+     <info>php bin/console doctrine:migrations:migrate</info>

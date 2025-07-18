@@ -121,6 +121,7 @@ final class IndexPage extends AbstractIndexPage
         return true;
     }
 
+    #[\Override]
     public function findRowContaining(string $text): NodeElement
     {
         $rows = $this->getSession()->getPage()->findAll('css', 'table tbody tr');

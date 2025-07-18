@@ -2,39 +2,67 @@
 
 This is your one-stop reference for all commands, patterns, and workflows in the Vibe PHP project.
 
-## 🎯 Quick Command Reference
+## 🚀 Unified Spec-Driven Methodology
+
+We use a unified approach that combines business vision with technical rigor:
 
 ```mermaid
 graph LR
-    subgraph "📋 Planning"
-        CMD1["/prd<br/>Define requirements"]
-        CMD2["/plan<br/>Design solution"]
-        CMD3["/user-story<br/>Create user stories"]
+    subgraph "📋 Requirements Phase"
+        PRD["📋 /spec:prd<br/>Business Vision +<br/>EARS Requirements"]
+        US["/user-story<br/>Detailed Stories"]
+        PRD --> US
     end
     
-    subgraph "⚡ Implementation"
-        CMD4["/act<br/>TDD implementation"]
-        CMD5["/qa<br/>Quality checks"]
-        CMD6["/adr<br/>Document decisions"]
+    subgraph "🏗️ Design Phase"
+        PLAN["🏗️ /spec:plan<br/>Architecture +<br/>Technical Design"]
+        ADV["/spec:advanced<br/>Security & Risk<br/>(Optional)"]
+        US --> PLAN
+        PLAN -.-> ADV
     end
     
-    subgraph "📊 Support"
-        CMD7["/workflow-status<br/>Check progress"]
-        CMD8["/workflow-help<br/>Get guidance"]
+    subgraph "⚡ Implementation Phase"
+        ACT["⚡ /spec:act<br/>TDD Tasks +<br/>Implementation"]
+        QA["✅ /qa<br/>Quality Checks"]
+        PLAN --> ACT
+        ACT --> QA
     end
     
-    CMD1 --> CMD2
-    CMD2 --> CMD3
-    CMD3 --> CMD4
-    CMD4 --> CMD5
-    CMD5 --> CMD6
+    subgraph "📝 Documentation"
+        ADR["/adr<br/>Architecture<br/>Decisions"]
+        PLAN -.-> ADR
+    end
     
-    style CMD1 fill:#fff3e0
-    style CMD2 fill:#f3e5f5
-    style CMD4 fill:#e8f5e9
-    style CMD5 fill:#ffebee
-    style CMD6 fill:#e3f2fd
+    style PRD fill:#fff3e0
+    style PLAN fill:#e1f5fe
+    style ACT fill:#e8f5e9
+    style QA fill:#ffebee
+    style ADR fill:#f3e5f5
 ```
+
+### 🎯 Quick Command Reference
+
+#### Core Workflow Commands
+| Command | Purpose | Approval Gate |
+|---------|---------|---------------|
+| `/spec:prd [context] [feature]` | Create PRD with business vision & EARS requirements | ✅ Required |
+| `/spec:plan [context]` | Create technical architecture & design | ✅ Required |
+| `/spec:act` | Start TDD implementation with task breakdown | ✅ Required |
+| `/qa` | Run comprehensive quality checks | ✅ Final |
+
+#### Support Commands
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/user-story [context] [id] [title]` | Create detailed user story | During requirements |
+| `/adr [title] [status]` | Document architecture decision | During design |
+| `/spec:advanced` | Add security & risk analysis | High-stakes features |
+| `/spec:status` | Check workflow progress | Anytime |
+| `/spec:help` | Get methodology help | Learning |
+
+#### Legacy Aliases (Backward Compatible)
+- `/prd` → `/spec:prd`
+- `/plan` → `/spec:plan`
+- `/act` → `/spec:act`
 
 ## 📚 Pattern Quick Reference Cards
 
@@ -90,6 +118,23 @@ graph TD
 **Location**: `@docs/reference/domain-layer-pattern.md`  
 **PHP Guidelines**: `@docs/reference/php-features-best-practices.md`
 
+## 📋 EARS Requirements Format
+
+### Quick Reference
+```
+🔹 Ubiquitous:   "The system SHALL [capability]"
+🔹 Event-Driven: "WHEN [trigger] THEN the system SHALL [response]"
+🔹 State-Driven: "WHILE [state] the system SHALL [behavior]"
+🔹 Conditional:  "IF [condition] THEN the system SHALL [action]"
+🔹 Optional:     "WHERE [feature] the system SHALL [capability]"
+```
+
+### Examples
+- ✅ Good: "WHEN a user submits a valid order THEN the system SHALL send confirmation within 5 seconds"
+- ❌ Bad: "The system should handle orders quickly"
+
+**Guide**: `@docs/agent/methodologies/unified-spec-driven.md`
+
 ## 🛠️ Essential Workflows
 
 ### TDD Red-Green-Refactor
@@ -117,6 +162,41 @@ sequenceDiagram
 ```
 **Guide**: `@docs/agent/workflows/github-pr-management.md`  
 **Standards**: `@docs/agent/instructions/pr-management.md`
+
+## 🎉 New: Unified Methodology Benefits
+
+### Why Use Unified Spec-Driven?
+
+1. **🎯 Business + Technical**: Combines business vision with technical precision
+2. **✅ Approval Gates**: Catch issues early with explicit checkpoints
+3. **📝 EARS Format**: Write testable, unambiguous requirements
+4. **🔄 Backward Compatible**: Your existing commands still work!
+5. **🔒 Enhanced Security**: Optional threat modeling and risk analysis
+
+### Quick Start Examples
+
+#### Simple Feature
+```bash
+# Use familiar commands - they're enhanced!
+/prd blog comment-system     # Creates spec:prd with EARS
+/plan blog                   # Creates comprehensive design
+/act                         # Structured TDD implementation
+/qa                          # Quality verification
+```
+
+#### Complex Feature
+```bash
+# Use full power for critical features
+/spec:prd payment gateway-integration
+# [Review and approve requirements]
+/spec:plan payment
+# [Review and approve design]
+/spec:advanced              # Add security analysis
+/spec:act                   # Implement with confidence
+/qa
+```
+
+**Full Guide**: `@docs/agent/methodologies/comparison-guide.md`
 
 ## 📍 Decision Trees
 
@@ -253,11 +333,40 @@ gantt
 
 ## 🔗 Quick Links
 
+### 🆕 New Unified Methodology
+- **[Unified Spec-Driven Guide](agent/methodologies/unified-spec-driven.md)** - Complete methodology
+- **[Migration Summary](agent/methodologies/migration-summary.md)** - Quick migration guide
+- **[Comparison Guide](agent/methodologies/comparison-guide.md)** - Detailed comparison
+
+### 📖 Essential Documentation
 - [CLAUDE.md](../CLAUDE.md) - Main agent instructions
 - [Documentation Navigation](agent/instructions/documentation-navigation.md) - Detailed navigation guide
 - [Architecture Overview](agent/instructions/architecture.md) - System architecture
 - [Error Log](agent/errors.md) - Learn from past issues
 - [External Docs](reference/external-docs.md) - Links to Symfony, PHP, etc.
+
+## 🎆 What's New?
+
+### Unified Spec-Driven Methodology
+We've unified the PRD-Plan-Act workflow with Spec-Driven development:
+- **Same commands, enhanced features** - Your workflow doesn't change
+- **EARS requirements** - More precise, testable requirements  
+- **Approval gates** - Better quality control between phases
+- **Backward compatible** - All your existing commands still work
+
+### Quick Upgrade Path
+```bash
+# Your existing workflow still works!
+/prd blog feature    # Now enhanced with EARS
+/plan blog          # Now includes risk assessment
+/act                # Now with structured tasks
+/qa                 # Same comprehensive checks
+
+# Try new features when ready
+/spec:advanced      # Security & risk analysis
+/spec:status        # Workflow progress
+/spec:help          # Methodology guidance
+```
 
 ---
 

@@ -1,0 +1,49 @@
+The <info>%command.name%</info> command generates a CQRS Query pattern
+implementation with Query and Handler classes.
+
+<info>php %command.full_name% BlogContext GetArticle</info>
+<info>php %command.full_name% BlogContext ListArticles</info>
+
+This creates:
+  * <comment>src/BlogContext/Application/Operation/Query/GetArticle/Query.php</comment>
+    Query DTO with search criteria
+
+  * <comment>src/BlogContext/Application/Operation/Query/GetArticle/Handler.php</comment>
+    Query handler that retrieves data
+
+The Query features:
+  * Readonly class for immutability
+  * Contains only search/filter criteria
+  * No side effects
+  * Clear parameter types
+
+The Handler features:
+  * Retrieves data from repositories
+  * Can use optimized read models
+  * Returns view objects (DTOs)
+  * No business logic execution
+  * Read-only operations
+
+Query types detected automatically:
+  * Get* - Single item queries
+  * List*, Search* - Collection queries
+  * Find* - Search queries
+
+Common query examples:
+  * GetArticle, GetArticleById
+  * ListArticles, ListPublishedArticles
+  * SearchArticles, SearchArticlesByAuthor
+  * FindArticleBySlug
+
+Collection queries include:
+  * Pagination support
+  * Filtering options
+  * Sorting capabilities
+  * Total count
+
+Next steps:
+  1. Define query parameters
+  2. Implement repository methods
+  3. Create view/DTO objects for responses
+  4. Add query to Gateway processor
+  5. Optimize with database indexes if needed

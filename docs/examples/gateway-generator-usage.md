@@ -1,910 +1,522 @@
-# Practical Examples: Gateway and Generator Patterns
+# Gateway Maker: Practical Examples and Generated Code
 
-This document presents concrete examples of using the Gateway and Generator patterns in the context of a DDD application.
+This document demonstrates the new intelligent Gateway maker that generates concrete, operation-specific implementation code instead of TODO templates.
 
-## Complete Example: User Management
+## Overview
 
-### 1. Context Structure
+The `make:application:gateway` command has been significantly enhanced to automatically detect operation types and generate complete, functional Processor implementations.
 
-```
-src/UserContext/
-├── Application/
-│   ├── Gateway/
-│   │   ├── CreateUserGateway.php
-│   │   ├── CreateUserRequest.php
-│   │   └── CreateUserResponse.php
-│   └── Command/
-│       ├── CreateUserCommand.php
-│       └── CreateUserCommandHandler.php
-├── Domain/
-│   ├── User.php
-│   ├── ValueObject/
-│   │   ├── UserId.php
-│   │   ├── Email.php
-│   │   └── Name.php
-│   └── Repository/
-│       └── UserRepositoryInterface.php
-└── Infrastructure/
-    └── Repository/
-        └── DoctrineUserRepository.php
+## Supported Operation Types
+
+| Operation Pattern | Type | Generated Dependencies | CQRS Integration |
+|-------------------|------|----------------------|------------------|
+| `Create*` | Command | Handler + IdGenerator | Command/Handler |
+| `Update*` | Command | Handler only | Command/Handler |
+| `Delete*` | Command | Handler only | Command/Handler |
+| `Get*` | Query | Handler only | Query/Handler |
+| `List*` | Query | Handler only | Query/Handler |
+
+## Complete Examples
+
+### Example 1: Create Operation
+
+#### Command
+```bash
+bin/console make:application:gateway BlogContext CreateArticle
 ```
 
-### 2. Value Objects with Generator
-
-#### UserId with automatic generation
-
+#### Generated Processor (Automatic)
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\UserContext\Domain\ValueObject;
+namespace App\BlogContext\Application\Gateway\CreateArticle\Middleware;
 
-use App\Shared\Infrastructure\Generator\UuidGenerator;
-use Symfony\Component\Uid\Uuid;
-
-final readonly class UserId
-{
-    private function __construct(
-        private string $value,
-    ) {
-        if (!Uuid::isValid($this->value)) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid UserId format: "%s"', $this->value)
-            );
-        }
-    }
-
-    public static function generate(): self
-    {
-        return new self(UuidGenerator::generate());
-    }
-
-    public static function fromString(string $value): self
-    {
-        return new self($value);
-    }
-
-    public function value(): string
-    {
-        return $this->value;
-    }
-
-    public function equals(self $other): bool
-    {
-        return $this->value === $other->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-}
-```
-
-#### Email Value Object
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Domain\ValueObject;
-
-final readonly class Email
-{
-    private function __construct(
-        private string $value,
-    ) {
-        if (!filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid email format: "%s"', $this->value)
-            );
-        }
-    }
-
-    public static function fromString(string $value): self
-    {
-        return new self(trim(strtolower($value)));
-    }
-
-    public function value(): string
-    {
-        return $this->value;
-    }
-
-    public function domain(): string
-    {
-        return substr($this->value, strpos($this->value, '@') + 1);
-    }
-
-    public function localPart(): string
-    {
-        return substr($this->value, 0, strpos($this->value, '@'));
-    }
-
-    public function equals(self $other): bool
-    {
-        return $this->value === $other->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-}
-```
-
-#### Name Value Object
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Domain\ValueObject;
-
-final readonly class Name
-{
-    private function __construct(
-        private string $value,
-    ) {
-        $trimmed = trim($this->value);
-        
-        if (empty($trimmed)) {
-            throw new \InvalidArgumentException('Name cannot be empty');
-        }
-        
-        if (strlen($trimmed) < 2) {
-            throw new \InvalidArgumentException('Name must be at least 2 characters');
-        }
-        
-        if (strlen($trimmed) > 100) {
-            throw new \InvalidArgumentException('Name cannot exceed 100 characters');
-        }
-    }
-
-    public static function fromString(string $value): self
-    {
-        return new self($value);
-    }
-
-    public function value(): string
-    {
-        return $this->value;
-    }
-
-    public function initials(): string
-    {
-        $words = explode(' ', $this->value);
-        $initials = '';
-        
-        foreach ($words as $word) {
-            if (!empty($word)) {
-                $initials .= strtoupper($word[0]);
-            }
-        }
-        
-        return $initials;
-    }
-
-    public function firstName(): string
-    {
-        $parts = explode(' ', $this->value);
-        return $parts[0] ?? '';
-    }
-
-    public function lastName(): string
-    {
-        $parts = explode(' ', $this->value);
-        return count($parts) > 1 ? $parts[count($parts) - 1] : '';
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-}
-```
-
-### 3. Domain Entity with generated ID
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Domain;
-
-use App\UserContext\Domain\ValueObject\{UserId, Email, Name};
-
-final class User
-{
-    private function __construct(
-        private UserId $id,
-        private Email $email,
-        private Name $name,
-        private \DateTimeImmutable $createdAt,
-        private ?\DateTimeImmutable $updatedAt = null,
-    ) {}
-
-    public static function create(
-        Email $email,
-        Name $name,
-    ): self {
-        return new self(
-            id: UserId::generate(), // Uses the generator
-            email: $email,
-            name: $name,
-            createdAt: new \DateTimeImmutable(),
-        );
-    }
-
-    public static function reconstruct(
-        UserId $id,
-        Email $email,
-        Name $name,
-        \DateTimeImmutable $createdAt,
-        ?\DateTimeImmutable $updatedAt = null,
-    ): self {
-        return new self($id, $email, $name, $createdAt, $updatedAt);
-    }
-
-    public function changeName(Name $newName): self
-    {
-        if ($this->name->equals($newName)) {
-            return $this;
-        }
-
-        return new self(
-            id: $this->id,
-            email: $this->email,
-            name: $newName,
-            createdAt: $this->createdAt,
-            updatedAt: new \DateTimeImmutable(),
-        );
-    }
-
-    public function changeEmail(Email $newEmail): self
-    {
-        if ($this->email->equals($newEmail)) {
-            return $this;
-        }
-
-        return new self(
-            id: $this->id,
-            email: $newEmail,
-            name: $this->name,
-            createdAt: $this->createdAt,
-            updatedAt: new \DateTimeImmutable(),
-        );
-    }
-
-    // Getters
-    public function id(): UserId { return $this->id; }
-    public function email(): Email { return $this->email; }
-    public function name(): Name { return $this->name; }
-    public function createdAt(): \DateTimeImmutable { return $this->createdAt; }
-    public function updatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id->value(),
-            'email' => $this->email->value(),
-            'name' => $this->name->value(),
-            'created_at' => $this->createdAt->format(\DateTimeInterface::ATOM),
-            'updated_at' => $this->updatedAt?->format(\DateTimeInterface::ATOM),
-        ];
-    }
-}
-```
-
-### 4. Repository Interface
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Domain\Repository;
-
-use App\UserContext\Domain\User;
-use App\UserContext\Domain\ValueObject\{UserId, Email};
-
-interface UserRepositoryInterface
-{
-    public function save(User $user): void;
-    
-    public function findById(UserId $id): ?User;
-    
-    public function findByEmail(Email $email): ?User;
-    
-    public function existsByEmail(Email $email): bool;
-    
-    public function delete(User $user): void;
-}
-```
-
-### 5. Gateway Request et Response
-
-#### CreateUserRequest
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Gateway;
-
+use App\BlogContext\Application\Gateway\CreateArticle\Request;
+use App\BlogContext\Application\Gateway\CreateArticle\Response;
+use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
+use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
+use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
 use App\Shared\Application\Gateway\GatewayRequest;
-use App\UserContext\Domain\ValueObject\{Email, Name};
+use App\Shared\Application\Gateway\GatewayResponse;
 
-final readonly class CreateUserRequest implements GatewayRequest
+final readonly class Processor
 {
-    private function __construct(
-        private Email $email,
-        private Name $name,
+    public function __construct(
+        private Handler $handler,
+        private ArticleIdGenerator $idGenerator,
+    ) {
+    }
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Generate new article ID
+        $articleId = $this->idGenerator->nextIdentity();
+
+        // Create command
+        $command = new Command(
+            articleId: $articleId->getValue(),
+            title: $request->title,
+            content: $request->content,
+            status: $request->status,
+        );
+
+        // Execute command through handler
+        ($this->handler)($command);
+
+        // Return response with generated ID
+        return new Response(
+            articleId: $articleId->getValue(),
+        );
+    }
+}
+```
+
+**Key Features**:
+- ✅ Automatic ID generation with `ArticleIdGenerator`
+- ✅ Command creation with proper field mapping
+- ✅ Handler execution via `__invoke()` pattern
+- ✅ Response with generated ID
+
+---
+
+### Example 2: Update Operation
+
+#### Command
+```bash
+bin/console make:application:gateway BlogContext UpdateArticle
+```
+
+#### Generated Processor (Automatic)
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Application\Gateway\UpdateArticle\Middleware;
+
+use App\BlogContext\Application\Gateway\UpdateArticle\Request;
+use App\BlogContext\Application\Gateway\UpdateArticle\Response;
+use App\BlogContext\Application\Operation\Command\UpdateArticle\Command;
+use App\BlogContext\Application\Operation\Command\UpdateArticle\Handler;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
+
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+    ) {
+    }
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Create command
+        $command = new Command(
+            articleId: $request->articleId,
+            title: $request->title,
+            content: $request->content,
+            status: $request->status,
+        );
+
+        // Execute command through handler
+        ($this->handler)($command);
+
+        // Return success response
+        return new Response(
+            articleId: $request->articleId,
+        );
+    }
+}
+```
+
+**Key Features**:
+- ✅ No ID Generator (uses existing ID)
+- ✅ Command-based operation
+- ✅ Uses existing `articleId` from request
+
+---
+
+### Example 3: List Operation (Query)
+
+#### Command
+```bash
+bin/console make:application:gateway BlogContext ListArticles
+```
+
+#### Generated Processor (Automatic)
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Application\Gateway\ListArticles\Middleware;
+
+use App\BlogContext\Application\Gateway\ListArticles\Request;
+use App\BlogContext\Application\Gateway\ListArticles\Response;
+use App\BlogContext\Application\Operation\Query\ListArticles\Handler;
+use App\BlogContext\Application\Operation\Query\ListArticles\Query;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
+
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+    ) {
+    }
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Create query
+        $query = new Query(
+            page: $request->page ?? 1,
+            limit: $request->limit ?? 20,
+        );
+
+        // Execute query through handler
+        $result = ($this->handler)($query);
+
+        // Return response with collection data
+        return new Response(
+            articles: $result['items'] ?? [],
+            total: $result['total'] ?? 0,
+            page: $request->page ?? 1,
+            limit: $request->limit ?? 20,
+        );
+    }
+}
+```
+
+**Key Features**:
+- ✅ Query-based operation (not Command)
+- ✅ Pagination support built-in
+- ✅ Collection response with metadata
+
+---
+
+### Example 4: Get Operation (Single Item Query)
+
+#### Command
+```bash
+bin/console make:application:gateway BlogContext GetArticle
+```
+
+#### Generated Processor (Automatic)
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Application\Gateway\GetArticle\Middleware;
+
+use App\BlogContext\Application\Gateway\GetArticle\Request;
+use App\BlogContext\Application\Gateway\GetArticle\Response;
+use App\BlogContext\Application\Operation\Query\GetArticle\Handler;
+use App\BlogContext\Application\Operation\Query\GetArticle\Query;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
+
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+    ) {
+    }
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Create query
+        $query = new Query(
+            articleId: $request->articleId,
+        );
+
+        // Execute query through handler
+        $result = ($this->handler)($query);
+
+        // Return response with entity data
+        return new Response(
+            article: $result,
+        );
+    }
+}
+```
+
+**Key Features**:
+- ✅ Query-based for single item
+- ✅ Simple ID-based lookup
+- ✅ Direct entity response
+
+---
+
+### Example 5: Delete Operation
+
+#### Command
+```bash
+bin/console make:application:gateway BlogContext DeleteArticle
+```
+
+#### Generated Processor (Automatic)
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Application\Gateway\DeleteArticle\Middleware;
+
+use App\BlogContext\Application\Gateway\DeleteArticle\Request;
+use App\BlogContext\Application\Gateway\DeleteArticle\Response;
+use App\BlogContext\Application\Operation\Command\DeleteArticle\Command;
+use App\BlogContext\Application\Operation\Command\DeleteArticle\Handler;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
+
+final readonly class Processor
+{
+    public function __construct(
+        private Handler $handler,
+    ) {
+    }
+
+    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    {
+        /** @var Request $request */
+
+        // Create command
+        $command = new Command(
+            articleId: $request->articleId,
+        );
+
+        // Execute command through handler
+        ($this->handler)($command);
+
+        // Return success response
+        return new Response(
+            deleted: true,
+        );
+    }
+}
+```
+
+**Key Features**:
+- ✅ Command-based operation
+- ✅ Minimal parameters (just ID)
+- ✅ Boolean success response
+
+---
+
+## Different Entity Examples
+
+### User Management
+
+```bash
+# Create user
+bin/console make:application:gateway SecurityContext CreateUser
+
+# Generated with UserIdGenerator injection
+# Generates SecurityContext namespace
+# Uses User entity naming
+```
+
+### Product Catalog
+
+```bash
+# List products
+bin/console make:application:gateway CatalogContext ListProducts
+
+# Generated with Query pattern
+# Proper pluralization (Products not Productss)
+# Pagination built-in
+```
+
+### Category Management
+
+```bash
+# Update category
+bin/console make:application:gateway BlogContext UpdateCategory
+
+# Generated without IdGenerator (Update operation)
+# Uses existing categoryId
+# Command-based operation
+```
+
+## Before vs After Comparison
+
+### Old Generated Code (Before Improvements)
+```php
+public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+{
+    /** @var Request $request */
+    
+    // TODO: Implement your business logic here
+    // TODO: Create command or query based on your operation type
+    
+    // Return response
+    return new Response(
+        // Map your response data
+    );
+}
+```
+
+### New Generated Code (After Improvements)
+```php
+public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+{
+    /** @var Request $request */
+
+    // Generate new article ID
+    $articleId = $this->idGenerator->nextIdentity();
+
+    // Create command
+    $command = new Command(
+        articleId: $articleId->getValue(),
+        title: $request->title,
+        content: $request->content,
+    );
+
+    // Execute command through handler
+    ($this->handler)($command);
+
+    // Return response with generated ID
+    return new Response(
+        articleId: $articleId->getValue(),
+    );
+}
+```
+
+## What's Generated Automatically
+
+For each gateway, the maker generates 4 files:
+
+### 1. Gateway.php
+```php
+final class Gateway extends DefaultGateway
+{
+    public function __construct(
+        DefaultLogger $logger,
+        DefaultErrorHandler $errorHandler,
+        Validation $validation,
+        Processor $processor,
+    ) {
+        parent::__construct([
+            $logger,
+            $errorHandler,
+            $validation,
+            $processor,
+        ]);
+    }
+}
+```
+
+### 2. Request.php
+```php
+final readonly class Request implements GatewayRequest
+{
+    public function __construct(
+        // Properties based on operation type
     ) {}
 
     public static function fromData(array $data): self
     {
-        try {
-            return new self(
-                email: Email::fromString($data['email'] ?? ''),
-                name: Name::fromString($data['name'] ?? ''),
-            );
-        } catch (\InvalidArgumentException $e) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid user data: %s', $e->getMessage()),
-                previous: $e
-            );
-        }
-    }
-
-    public function data(): array
-    {
-        return [
-            'email' => $this->email->value(),
-            'name' => $this->name->value(),
-        ];
-    }
-
-    public function email(): Email
-    {
-        return $this->email;
-    }
-
-    public function name(): Name
-    {
-        return $this->name;
-    }
-}
-```
-
-#### CreateUserResponse
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Gateway;
-
-use App\Shared\Application\Gateway\GatewayResponse;
-use App\UserContext\Domain\User;
-
-final readonly class CreateUserResponse implements GatewayResponse
-{
-    private function __construct(
-        private string $id,
-        private string $email,
-        private string $name,
-        private string $createdAt,
-    ) {}
-
-    public static function fromUser(User $user): self
-    {
         return new self(
-            id: $user->id()->value(),
-            email: $user->email()->value(),
-            name: $user->name()->value(),
-            createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),
+            // Automatic data mapping
         );
     }
 
     public function data(): array
     {
         return [
-            'id' => $this->id,
-            'email' => $this->email,
-            'name' => $this->name,
-            'created_at' => $this->createdAt,
+            // Serialization logic
         ];
     }
-
-    public function id(): string { return $this->id; }
-    public function email(): string { return $this->email; }
-    public function name(): string { return $this->name; }
-    public function createdAt(): string { return $this->createdAt; }
 }
 ```
 
-### 6. Command et CommandHandler
-
-#### CreateUserCommand
-
+### 3. Response.php
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Command;
-
-use App\UserContext\Domain\ValueObject\{Email, Name};
-
-final readonly class CreateUserCommand
+final readonly class Response implements GatewayResponse
 {
     public function __construct(
-        private Email $email,
-        private Name $name,
+        // Response properties based on operation
     ) {}
 
-    public function email(): Email { return $this->email; }
-    public function name(): Name { return $this->name; }
-}
-```
-
-#### CreateUserCommandHandler
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Command;
-
-use App\UserContext\Domain\User;
-use App\UserContext\Domain\Repository\UserRepositoryInterface;
-use App\UserContext\Domain\Exception\UserAlreadyExistsException;
-
-final readonly class CreateUserCommandHandler
-{
-    public function __construct(
-        private UserRepositoryInterface $userRepository,
-    ) {}
-
-    public function __invoke(CreateUserCommand $command): User
-    {
-        // Check if user already exists
-        if ($this->userRepository->existsByEmail($command->email())) {
-            throw new UserAlreadyExistsException(
-                sprintf('User with email "%s" already exists', $command->email()->value())
-            );
-        }
-
-        // Create the user (ID is generated automatically)
-        $user = User::create(
-            email: $command->email(),
-            name: $command->name(),
-        );
-
-        // Save
-        $this->userRepository->save($user);
-
-        return $user;
-    }
-}
-```
-
-### 7. Custom Middlewares
-
-#### ValidationMiddleware
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Gateway\Middleware;
-
-use App\Shared\Application\Gateway\{GatewayRequest, GatewayResponse};
-use App\UserContext\Application\Gateway\CreateUserRequest;
-
-final readonly class UserValidationMiddleware
-{
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
-    {
-        if (!$request instanceof CreateUserRequest) {
-            throw new \InvalidArgumentException('Invalid request type for user validation');
-        }
-
-        // Specific business validations
-        $this->validateEmailDomain($request->email()->domain());
-        $this->validateNameFormat($request->name()->value());
-
-        return $next($request);
-    }
-
-    private function validateEmailDomain(string $domain): void
-    {
-        $blockedDomains = ['tempmail.com', '10minutemail.com', 'guerrillamail.com'];
-        
-        if (in_array($domain, $blockedDomains, true)) {
-            throw new \InvalidArgumentException(
-                sprintf('Email domain "%s" is not allowed', $domain)
-            );
-        }
-    }
-
-    private function validateNameFormat(string $name): void
-    {
-        // Check that there are no dangerous special characters
-        if (preg_match('/[<>"\']/', $name)) {
-            throw new \InvalidArgumentException('Name contains invalid characters');
-        }
-
-        // Check that there is at least a first and last name
-        $parts = explode(' ', trim($name));
-        if (count($parts) < 2) {
-            throw new \InvalidArgumentException('Full name (first and last name) is required');
-        }
-    }
-}
-```
-
-#### CommandExecutionMiddleware
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Gateway\Middleware;
-
-use App\Shared\Application\Gateway\{GatewayRequest, GatewayResponse};
-use App\UserContext\Application\Gateway\{CreateUserRequest, CreateUserResponse};
-use App\UserContext\Application\Command\{CreateUserCommand, CreateUserCommandHandler};
-
-final readonly class CommandExecutionMiddleware
-{
-    public function __construct(
-        private CreateUserCommandHandler $commandHandler,
-    ) {}
-
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
-    {
-        if (!$request instanceof CreateUserRequest) {
-            throw new \InvalidArgumentException('Invalid request type for command execution');
-        }
-
-        // Create the command
-        $command = new CreateUserCommand(
-            email: $request->email(),
-            name: $request->name(),
-        );
-
-        // Execute the command
-        $user = ($this->commandHandler)($command);
-
-        // Return the response
-        return CreateUserResponse::fromUser($user);
-    }
-}
-```
-
-### 8. Complete Gateway
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Application\Gateway;
-
-use App\Shared\Application\Gateway\{DefaultGateway, GatewayRequest, GatewayResponse};
-use App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation;
-use App\Shared\Application\Gateway\Middleware\{DefaultLogger, DefaultErrorHandler};
-use App\UserContext\Application\Gateway\Middleware\{UserValidationMiddleware, CommandExecutionMiddleware};
-
-final class CreateUserGateway extends DefaultGateway
-{
-    public function __construct(
-        GatewayInstrumentation $instrumentation,
-        UserValidationMiddleware $validationMiddleware,
-        CommandExecutionMiddleware $commandExecutionMiddleware,
-    ) {
-        $middlewares = [
-            new DefaultLogger($instrumentation),
-            new DefaultErrorHandler($instrumentation, 'UserContext', 'User', 'create'),
-            $validationMiddleware,
-            $commandExecutionMiddleware,
-        ];
-
-        parent::__construct($middlewares);
-    }
-}
-```
-
-### 9. Symfony Controller
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\UI\Controller;
-
-use App\Shared\Application\Gateway\GatewayException;
-use App\UserContext\Application\Gateway\{CreateUserGateway, CreateUserRequest};
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{JsonResponse, Request};
-use Symfony\Component\Routing\Annotation\Route;
-
-final class UserController extends AbstractController
-{
-    public function __construct(
-        private CreateUserGateway $createUserGateway,
-    ) {}
-
-    #[Route('/api/users', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
-    {
-        try {
-            // Create gateway request from HTTP data
-            $gatewayRequest = CreateUserRequest::fromData($request->toArray());
-            
-            // Execute via gateway
-            $gatewayResponse = ($this->createUserGateway)($gatewayRequest);
-
-            return new JsonResponse($gatewayResponse->data(), 201);
-            
-        } catch (GatewayException $e) {
-            return new JsonResponse([
-                'error' => 'User creation failed',
-                'message' => $e->getMessage(),
-            ], 400);
-            
-        } catch (\InvalidArgumentException $e) {
-            return new JsonResponse([
-                'error' => 'Invalid input',
-                'message' => $e->getMessage(),
-            ], 422);
-        }
-    }
-}
-```
-
-### 10. Configuration Symfony
-
-#### Services
-
-```yaml
-# config/services.yaml
-services:
-    # Instrumentation
-    App\Shared\Infrastructure\Instrumentation\LoggerInstrumentation:
-        arguments:
-            $logger: '@logger'
-
-    user.gateway.instrumentation:
-        class: App\Shared\Application\Gateway\Instrumentation\DefaultGatewayInstrumentation
-        arguments:
-            $loggerInstrumentation: '@App\Shared\Infrastructure\Instrumentation\LoggerInstrumentation'
-            $name: 'user.create'
-
-    # Middlewares
-    App\UserContext\Application\Gateway\Middleware\UserValidationMiddleware: ~
-    
-    App\UserContext\Application\Gateway\Middleware\CommandExecutionMiddleware:
-        arguments:
-            $commandHandler: '@App\UserContext\Application\Command\CreateUserCommandHandler'
-
-    # Gateway
-    App\UserContext\Application\Gateway\CreateUserGateway:
-        arguments:
-            $instrumentation: '@user.gateway.instrumentation'
-            $validationMiddleware: '@App\UserContext\Application\Gateway\Middleware\UserValidationMiddleware'
-            $commandExecutionMiddleware: '@App\UserContext\Application\Gateway\Middleware\CommandExecutionMiddleware'
-
-    # Command Handler
-    App\UserContext\Application\Command\CreateUserCommandHandler:
-        arguments:
-            $userRepository: '@App\UserContext\Infrastructure\Repository\DoctrineUserRepository'
-
-    # Repository
-    App\UserContext\Infrastructure\Repository\DoctrineUserRepository:
-        arguments:
-            $entityManager: '@doctrine.orm.entity_manager'
-```
-
-#### Routes
-
-```yaml
-# config/routes.yaml
-user_api:
-    resource: 'App\UserContext\UI\Controller\UserController'
-    type: attribute
-    prefix: /api
-```
-
-### 11. Tests
-
-#### Gateway Integration Test
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Tests\UserContext\Application\Gateway;
-
-use App\UserContext\Application\Gateway\{CreateUserGateway, CreateUserRequest, CreateUserResponse};
-use App\UserContext\Domain\Repository\UserRepositoryInterface;
-use PHPUnit\Framework\TestCase;
-
-final class CreateUserGatewayTest extends TestCase
-{
-    private CreateUserGateway $gateway;
-    private UserRepositoryInterface $mockRepository;
-
-    protected function setUp(): void
-    {
-        $this->mockRepository = $this->createMock(UserRepositoryInterface::class);
-        
-        // Simplified configuration for tests
-        $this->gateway = new CreateUserGateway(
-            $this->createMockInstrumentation(),
-            $this->createMockValidationMiddleware(),
-            $this->createMockCommandExecutionMiddleware(),
-        );
-    }
-
-    public function testSuccessfulUserCreation(): void
-    {
-        $this->mockRepository
-            ->expects($this->once())
-            ->method('existsByEmail')
-            ->willReturn(false);
-
-        $this->mockRepository
-            ->expects($this->once())
-            ->method('save');
-
-        $request = CreateUserRequest::fromData([
-            'email' => 'john@example.com',
-            'name' => 'John Doe',
-        ]);
-
-        $response = ($this->gateway)($request);
-
-        $this->assertInstanceOf(CreateUserResponse::class, $response);
-        $this->assertSame('john@example.com', $response->email());
-        $this->assertSame('John Doe', $response->name());
-        $this->assertNotEmpty($response->id());
-    }
-
-    public function testEmailValidationFailure(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid email format');
-
-        CreateUserRequest::fromData([
-            'email' => 'invalid-email',
-            'name' => 'John Doe',
-        ]);
-    }
-
-    // Helper methods to create mocks...
-}
-```
-
-### 12. Usage with Events
-
-#### Domain Event
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\UserContext\Domain\Event;
-
-use App\UserContext\Domain\User;
-
-final readonly class UserCreated
-{
-    public function __construct(
-        private User $user,
-        private \DateTimeImmutable $occurredAt,
-    ) {}
-
-    public static function fromUser(User $user): self
-    {
-        return new self($user, new \DateTimeImmutable());
-    }
-
-    public function user(): User { return $this->user; }
-    public function occurredAt(): \DateTimeImmutable { return $this->occurredAt; }
-
-    public function toArray(): array
+    public function data(): array
     {
         return [
-            'user_id' => $this->user->id()->value(),
-            'email' => $this->user->email()->value(),
-            'name' => $this->user->name()->value(),
-            'occurred_at' => $this->occurredAt->format(\DateTimeInterface::ATOM),
+            // Response serialization
         ];
     }
 }
 ```
 
-#### CommandHandler with Events
+### 4. Middleware/Processor.php
+The smart Processor shown in examples above with:
+- Operation-specific implementation
+- Correct dependency injection
+- CQRS integration
+- Proper imports
 
-```php
-<?php
+## Benefits of the New System
 
-declare(strict_types=1);
+### ✅ Ready-to-Use Code
+- No more manual implementation needed
+- Functional code from generation
+- Proper CQRS integration
 
-namespace App\UserContext\Application\Command;
+### ✅ Intelligent Detection
+- Automatic operation type recognition
+- Smart dependency injection
+- Correct import statements
 
-use App\UserContext\Domain\{User, Event\UserCreated};
-use App\UserContext\Domain\Repository\UserRepositoryInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+### ✅ Consistent Patterns
+- All operations follow same structure
+- Standardized naming conventions
+- Proper error handling
 
-final readonly class CreateUserCommandHandler
-{
-    public function __construct(
-        private UserRepositoryInterface $userRepository,
-        private EventDispatcherInterface $eventDispatcher,
-    ) {}
+### ✅ Development Speed
+- Immediate functionality after generation
+- No boilerplate code writing
+- Focus on business logic
 
-    public function __invoke(CreateUserCommand $command): User
-    {
-        if ($this->userRepository->existsByEmail($command->email())) {
-            throw new UserAlreadyExistsException(
-                sprintf('User with email "%s" already exists', $command->email()->value())
-            );
-        }
+## Custom Operations
 
-        $user = User::create(
-            email: $command->email(),
-            name: $command->name(),
-        );
+The maker also supports custom operation patterns:
 
-        $this->userRepository->save($user);
-
-        // Trigger the event
-        $this->eventDispatcher->dispatch(
-            UserCreated::fromUser($user),
-            'user.created'
-        );
-
-        return $user;
-    }
-}
+```bash
+# These work automatically:
+bin/console make:application:gateway BlogContext PublishArticle
+bin/console make:application:gateway BlogContext ArchiveArticle
+bin/console make:application:gateway BlogContext ApproveArticle
 ```
 
-## Benefits of this Approach
+For unsupported patterns, it generates a generic template:
+```php
+// TODO: Implement your business logic here
+// Create command or query based on your operation type
 
-### 🎯 Clear Architecture
-- **Separation of responsibilities**: Each layer has its role
-- **Decoupling**: Gateway isolates UI from business logic
-- **Testability**: Each component can be tested independently
+// Return response
+return new Response(
+    // Map your response data
+);
+```
 
-### 🔧 Flexibility
-- **Composable middlewares**: Configurable pipeline
-- **Interchangeable generators**: Easy to change implementation
-- **Instrumentation**: Built-in observability
+## Next Steps After Generation
 
-### 🚀 Performance
-- **UUID v7**: Optimized for databases
-- **Immutable Value Objects**: Thread-safe and cacheable
-- **Efficient pipeline**: Optimized chain processing
+1. **Customize Request/Response** classes to match your data requirements
+2. **Add validation logic** to the Request class constructor
+3. **Create corresponding CQRS operations** (Command/Query + Handler)
+4. **Run QA tools** to ensure generated code meets standards:
+   ```bash
+   composer qa
+   ```
 
-### 🛡️ Robustness
-- **Layered validation**: Data and business validation
-- **Centralized error handling**: Consistent exceptions
-- **Type safety**: Type-level security
-
-This architecture provides a solid foundation for developing complex applications while maintaining code clarity and ease of maintenance.
+The Gateway maker now provides a solid foundation that requires minimal manual work to complete your implementation.

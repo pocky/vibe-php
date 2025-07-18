@@ -1,0 +1,73 @@
+The <info>%command.name%</info> command generates an API Platform resource
+with all necessary providers and processors.
+
+<info>php %command.full_name% BlogContext Article</info>
+
+This creates:
+  * <comment>src/BlogContext/UI/Api/Rest/Resource/ArticleResource.php</comment>
+    API Platform resource with operations
+
+  * <comment>src/BlogContext/UI/Api/Rest/Provider/GetArticleProvider.php</comment>
+    Handles GET /articles/{id}
+
+  * <comment>src/BlogContext/UI/Api/Rest/Provider/ListArticlesProvider.php</comment>
+    Handles GET /articles
+
+  * <comment>src/BlogContext/UI/Api/Rest/Processor/CreateArticleProcessor.php</comment>
+    Handles POST /articles
+
+  * <comment>src/BlogContext/UI/Api/Rest/Processor/UpdateArticleProcessor.php</comment>
+    Handles PUT/PATCH /articles/{id}
+
+  * <comment>src/BlogContext/UI/Api/Rest/Processor/DeleteArticleProcessor.php</comment>
+    Handles DELETE /articles/{id}
+
+The Resource features:
+  * API Platform 3 attributes
+  * RESTful endpoints
+  * OpenAPI documentation
+  * JSON-LD/Hydra support
+  * Built-in validation
+
+The Providers features:
+  * State providers for read operations
+  * Connect to Query Gateways
+  * Handle filtering and pagination
+  * Transform to API resources
+  * Error handling
+
+The Processors features:
+  * State processors for write operations
+  * Connect to Command Gateways
+  * Validate input data
+  * Transform API input to domain
+  * Handle domain responses
+
+API operations configured:
+  * GET /api/articles/{id} - Get single article
+  * GET /api/articles - List articles with filters
+  * POST /api/articles - Create new article
+  * PUT /api/articles/{id} - Full update
+  * PATCH /api/articles/{id} - Partial update
+  * DELETE /api/articles/{id} - Delete article
+
+Next steps:
+  1. Customize resource properties
+  2. Add validation constraints
+  3. Configure custom filters
+  4. Create Application Gateways if missing
+  5. Add OpenAPI documentation
+  6. Configure security/permissions
+  7. Test with API Platform playground
+
+Example with validation:
+<info>#[ApiResource]
+class ArticleResource
+{
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 200)]
+    public ?string $title = null;
+    
+    #[Assert\NotBlank]
+    public ?string $content = null;
+}</info>

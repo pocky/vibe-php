@@ -8,7 +8,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
     // API Platform State Providers
-    $services->defaults()
+    $services
+        ->defaults()
         ->autoconfigure()
         ->autowire()
         ->private();
@@ -17,7 +18,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->defaults()
         ->tag('api_platform.state_provider');
 
-    // Auto-register State Processors when they exist  
+    // Auto-register State Processors when they exist
     $services->defaults()
         ->tag('api_platform.state_processor');
 

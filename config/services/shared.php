@@ -9,7 +9,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
     // Shared Infrastructure Services
-    $services->defaults()
+    $services
+        ->defaults()
         ->autowire()
         ->autoconfigure();
 
@@ -18,13 +19,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             '$loggerInstrumentation' => '@App\Shared\Infrastructure\Instrumentation\LoggerInstrumentation',
             '$name' => 'default.gateway',
-        ]);
-
-    // Shared Services Auto-registration
-    $services->load('App\\Shared\\', '../../src/Shared/')
-        ->exclude([
-            '../../src/Shared/*/ValueObject/',
-            '../../src/Shared/*/Event/',
-            '../../src/Shared/*/Exception/',
         ]);
 };

@@ -2,7 +2,9 @@
 
 This document describes the implementation of the Generator pattern in the project, used for consistent and testable unique identifier generation.
 
-**See also**: [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md) for test-specific usage guidelines.
+**See also**: 
+- [Generator Pattern in Testing](@docs/reference/generator-pattern-testing.md) for test-specific usage guidelines.
+- [DDD Makers Guide](@docs/makers/ddd-makers-guide.md) - The `make:infrastructure:entity` command automatically creates ID generators.
 
 ## Overview
 
@@ -112,6 +114,43 @@ for ($i = 0; $i < 5; $i++) {
     $ids[] = UuidGenerator::generate();
 }
 // IDs are automatically sorted chronologically
+```
+
+## Automatic Generation with DDD Makers
+
+The project includes DDD Maker commands that automatically create ID generators when you create infrastructure entities:
+
+```bash
+# This command creates both the entity AND its ID generator
+bin/console make:infrastructure:entity BlogContext Article
+```
+
+This generates:
+- `ArticleId` value object
+- `ArticleIdGenerator` that uses the `GeneratorInterface`
+- Repository interface and implementation
+- Doctrine entity with proper UUID mapping
+
+Example of generated ID Generator:
+
+```php
+namespace App\BlogContext\Infrastructure\Identity;
+
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Shared\Infrastructure\Generator\GeneratorInterface;
+
+final readonly class ArticleIdGenerator
+{
+    public function __construct(
+        private GeneratorInterface $generator,
+    ) {
+    }
+
+    public function nextIdentity(): ArticleId
+    {
+        return new ArticleId($this->generator::generate());
+    }
+}
 ```
 
 ## Domain Usage

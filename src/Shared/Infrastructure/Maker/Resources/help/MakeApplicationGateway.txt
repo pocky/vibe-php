@@ -1,0 +1,52 @@
+The <info>%command.name%</info> command generates a complete Application Gateway
+structure following the Gateway pattern for clean architecture.
+
+<info>php %command.full_name% BlogContext CreateArticle</info>
+
+This creates:
+  * <comment>src/BlogContext/Application/Gateway/CreateArticle/Gateway.php</comment>
+    Main gateway extending DefaultGateway
+
+  * <comment>src/BlogContext/Application/Gateway/CreateArticle/Request.php</comment>
+    Request DTO implementing GatewayRequest
+
+  * <comment>src/BlogContext/Application/Gateway/CreateArticle/Response.php</comment>
+    Response DTO implementing GatewayResponse
+
+  * <comment>src/BlogContext/Application/Gateway/CreateArticle/Middleware/Processor.php</comment>
+    Processor middleware that executes the operation
+
+The Gateway features:
+  * Extends DefaultGateway for consistent behavior
+  * Configured middleware pipeline:
+    - DefaultLogger (instrumentation)
+    - DefaultErrorHandler (exception handling)
+    - Custom validation (if needed)
+    - Processor (operation execution)
+  * Technology-agnostic entry point
+  * Clean request/response pattern
+
+The Request features:
+  * Implements GatewayRequest interface
+  * Factory method: fromData(array $data)
+  * Built-in validation
+  * Serialization method: data()
+
+The Response features:
+  * Implements GatewayResponse interface
+  * Immutable data structure
+  * Clear return contract
+  * Serialization method: data()
+
+The Processor features:
+  * Creates and executes CQRS commands/queries
+  * Transforms Request to Command/Query
+  * Transforms result to Response
+  * Handles domain events if needed
+
+Next steps:
+  1. Implement request validation logic
+  2. Define response structure
+  3. Connect processor to CQRS handlers
+  4. Add custom validation middleware if needed
+  5. Use gateway in controllers or API resources

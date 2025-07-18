@@ -1,0 +1,73 @@
+The <info>%command.name%</info> command generates a complete Sylius Admin UI
+resource with all necessary components.
+
+<info>php %command.full_name% BlogContext Category</info>
+
+This creates:
+  * <comment>src/BlogContext/UI/Web/Admin/Resource/CategoryResource.php</comment>
+    Main resource configuration
+
+  * <comment>src/BlogContext/UI/Web/Admin/Grid/CategoryGrid.php</comment>
+    Grid configuration for listing
+
+  * <comment>src/BlogContext/UI/Web/Admin/Form/CategoryType.php</comment>
+    Symfony form for create/edit
+
+  * <comment>src/BlogContext/UI/Web/Admin/Provider/CategoryGridProvider.php</comment>
+    Grid data provider
+
+  * <comment>src/BlogContext/UI/Web/Admin/Provider/CategoryItemProvider.php</comment>
+    Single item provider
+
+  * <comment>src/BlogContext/UI/Web/Admin/Processor/CreateCategoryProcessor.php</comment>
+    Handles creation via Gateway
+
+  * <comment>src/BlogContext/UI/Web/Admin/Processor/UpdateCategoryProcessor.php</comment>
+    Handles updates via Gateway
+
+  * <comment>src/BlogContext/UI/Web/Admin/Processor/DeleteCategoryProcessor.php</comment>
+    Handles deletion via Gateway
+
+The Resource features:
+  * Full CRUD operations
+  * Sylius Resource Bundle integration
+  * Bootstrap Admin UI templates
+  * State machine support
+  * Permission-based access
+
+The Grid features:
+  * Sortable columns
+  * Filterable fields
+  * Pagination
+  * Bulk actions
+  * Custom actions per row
+
+The Processors features:
+  * Connect to Application Gateways
+  * Handle form data transformation
+  * Manage success/error responses
+  * Trigger domain operations
+
+Next steps:
+  1. Customize the form fields in CategoryType
+  2. Configure grid columns and filters
+  3. Add custom actions if needed
+  4. Set up routing configuration
+  5. Configure permissions
+  6. Create Application Gateways if missing
+
+Route configuration example:
+<comment>config/routes/admin/blog.yaml</comment>
+<info>blog_admin_category:
+    resource: |
+        alias: blog.category
+        section: admin
+        templates: "@SyliusBootstrapAdmin"
+        redirect: index
+        grid: blog_category
+        vars:
+            all:
+                subheader: blog.ui.manage_categories
+        routes:
+            prefix: /admin
+    type: sylius.resource</info>

@@ -1,0 +1,76 @@
+The <info>%command.name%</info> command generates value objects with built-in
+validation following DDD patterns.
+
+<info>php %command.full_name% BlogContext Email</info>
+<info>php %command.full_name% BlogContext Price --template=money</info>
+
+This creates:
+  * <comment>src/BlogContext/Domain/Shared/ValueObject/Email.php</comment>
+    Immutable value object with validation
+
+Available templates:
+  * <info>generic</info> (default) - Basic value object with custom validation
+  * <info>email</info> - Email address with format validation
+  * <info>money</info> - Monetary amount with currency (requires amount and currency)
+  * <info>phone</info> - Phone number with E.164 validation
+  * <info>url</info> - URL with protocol validation
+  * <info>percentage</info> - Percentage value (0-100)
+
+Value Object features:
+  * Immutable after creation
+  * Self-validating in constructor
+  * Uses ValidationException for errors
+  * Translation keys for error messages
+  * Asymmetric visibility (PHP 8.4)
+  * Consistent getValue() method
+  * equals() method for comparison
+
+Template examples:
+
+<comment>Email template:</comment>
+<info>php %command.full_name% UserContext Email --template=email</info>
+Creates email validation with RFC compliance
+
+<comment>Money template:</comment>
+<info>php %command.full_name% BillingContext Price --template=money</info>
+Creates amount/currency with validation
+
+<comment>Phone template:</comment>
+<info>php %command.full_name% UserContext PhoneNumber --template=phone</info>
+Creates E.164 format validation
+
+<comment>URL template:</comment>
+<info>php %command.full_name% BlogContext Website --template=url</info>
+Creates URL validation with allowed schemes
+
+<comment>Percentage template:</comment>
+<info>php %command.full_name% SalesContext DiscountRate --template=percentage</info>
+Creates 0-100 range validation
+
+Generic template allows customization:
+  * Define your own validation rules
+  * Add business-specific constraints
+  * Implement complex validations
+
+Next steps:
+  1. Choose appropriate template or use generic
+  2. Customize validation rules if needed
+  3. Add translation keys for error messages
+  4. Use in domain models and entities
+  5. Create factory methods if needed
+
+Example usage:
+<info>// Creating value objects
+$email = new Email('user@example.com');
+$price = new Price(99.99, 'USD');
+$phone = new PhoneNumber('+1234567890');
+
+// In domain models
+class User
+{
+    public function __construct(
+        private UserId $id,
+        private Email $email,
+        private PhoneNumber $phone,
+    ) {}
+}</info>

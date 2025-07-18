@@ -1,0 +1,89 @@
+The <info>%command.name%</info> command generates a complete domain aggregate
+structure following DDD patterns.
+
+<info>php %command.full_name% BlogContext CreateArticle Article</info>
+
+This creates:
+  * <comment>src/BlogContext/Domain/CreateArticle/Creator.php</comment>
+    Domain entry point with business logic
+
+  * <comment>src/BlogContext/Domain/CreateArticle/CreatorInterface.php</comment>
+    Interface defining the contract
+
+  * <comment>src/BlogContext/Domain/CreateArticle/DataPersister/Article.php</comment>
+    Domain model/aggregate root
+
+  * <comment>src/BlogContext/Domain/CreateArticle/Event/ArticleCreated.php</comment>
+    Domain event emitted after creation
+
+  * <comment>src/BlogContext/Domain/CreateArticle/Exception/ArticleAlreadyExists.php</comment>
+    Domain-specific exception
+
+The Creator features:
+  * Single responsibility (one use case)
+  * __invoke() method for simplicity
+  * Pure domain logic, no infrastructure
+  * Validates business rules
+  * Returns aggregate with events
+
+The Domain Model features:
+  * Aggregate root pattern
+  * Encapsulates business logic
+  * Emits domain events
+  * Strong typing with value objects
+  * Immutable where appropriate
+
+The Domain Event features:
+  * Captures state changes
+  * Immutable data
+  * Carries all relevant information
+  * Used for eventual consistency
+  * Enables event sourcing
+
+The Exception features:
+  * Domain-specific errors
+  * Meaningful business messages
+  * Translation key support
+  * Contextual information
+
+Common use cases:
+  * CreateArticle, UpdateArticle
+  * PublishArticle, ArchiveArticle
+  * SubmitForReview, ApproveArticle
+  * AddComment, ModerateComment
+
+Next steps:
+  1. Define aggregate properties
+  2. Implement business validation
+  3. Add methods for state transitions
+  4. Create value objects for properties
+  5. Define additional domain events
+  6. Implement repository interface
+  7. Create application command handler
+
+Example business logic:
+<info>public function __invoke(
+    ArticleId $articleId,
+    Title $title,
+    Content $content,
+    AuthorId $authorId,
+    \DateTimeImmutable $createdAt,
+): Article {
+    // Business rule: Check uniqueness
+    if ($this->repository->existsByTitle($title)) {
+        throw new ArticleAlreadyExists($title);
+    }
+    
+    // Create aggregate
+    $article = new Article(
+        id: $articleId,
+        title: $title,
+        content: $content,
+        authorId: $authorId,
+        status: ArticleStatus::DRAFT,
+        createdAt: $createdAt,
+    );
+    
+    // Domain event will be emitted
+    return $article;
+}</info>

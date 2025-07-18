@@ -23,12 +23,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```mermaid
 graph TB
     subgraph "🎯 Quick Commands"
-        QS1["/understand<br/>📋 Analyze codebase"]
-        QS2["/prd<br/>🎯 Define requirements"]
-        QS3["/plan<br/>📐 Design solution"]
-        QS4["/act<br/>⚡ Implement TDD"]
-        QS5["/qa<br/>✅ Verify quality"]
-        QS6["/workflow-status<br/>📊 Check progress"]
+        QS1["/spec:plan<br/>📋 Plan features"]
+        QS2["/spec:requirements<br/>🎯 Define requirements"]
+        QS3["/spec:design<br/>📐 Design solution"]
+        QS4["/spec:act<br/>⚡ Implement TDD"]
+        QS5["/workflow:qa<br/>✅ Verify quality"]
+        QS6["/workflow:status<br/>📊 Check progress"]
+    end
+    
+    subgraph "🏗️ DDD Commands"
+        DD1["/ddd:entity<br/>📦 Create entity"]
+        DD2["/ddd:gateway<br/>🚪 Create gateway"]
+        DD3["/api:resource<br/>🌐 Create API"]
     end
     
     subgraph "📚 Essential Docs"
@@ -56,6 +62,10 @@ graph TB
     QS4 --> D4
     QS5 --> D5
     
+    DD1 --> D2
+    DD2 --> D3
+    DD3 --> D1
+    
     style QS1 fill:#e1f5fe
     style QS2 fill:#fff3e0
     style QS3 fill:#f3e5f5
@@ -63,6 +73,9 @@ graph TB
     style QS5 fill:#ffebee
     style QS6 fill:#fce4ec
     style D6 fill:#fff9c4
+    style DD1 fill:#e3f2fd
+    style DD2 fill:#f3e5f5
+    style DD3 fill:#e8f5e9
 ```
 
 ## License
@@ -176,7 +189,7 @@ Before using `exit_plan_mode`, ALWAYS ask:
 - "Are there any special testing considerations I should be aware of?"
 
 ### 4. Plan Structure Requirements
-All `/act` plans MUST explicitly include:
+All plans MUST explicitly include:
 - **Phase 1: RED** - Detailed list of failing tests to write
 - **Phase 2: GREEN** - Minimal implementation steps
 - **Phase 3: REFACTOR** - Code improvement steps
@@ -200,7 +213,7 @@ When implementing ANY feature or fixing ANY bug, you MUST:
 
 1. **Follow the Mandatory TDD Protocol** for ALL code development
    - TDD is the ONLY acceptable approach for building code
-   - Use the `/act` command as it enforces proper TDD workflow
+   - Use @.claude/commands/act.md as it enforces proper TDD workflow
    - Direct implementation without tests is FORBIDDEN
 
 2. **Run QA continuously during development**:
