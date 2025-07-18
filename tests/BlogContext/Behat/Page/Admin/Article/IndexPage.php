@@ -4,10 +4,33 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Behat\Page\Admin\Article;
 
-use App\Tests\BlogContext\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
+use App\Tests\Shared\Behat\Context\Page\AbstractIndexPage;
+use Behat\Mink\Element\NodeElement;
 
-final class IndexPage extends BaseIndexPage implements IndexPageInterface
+final class IndexPage extends AbstractIndexPage
 {
+    #[\Override]
+    public function getRouteName(): string
+    {
+        return 'app_admin_article_index';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    #[\Override]
+    protected function getDefinedElements(): array
+    {
+        return [
+            ...parent::getDefinedElements(),
+            'create_button' => 'a.btn-primary, .create-button',
+            'search_field' => 'input[name*="search"], input[placeholder*="search"]',
+            'status_filter' => 'select[name*="status"]',
+            'articles_table' => 'table.articles-grid, table',
+            'filter_form' => '.filters-form, form[name*="filter"]',
+        ];
+    }
+
     public function hasArticleWithTitle(string $title): bool
     {
         return $this->isSingleResourceOnPage([
@@ -31,58 +54,37 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
 
     public function filterByStatus(string $status): void
     {
-        $this->filter([
-            'status' => $status,
-        ]);
+        $this->filter();
     }
 
     public function searchByTitle(string $title): void
     {
-        $searchField = $this->session->getPage()->find('css', 'input[name*="search"], input[placeholder*="search"]');
+        $searchField = $this->getSession()->getPage()->find('css', 'input[name*="search"], input[placeholder*="search"]');
         if (null !== $searchField) {
             $searchField->setValue($title);
 
-            $searchButton = $this->session->getPage()->find('css', 'button[type="submit"], input[type="submit"]');
+            $searchButton = $this->getSession()->getPage()->find('css', 'button[type="submit"], input[type="submit"]');
             if (null !== $searchButton) {
                 $searchButton->click();
             }
         }
     }
 
-    public function getArticlesGrid(): array
-    {
-        $articles = [];
-        $rows = $this->session->getPage()->findAll('css', 'table tbody tr');
-
-        foreach ($rows as $row) {
-            $cells = $row->findAll('css', 'td');
-            if (3 <= count($cells)) {
-                $articles[] = [
-                    'title' => trim($cells[0]->getText()),
-                    'status' => trim($cells[1]->getText()),
-                    'created' => trim($cells[2]->getText()),
-                ];
-            }
-        }
-
-        return $articles;
-    }
-
     public function clickCreateArticle(): void
     {
-        $createButton = $this->session->getPage()->find('css', 'a.btn-primary:contains("Create"), a:contains("New Article"), .create-button');
+        $createButton = $this->getSession()->getPage()->find('css', 'a.btn-primary:contains("Create"), a:contains("New Article"), .create-button');
         if (null !== $createButton) {
             $createButton->click();
         } else {
             // Fallback: navigate directly to create URL
-            $this->session->visit('/admin/articles/new');
+            $this->getSession()->visit('/admin/articles/new');
         }
     }
 
     public function editArticle(string $title): void
     {
         $row = $this->findRowContaining($title);
-        if (!$row instanceof \Behat\Mink\Element\NodeElement) {
+        if (!$row instanceof NodeElement) {
             throw new \RuntimeException(sprintf('Cannot find article with title "%s"', $title));
         }
 
@@ -99,10 +101,9 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
         ]);
     }
 
-    #[\Override]
     public function hasColumnsWithHeaders(array $headers): bool
     {
-        $table = $this->session->getPage()->find('css', 'table');
+        $table = $this->getSession()->getPage()->find('css', 'table');
         if (null === $table) {
             return false;
         }
@@ -120,37 +121,9 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
         return true;
     }
 
-    #[\Override]
-    public function getUrl(array $urlParameters = []): string
+    public function findRowContaining(string $text): NodeElement
     {
-        return '/admin/articles';
-    }
-
-    #[\Override]
-    protected function getRouteName(): string
-    {
-        // Not using routes for now, using direct URL
-        return '';
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    #[\Override]
-    protected function getDefinedElements(): array
-    {
-        return array_merge(parent::getDefinedElements(), [
-            'create_button' => 'a.btn-primary, .create-button',
-            'search_field' => 'input[name*="search"], input[placeholder*="search"]',
-            'status_filter' => 'select[name*="status"]',
-            'articles_table' => 'table.articles-grid, table',
-            'filter_form' => '.filters-form, form[name*="filter"]',
-        ]);
-    }
-
-    private function findRowContaining(string $text): \Behat\Mink\Element\NodeElement|null
-    {
-        $rows = $this->session->getPage()->findAll('css', 'table tbody tr');
+        $rows = $this->getSession()->getPage()->findAll('css', 'table tbody tr');
 
         foreach ($rows as $row) {
             if (str_contains($row->getText(), $text)) {
@@ -158,6 +131,6 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
             }
         }
 
-        return null;
+        throw new \RuntimeException(sprintf('Could not find row containing "%s"', $text));
     }
 }

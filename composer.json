@@ -14,6 +14,7 @@
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^2.16",
+        "friends-of-behat/page-object-extension": "*",
         "nelmio/cors-bundle": "^2.5",
         "pagerfanta/doctrine-orm-adapter": "*",
         "pagerfanta/pagerfanta": "^2.0",

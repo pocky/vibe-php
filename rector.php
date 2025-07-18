@@ -12,7 +12,7 @@ return RectorConfig::configure()
         __DIR__ . '/tests'
     ])
     ->withPhpSets()
-    ->withComposerBased(
+    ->withComposerBased (
         twig: true,
         doctrine: true,
         symfony: true,

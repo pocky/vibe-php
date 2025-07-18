@@ -29,6 +29,7 @@ use Sylius\Resource\Model\ResourceInterface;
 )]
 #[Update(
     name: 'approve',
+    routeName: 'app_admin_editorial_approve',
     methods: ['POST'],
     path: 'editorials/{id}/approve',
     provider: EditorialArticleItemProvider::class,
@@ -37,6 +38,7 @@ use Sylius\Resource\Model\ResourceInterface;
 )]
 #[Update(
     name: 'reject',
+    routeName: 'app_admin_editorial_reject',
     methods: ['POST'],
     path: 'editorials/{id}/reject',
     provider: EditorialArticleItemProvider::class,

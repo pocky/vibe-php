@@ -15,6 +15,7 @@ I follow established patterns from our documentation:
 - **@docs/reference/cqrs-pattern.md** - Command/query separation patterns
 - **@docs/reference/gateway-pattern.md** - Entry point implementation
 - **@docs/agent/workflows/act-checklist.md** - Implementation checklist
+- **@docs/agent/workflows/debug-workflow.md** - Debug workflow
 
 ### TDD Workflow
 

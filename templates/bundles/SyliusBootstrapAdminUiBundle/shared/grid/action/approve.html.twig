@@ -1,0 +1,9 @@
+{% set path = path(options.link.route, options.link.parameters|default({id: data.id})) %}
+{% set message = action.label|default('sylius.ui.approve') %}
+
+<form action="{{ path }}" method="post" style="display: inline;">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token(data.id) }}">
+    <button type="submit" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="{{ message|trans }}">
+        {{ ux_icon(action.icon|default('tabler:check')) }}
+    </button>
+</form>

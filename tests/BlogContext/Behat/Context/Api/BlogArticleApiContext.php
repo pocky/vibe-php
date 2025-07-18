@@ -343,21 +343,6 @@ final class BlogArticleApiContext implements Context
         }
     }
 
-    #[\Behat\Step\Then('the response status code should be :statusCode')]
-    public function theResponseStatusCodeShouldBe(int $statusCode): void
-    {
-        if ($this->lastStatusCode !== $statusCode) {
-            // Get the response content for debugging
-            $content = $this->client->getResponse()->getContent();
-            Assert::eq($this->lastStatusCode, $statusCode, sprintf(
-                'Expected status code %d, got %d. Response: %s',
-                $statusCode,
-                $this->lastStatusCode,
-                $content
-            ));
-        }
-    }
-
     #[\Behat\Step\Then('the response should be in JSON')]
     public function theResponseShouldBeInJson(): void
     {

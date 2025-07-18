@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important Configuration Notes
+
+### PHP Configuration Format
+- **ALL configuration in this project uses PHP files**, not YAML
+- Configuration directory: `@config/` contains PHP files exclusively
+- **NEVER** look for `.yml` or `.yaml` files in this project
+- Examples:
+  - `config/services.php` (not services.yaml)
+  - `config/packages/*.php` (not *.yaml)
+  - `config/routes.php` (not routes.yaml)
+
+### Behat Configuration
+- The Behat configuration file is `behat.dist.php` (NOT `behat.yml` or `behat.yaml`)
+- This uses PHP configuration format with the Behat Config objects
+- Suite configurations are imported from `config/behat/suites.php`
+
 ## 🚀 Quick Start Guide
 
 ```mermaid
@@ -277,14 +293,18 @@ This ensures code quality is maintained throughout development, not just checked
   ```
 
 ### Shared Code Restrictions
-- **CRITICAL**: The `src/Shared/` directory contains core framework code
-- **NEVER** modify any file in `src/Shared/` unless explicitly requested by the user
-- **ALWAYS** ask for confirmation before making changes to `src/Shared/`
-- The Shared directory includes:
+- **CRITICAL**: The `src/Shared/` and `tests/Shared/` directories contain core framework code
+- **NEVER** modify any file in `src/Shared/` or `tests/Shared/` unless explicitly requested by the user
+- **ALWAYS** ask for confirmation before making changes to `src/Shared/` or `tests/Shared/`
+- The `src/Shared/` directory includes:
   - Gateway infrastructure (DefaultGateway, middleware, etc.)
   - Message Bus interfaces and implementations
   - Core abstractions (Specifications, Generators, etc.)
   - Infrastructure utilities (Slugger, Paginator, etc.)
+- The `tests/Shared/` directory includes:
+  - Base test classes and abstractions (AbstractIndexPage, AbstractCreatePage, etc.)
+  - Common Behat contexts and services
+  - Shared testing utilities and helpers
 - When implementing features, use the existing Shared components, don't modify them
 
 ### Testing Structure

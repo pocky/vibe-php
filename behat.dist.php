@@ -11,36 +11,16 @@ use Behat\Testwork\Output\Printer\Factory\OutputFactory;
 use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
 
 use App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialDashboardContext;
+use App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialWorkflowContext;
 use App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingArticlesContext;
 use App\Tests\BlogContext\Behat\Context\Api\BlogArticleApiContext;
 use App\Tests\Shared\Behat\Context\Hook\DoctrineORMContext;
-use App\Tests\Shared\Behat\Context\Ui\CommonNavigationContext;
 use Behat\Config\Suite;
 
 $profile = (new Profile('default'))
     ->withFormatter(
         (new PrettyFormatter(paths: false))
             ->withOutputVerbosity(OutputFactory::VERBOSITY_VERBOSE)
-    )
-    ->withFilter(new TagFilter('~@todo'))
-    ->withSuite(
-        (new Suite('blog'))
-            ->withPaths('features/blog')
-            ->withContexts(
-                BlogArticleApiContext::class,
-                DoctrineORMContext::class,
-                CommonNavigationContext::class,
-            )
-    )
-    ->withSuite(
-        (new Suite('admin'))
-            ->withPaths('features/admin')
-            ->withContexts(
-                ManagingArticlesContext::class,
-                EditorialDashboardContext::class,
-                DoctrineORMContext::class,
-                CommonNavigationContext::class,
-            )
     )
 
     # Extensions
@@ -104,5 +84,6 @@ $profile = (new Profile('default'))
 ;
 
 return (new Config())
+    ->import('config/behat/suites.php')
     ->withProfile($profile)
 ;

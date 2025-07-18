@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Behat\Behat\Context\Context;
 use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -18,9 +18,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->defaults()
         ->autowire()
         ->autoconfigure()
+        ->bind('$minkParameters', service('behat.mink.parameters'))
     ;
 
-    // Load Behat contexts from their respective bounded contexts
-    $services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
+    $services->instanceof(SymfonyPageInterface::class)->tag('test.behat_symfony_page');
+    $services->instanceof(Context::class)->tag('test.behat_context');
+
     $services->load('App\\Tests\\Shared\\Behat\\', __DIR__.'/../tests/Shared/Behat/');
+    $services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
+
+    $services->alias(SessionFactoryInterface::class, 'session.factory');
 };

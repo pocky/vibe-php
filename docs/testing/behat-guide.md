@@ -2,7 +2,12 @@
 
 ## Overview
 
-This project uses Behat for acceptance tests following the Behavior-Driven Development (BDD) approach. Behat replaces PHPUnit functional tests for better collaboration between developers and stakeholders.
+This project uses Behat for acceptance tests following the Behavior-Driven Development (BDD) approach with a strong business-oriented focus. Our implementation emphasizes:
+
+- **Business personas** (content creator, editor) over technical roles
+- **Natural language** scenarios that stakeholders can understand
+- **Page Object Pattern** inspired by Sylius for maintainability
+- **Domain-Driven Design** structure for test organization
 
 ## Installation
 
@@ -17,37 +22,46 @@ The `mformono/behat-pack` package has been installed and includes:
 
 ```
 ├── behat.dist.php          # Main Behat configuration
-├── features/               # Gherkin specification files
-│   ├── admin/             # Admin interface scenarios
-│   │   ├── article_management.feature
-│   │   └── editorial-dashboard.feature
-│   └── blog/              # Blog API scenarios
-└── tests/                  # Contexts organized by DDD
+├── config/behat/          # Suite configurations
+│   ├── suites.php        # Main suite import
+│   └── blog/             # Blog context configurations
+│       ├── api.php       # API test suite
+│       └── admin.php     # Admin UI test suite
+├── features/              # Gherkin specification files
+│   ├── api/              # API test scenarios
+│   │   └── blog/         # Blog API features
+│   │       ├── article_management.feature    # CRUD operations
+│   │       └── article_workflow.feature      # Editorial workflows
+│   └── admin/            # Admin UI scenarios
+│       └── blog/         # Blog admin features
+│           ├── managing_articles.feature     # Article management UI
+│           └── editorial_dashboard.feature   # Editorial review UI
+└── tests/                 # Contexts organized by DDD
     ├── BlogContext/       # Blog-specific tests
     │   └── Behat/
     │       ├── Context/
     │       │   ├── Api/   # API test contexts
+    │       │   │   └── BlogArticleApiContext.php
     │       │   └── Ui/    # UI test contexts
     │       │       └── Admin/
-    │       │           ├── ManagingArticlesContext.php
-    │       │           └── EditorialDashboardContext.php
-    │       └── Page/      # Page Object Model
-    │           ├── PageInterface.php
-    │           ├── SymfonyPage.php
+    │       │           └── ManagingArticlesContext.php
+    │       └── Page/      # Page Object Model (Sylius-inspired)
     │           └── Admin/
-    │               ├── Crud/
-    │               │   ├── IndexPage.php
-    │               │   └── IndexPageInterface.php
-    │               ├── Article/
-    │               │   ├── IndexPage.php
-    │               │   └── IndexPageInterface.php
-    │               └── Editorial/
-    │                   ├── DashboardPage.php
-    │                   └── DashboardPageInterface.php
+    │               └── Article/
+    │                   ├── IndexPage.php
+    │                   └── CreatePage.php
     └── Shared/            # Shared test utilities
         └── Behat/
-            └── Context/
-                └── Hook/  # Database hooks, etc.
+            ├── Context/
+            │   ├── Hook/
+            │   │   └── DoctrineORMContext.php
+            │   └── Page/   # Abstract page classes
+            │       ├── AbstractAdminPage.php
+            │       ├── AbstractCreatePage.php
+            │       └── AbstractIndexPage.php
+            └── Service/    # Shared services
+                ├── Accessor/
+                └── Formatter/
 ```
 
 ## Configuration

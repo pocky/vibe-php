@@ -1,0 +1,42 @@
+{% set path = path(options.link.route, options.link.parameters|default({id: data.id})) %}
+{% set message = action.label|default('sylius.ui.reject') %}
+
+<form action="{{ path }}" method="post" style="display: inline;">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token(data.id) }}">
+    <button type="submit"
+            class="btn btn-icon"
+            data-bs-toggle="modal"
+            data-bs-target="#rejectModal{{ data.id }}"
+            data-bs-title="{{ message|trans }}"
+            type="button">
+        {{ ux_icon(action.icon|default('tabler:x')) }}
+    </button>
+</form>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal{{ data.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ data.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ path }}" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel{{ data.id }}">{{ 'app.ui.reject_article'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'sylius.ui.close'|trans }}"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token(data.id) }}">
+                <div class="mb-3">
+                    <label for="reason{{ data.id }}" class="form-label">{{ 'app.ui.rejection_reason'|trans }}</label>
+                    <textarea class="form-control"
+                              id="reason{{ data.id }}"
+                              name="reason"
+                              rows="3"
+                              required
+                              placeholder="{{ 'app.ui.enter_rejection_reason'|trans }}"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'sylius.ui.cancel'|trans }}</button>
+                <button type="submit" class="btn btn-danger">{{ 'app.ui.reject'|trans }}</button>
+            </div>
+        </form>
+    </div>
+</div>

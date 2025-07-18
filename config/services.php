@@ -2,18 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Shared\Infrastructure\Mailer\SymfonyMailer;
-use App\Shared\UI\Twig\AdvisorExtension;
-use App\Shared\UI\Twig\GoogleTagManagerExtension;
-use App\Tests\Mock\Http\Response\MockResponse;
-use AsyncAws\S3\S3Client;
-use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
-use Sylius\Resource\Symfony\ExpressionLanguage\RequestVariables;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\Notifier\FlashMessage\BootstrapFlashMessageImportanceMapper;
-use Twig\Extra\Intl\IntlExtension;
-use Twig\Extra\Html\HtmlExtension;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {

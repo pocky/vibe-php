@@ -37,27 +37,25 @@ final class EditorialArticleGrid extends AbstractGrid implements ResourceAwareGr
                     Action::create('review', 'show')
                         ->setLabel('Review')
                         ->setIcon('tabler:eye'),
-                    Action::create('approve', 'update')
+                    Action::create('approve', 'approve')
                         ->setLabel('Approve')
                         ->setIcon('tabler:check')
                         ->setOptions([
                             'link' => [
-                                'route' => 'app_admin_editorial_update',
+                                'route' => 'app_admin_editorial_approve',
                                 'parameters' => [
                                     'id' => 'resource.id',
-                                    'name' => 'approve',
                                 ],
                             ],
                         ]),
-                    Action::create('reject', 'update')
+                    Action::create('reject', 'reject')
                         ->setLabel('Reject')
                         ->setIcon('tabler:x')
                         ->setOptions([
                             'link' => [
-                                'route' => 'app_admin_editorial_update',
+                                'route' => 'app_admin_editorial_reject',
                                 'parameters' => [
                                     'id' => 'resource.id',
-                                    'name' => 'reject',
                                 ],
                             ],
                         ])

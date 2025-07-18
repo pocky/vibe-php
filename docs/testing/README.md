@@ -74,10 +74,14 @@ tests/
 └── bootstrap.php         # Test configuration
 
 features/                  # Behat specifications
-├── admin/                # Admin UI features
-│   ├── article_management.feature
-│   └── editorial-dashboard.feature
-└── blog/                 # Blog API features
+├── api/                  # API test features
+│   └── blog/            # Blog API features
+│       ├── article_management.feature
+│       └── article_workflow.feature
+└── admin/                # Admin UI features
+    └── blog/            # Blog admin features
+        ├── managing_articles.feature
+        └── editorial_dashboard.feature
 ```
 
 ## Testing Workflow
@@ -215,25 +219,28 @@ docker compose exec app bin/console doctrine:migrations:migrate --no-interaction
 ## Current Implementation Status
 
 ### Behat Test Results
-- **Admin Article Management**: 16 scenarios, all passing ✅
-- **Editorial Dashboard**: 3 scenarios, all passing ✅
-- **Blog API**: 17 scenarios, mostly passing ✅
-- **Total**: 47 Behat scenarios, 267 steps - **43 passing (91% success rate)** ✅
+- **Admin Article Management**: Updated with business-oriented scenarios ✅
+- **Editorial Dashboard**: New feature for editorial workflow ✅
+- **API Article Management**: CRUD operations with business focus ✅
+- **API Article Workflow**: Editorial workflows via API ✅
+- **Total**: 43 scenarios defined, pending step implementations
 
 ### Key Achievements
-1. **Page Object Model**: Complete implementation for admin interfaces
-2. **Sylius-Inspired Patterns**: Adapted proven testing strategies
-3. **Error Resolution**: Fixed column testing, pagination, and limit functionality
-4. **Data-Driven Testing**: Comprehensive use of Foundry factories
-5. **Flexible Assertions**: Robust tests that handle UI variations
-6. **✨ Step Definition Consolidation**: **NEW** - Achieved 70% code reduction through advanced consolidation patterns
-7. **✨ DRY Principle Implementation**: **NEW** - Single functions with multiple attributes replace 5+ duplicated methods
-8. **✨ Best Practices Enforcement**: **NEW** - Removed colons from step definitions, unified naming conventions
+1. **Business-Oriented Organization**: Features organized by capability, not technical layer
+2. **Persona-Based Testing**: Using content creator, editor personas instead of technical roles
+3. **Natural Language Scenarios**: Steps describe user intent, not system behavior
+4. **Simplified Structure**: Flat, easy-to-navigate feature organization
+5. **Page Object Pattern**: Maintained for UI test maintainability
+6. **User Story Integration**: Features adapted from documented user stories
+7. **Clear Tag Strategy**: Organized by interface, domain, and workflow
+8. **Configuration Simplification**: Streamlined suite configuration
 
 ## References
 
 ### Core Testing Guides
-- [Complete Behat Guide](behat-guide.md) - Updated with Page Object Model patterns
+- [Complete Behat Guide](behat-guide.md) - Updated with business-oriented approach
+- [Behat Organization Philosophy](behat-organization.md) - **NEW**: Explains our test structure and principles
+- [Behat Personas Mapping](behat-personas-mapping.md) - **NEW**: How personas map to test steps
 - [Behat Troubleshooting Guide](behat-troubleshooting-guide.md) - **🚨 Debug failing Behat tests systematically**
 - [Behat Admin Grid Patterns](behat-admin-grid-patterns.md) - Complete Page Object architecture
 - [Behat Sylius Patterns](behat-sylius-patterns.md) - Analysis and adaptation of Sylius patterns
