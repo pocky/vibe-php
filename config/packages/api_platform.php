@@ -18,8 +18,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'enabled' => true,
                 'page_parameter_name' => 'page',
                 'enabled_parameter_name' => 'pagination',
-                'items_per_page' => 30,
+                'items_per_page' => 20,
                 'maximum_items_per_page' => 100,
+                'items_per_page_parameter_name' => 'itemsPerPage',
+                'client_enabled' => true,
+                'client_items_per_page' => true,
             ],
         ],
         'patch_formats' => [
@@ -48,7 +51,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ],
         'mapping' => [
             'paths' => [
-                '%kernel.project_dir%/src/BlogContext/UI/Api/Rest/Resource',
             ],
         ],
     ]);

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Command\UpdateArticle;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
-
 final readonly class Command
 {
     public function __construct(
-        public ArticleId $articleId,
-        public Title $title,
-        public Content $content,
-        public Slug $slug,
-        public ArticleStatus $status,
+        public string $articleId,
+        public string|null $title = null,
+        public string|null $content = null,
+        public string|null $slug = null,
     ) {
+        if ('' === $this->articleId) {
+            throw new \InvalidArgumentException('Article ID cannot be empty');
+        }
     }
 }

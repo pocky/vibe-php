@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
 
 interface CreatorInterface
 {
@@ -14,7 +16,6 @@ interface CreatorInterface
         Title $title,
         Content $content,
         Slug $slug,
-        ArticleStatus $status,
-        \DateTimeImmutable $createdAt,
-    ): Article;
+        string $authorId,
+    ): Model\Article;
 }

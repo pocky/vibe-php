@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\PublishArticle;
 
-use App\BlogContext\Domain\PublishArticle\DataPersister\Article;
-use App\BlogContext\Domain\PublishArticle\Exception\{ArticleAlreadyPublished, ArticleNotFound, ArticleNotReady};
-use App\BlogContext\Domain\Shared\Model\Article as SharedArticle;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus};
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\UpdateArticle\Model\Article as UpdateArticle;
 
 final readonly class Publisher implements PublisherInterface
 {
@@ -17,43 +15,46 @@ final readonly class Publisher implements PublisherInterface
     ) {
     }
 
-    #[\Override]
-    public function __invoke(ArticleId $articleId): Article
-    {
-        // Find existing article
-        $existingArticle = $this->repository->findById($articleId);
-        if (!$existingArticle instanceof SharedArticle) {
-            throw new ArticleNotFound($articleId);
+    public function __invoke(
+        ArticleId $articleId,
+        \DateTimeImmutable|null $publishAt = null,
+    ): Model\Article {
+        $readModel = $this->repository->findById($articleId);
+
+        if (!$readModel instanceof \App\BlogContext\Domain\Shared\ReadModel\ArticleReadModel) {
+            throw new Exception\ArticleNotFound($articleId);
         }
 
-        // Business rule: Only draft articles can be published
-        if ($existingArticle->getStatus()->isPublished()) {
-            throw new ArticleAlreadyPublished($articleId);
-        }
+        // Create PublishArticle directly from ReadModel
+        $publishData = Model\Article::fromReadModel($readModel);
 
-        if ($existingArticle->getStatus()->isArchived()) {
-            throw new ArticleNotReady($articleId, 'Cannot publish archived article');
-        }
+        // Publish the article
+        $publishedData = $publishData->publish($publishAt);
 
-        // Business rule: Article must have content for publication
-        if (10 > strlen(trim($existingArticle->getContent()->getValue()))) {
-            throw new ArticleNotReady($articleId, 'Article content is too short for publication');
-        }
-
-        // Create published article
-        $publishedArticle = new Article(
-            id: $articleId,
-            title: $existingArticle->getTitle(),
-            content: $existingArticle->getContent(),
-            slug: $existingArticle->getSlug(),
-            status: ArticleStatus::PUBLISHED,
-            createdAt: $existingArticle->getCreatedAt(),
-            publishedAt: new \DateTimeImmutable(),
+        // Create the event
+        $event = new Event\ArticlePublished(
+            articleId: $articleId->getValue(),
+            slug: $publishedData->slug->getValue(),
+            publishedAt: $publishedData->publishedAt ?? new \DateTimeImmutable(),
         );
 
-        // Persist
-        $this->repository->save($publishedArticle);
+        $publishedData = $publishedData->withEvents([$event]);
 
-        return $publishedArticle;
+        // Create UpdateArticle for persistence
+        $updateData = new UpdateArticle(
+            id: $readModel->id,
+            title: $readModel->title,
+            content: $readModel->content,
+            slug: $readModel->slug,
+            status: $publishedData->status,
+            authorId: $readModel->authorId,
+            timestamps: $publishedData->timestamps,
+            publishedAt: $publishedData->publishedAt,
+        );
+
+        // Persist changes
+        $this->repository->update($updateData);
+
+        return $publishedData;
     }
 }

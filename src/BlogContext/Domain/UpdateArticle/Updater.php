@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\UpdateArticle;
 
-use App\BlogContext\Domain\Shared\Model\Article as SharedArticle;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
-use App\BlogContext\Domain\UpdateArticle\DataPersister\Article;
-use App\BlogContext\Domain\UpdateArticle\Exception\{ArticleNotFound, ArticleSlugAlreadyExists, PublishedArticleRequiresApproval};
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
 
 final readonly class Updater implements UpdaterInterface
 {
@@ -17,41 +17,52 @@ final readonly class Updater implements UpdaterInterface
     ) {
     }
 
-    #[\Override]
-    public function __invoke(ArticleId $articleId, Title $title, Content $content, Slug $slug, ArticleStatus $status): Article
-    {
-        // Find existing article
-        $existingArticle = $this->repository->findById($articleId);
-        if (!$existingArticle instanceof SharedArticle) {
-            throw new ArticleNotFound($articleId);
+    public function __invoke(
+        ArticleId $articleId,
+        Title|null $title = null,
+        Content|null $content = null,
+        Slug|null $slug = null,
+    ): Model\Article {
+        $readModel = $this->repository->findById($articleId);
+
+        if (!$readModel instanceof \App\BlogContext\Domain\Shared\ReadModel\ArticleReadModel) {
+            throw new Exception\ArticleNotFound($articleId);
         }
 
-        // Business rule: Published articles require editor approval for major changes
-        if ($existingArticle->getStatus()->isPublished()) {
-            throw new PublishedArticleRequiresApproval($articleId);
+        // If slug is provided, ensure it's unique (excluding current article)
+        if ($slug instanceof Slug && !$readModel->slug->equals($slug)) {
+            $existingArticle = $this->repository->findBySlug($slug);
+            if ($existingArticle && !$existingArticle->id->equals($articleId)) {
+                throw new Exception\SlugAlreadyExists($slug);
+            }
         }
 
-        // Check if new slug conflicts with another article
-        if (!$slug->equals($existingArticle->getSlug()) && $this->repository->existsBySlug($slug)) {
-            throw new ArticleSlugAlreadyExists($slug);
+        // Use current values if not provided
+        $finalTitle = $title ?? $readModel->title;
+        $finalContent = $content ?? $readModel->content;
+        $finalSlug = $slug ?? $readModel->slug;
+
+        // Create UpdateArticle directly from ReadModel
+        $updateData = Model\Article::fromReadModel($readModel);
+
+        // Update the article data
+        $updatedData = $updateData->update($finalTitle, $finalContent, $finalSlug);
+
+        // Create event if there were changes
+        if ($updatedData->hasChanges()) {
+            $event = new Event\ArticleUpdated(
+                articleId: $articleId->getValue(),
+                title: $updatedData->title->getValue(),
+                slug: $updatedData->slug->getValue(),
+                updatedAt: $updatedData->timestamps->getUpdatedAt(),
+            );
+
+            $updatedData = $updatedData->withEvents([$event]);
         }
 
-        // Create updated article
-        $updatedArticle = new Article(
-            id: $articleId,
-            title: $title,
-            content: $content,
-            slug: $slug,
-            status: $status,
-            createdAt: $existingArticle->getCreatedAt(),
-            updatedAt: new \DateTimeImmutable(),
-            originalTitle: $existingArticle->getTitle(),
-            originalContent: $existingArticle->getContent(),
-        );
+        // Persist changes
+        $this->repository->update($updatedData);
 
-        // Persist
-        $this->repository->save($updatedArticle);
-
-        return $updatedArticle;
+        return $updatedData;
     }
 }

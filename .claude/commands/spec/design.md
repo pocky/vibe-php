@@ -11,10 +11,10 @@ You are creating a comprehensive technical design based on existing EARS require
 Generate technical design from existing requirements in the current feature directory.
 
 ## Process
-1. **Read methodology**: Reference `.claude/CLAUDE.md` for guidance
+1. **Read methodology**: Reference @.claude/CLAUDE.md for guidance
 2. **Locate requirements**: Find and read the requirements.md file in current context
 3. **Tech stack selection**: Present options and gather user preferences
-4. **Generate design**: Create comprehensive design.md addressing all requirements
+4. **Generate design**: Create comprehensive design/technical-design.md addressing all requirements
 5. **Seek approval**: Request explicit user approval before proceeding
 
 ## Tech Stack (Project Specific)
@@ -42,7 +42,7 @@ This project uses a predefined tech stack:
 - **Event-Driven** communication between contexts
 
 ## Design Document Structure
-Create design.md with these sections:
+Create design/technical-design.md with these sections:
 
 ### Technical Overview
 - Architecture approach and rationale
@@ -111,12 +111,18 @@ Ensure design:
 - Include testing strategy for design validation
 
 ## Approval Gate
-After creating design.md, ask:
+After creating design/technical-design.md, ask:
 "Technical design complete. The design addresses all requirements using **PHP 8.4/Symfony 7.3** with **DDD/Hexagonal Architecture** and **CQRS pattern**. Ready to proceed to task breakdown with `/spec:tasks`, or would you like to review and modify the design first?"
 
 ## Next Steps
 - User reviews design and approves/requests changes
 - Once approved, user can run `/spec:tasks` to proceed to implementation planning
 - Design serves as blueprint for structured development
+
+## Ready to Generate Design
+
+I'll now create the technical design based on the existing requirements.
+
+I'll now begin creating the technical design based on the existing requirements.
 
 Now generate the technical design based on existing requirements.

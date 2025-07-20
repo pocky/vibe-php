@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\BlogContext\Application\Operation\Command\CreateArticle;
 
 use App\BlogContext\Domain\CreateArticle\CreatorInterface;
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
         private CreatorInterface $creator,
@@ -19,29 +19,29 @@ final readonly class Handler
     ) {
     }
 
-    public function __invoke(Command $command): Article
+    public function __invoke(Command $command): void
     {
-        // Transform command to value objects
+        // NOTE: This handler expects the ArticleId and Slug to be provided in the command
+        // If you need to generate them, use the Gateway Processor instead
+
+        // Transform command data to value objects
+        $articleId = new ArticleId($command->articleId);
         $title = new Title($command->title);
         $content = new Content($command->content);
-        $slug = new Slug($command->slug);
-        $status = ArticleStatus::from($command->status);
+        $slug = new Slug($command->slug); // Now required
 
         // Execute domain operation
-        $createdArticle = ($this->creator)(
-            $command->articleId,
-            $title,
-            $content,
-            $slug,
-            $status,
-            $command->createdAt,
+        $articleData = ($this->creator)(
+            articleId: $articleId,
+            title: $title,
+            content: $content,
+            slug: $slug,
+            authorId: $command->authorId,
         );
 
-        // Dispatch domain events via EventBus
-        foreach ($createdArticle->releaseEvents() as $event) {
+        // Dispatch domain events
+        foreach ($articleData->getEvents() as $event) {
             ($this->eventBus)($event);
         }
-
-        return $createdArticle;
     }
 }

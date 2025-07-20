@@ -1,5 +1,4 @@
 ---
-name: adr
 description: Create or update Architecture Decision Records (ADRs)
 args:
   - name: title

@@ -1,0 +1,1 @@
+- admin et api ne son,t tjrs pas parallélisés, faire un worktree ?

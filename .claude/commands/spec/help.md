@@ -1,6 +1,6 @@
 ---
 description: Display help information for spec:driven development commands
-allowed-tools: Read(*), Write(*)
+allowed-tools: Glob(*)
 ---
 
 # Spec-Driven Development Help
@@ -39,7 +39,7 @@ Quick reference for the spec:driven development methodology commands.
 - **Usage**: Phase 3 - After design approval
 - **Prerequisite**: Must have approved design.md
 
-#### `/spec:act`
+#### `/act`
 **Purpose**: Execute TDD implementation from existing tasks.md
 - **Input**: Existing `tasks.md` in current feature context
 - **Output**: Implemented code following Red-Green-Refactor cycle
@@ -232,7 +232,7 @@ This project uses a predefined stack configured in `/spec:design`:
 # [Review and approve design.md]
 /spec:tasks
 # [Review and approve tasks.md]
-/spec:act
+/act
 # [Implement with TDD]
 ```
 

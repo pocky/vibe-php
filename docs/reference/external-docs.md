@@ -61,6 +61,9 @@ This file contains links to important external documentation that Claude should 
 - **PHP 8.4 Features**: https://www.php.net/releases/8.4/en.php
 - **PHP 8.3 Features**: https://www.php.net/releases/8.3/en.php
 - **PSR Standards**: https://www.php-fig.org/psr/
+  - **PSR-4 Autoloading**: https://www.php-fig.org/psr/psr-4/ (MANDATORY)
+  - **PSR-12 Coding Style**: https://www.php-fig.org/psr/psr-12/
+  - **PSR-1 Basic Standard**: https://www.php-fig.org/psr/psr-1/
 - **PHP RFCs**: https://wiki.php.net/rfc
 
 ## Common Tasks References

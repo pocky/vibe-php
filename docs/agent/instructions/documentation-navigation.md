@@ -9,75 +9,94 @@ This guide helps AI agents navigate the project documentation efficiently. Diffe
 ```mermaid
 mindmap
   root((🏠 Vibe PHP<br/>Documentation))
-    🤖 Agent Docs
-      📖 Instructions
-        Architecture
-        Git Workflow
-        QA Tools
-        Docker
-        Symfony
-        API Platform
-        Doctrine
-      🔄 Workflows
-        TDD Guide
-        PR Management
-        Migration Flow
-        Act Checklist
-      ⚠️ Errors
-        Error Log
-        Solutions
-    📦 Contexts
-      📝 Blog
-        PRD
-        User Stories
-        Architecture
-        Tech Plan
-      🔐 Security
-        Authentication
-        Authorization
-      💰 Billing
-        Payments
-        Subscriptions
-    🔧 Reference
+    🏗️ Architecture
       📐 Patterns
         CQRS
         Gateway
         Domain Layer
         Generator
         Specification
-      🐘 PHP 8.4
-        Features
-        Best Practices
-    💡 Examples
-      Gateway Usage
-      Specification Usage
-    🧪 Testing
-      PHPUnit Guide
-      Behat Guide
-      Generator Testing
-    🛠️ External Tools
-      Symfony Components
-      Foundry Bundle
-      GitHub CLI
+      🎯 Principles
+        DDD
+        Hexagonal
+        Clean
+      📏 Standards
+        PSR
+        PHP 8.4
+      📋 Decisions
+        ADRs
+    💻 Development
+      🚀 Getting Started
+      🔄 Workflows
+        TDD
+        Database
+        GitHub PR
+        Debug
+      🧪 Testing
+        PHPUnit
+        Behat
+        Patterns
+      🛠️ Tools
+        Makers
+        External
+        QA Tools
+      💡 Examples
+    📦 Contexts
+      📝 Blog
+        Requirements
+        Design
+        Implementation
+      🔐 Security
+      💰 Billing
+    🤖 Agent
+      📖 Instructions
+      🔄 Methodologies
+      📄 Templates
+      📝 Snippets
+      ⚠️ Errors
+    📚 Reference
+      🌐 API
+      🔗 Integration
+        Sylius
+        API Platform
+      📋 External Docs
 ```
 
 ## Documentation Structure Map
 
 ```
 docs/
-├── agent/              # YOUR instructions and workflows
-├── contexts/           # Business domain documentation
-│   └── blog/          # Blog context documentation
-│       └── ui-layer-implementation.md  # NEW: UI layer details
-├── reference/          # Technical patterns and standards
-│   ├── sylius-admin-ui-integration.md  # NEW: Sylius Admin UI
-│   └── sylius-stack-integration.md     # NEW: Sylius Stack setup
-├── testing/            # Testing strategies and guides
-│   └── behat-sylius-patterns.md        # NEW: Behat with Sylius
-├── examples/           # Implementation examples
-├── external-tools/     # External tool documentation
-├── plan/              # Historical planning documents
-└── prd/               # Historical product requirements
+├── architecture/       # Architecture and technical patterns
+│   ├── patterns/      # Implementation patterns (CQRS, Gateway, etc.)
+│   ├── principles/    # Architectural principles (DDD, Hexagonal)
+│   ├── standards/     # Coding standards (PSR, PHP 8.4)
+│   └── decisions/     # Architecture Decision Records
+├── development/        # Developer guides and tools
+│   ├── getting-started/
+│   ├── workflows/     # Development workflows
+│   ├── testing/       # Testing guides and strategies
+│   ├── tools/         # Development tools
+│   │   ├── makers/    # Code generators
+│   │   ├── external/  # External tools docs
+│   │   └── qa-tools.md
+│   └── examples/      # Implementation examples
+├── contexts/          # Business domain documentation
+│   ├── blog/
+│   ├── security/
+│   └── billing/
+├── agent/             # AI agent specific documentation
+│   ├── instructions/  # Agent behavior guidelines
+│   ├── methodologies/ # Spec-driven methodology
+│   ├── templates/     # Document templates
+│   ├── snippets/      # Code snippets
+│   └── errors.md      # Error tracking
+├── reference/         # Quick references
+│   ├── api/          # API documentation
+│   ├── integration/   # Integration guides (Sylius, API Platform)
+│   └── external-docs.md
+└── archive/          # Historical documents
+    ├── implementation-summaries/
+    └── old-plans/
 ```
 
 ## Where to Find What
@@ -117,43 +136,52 @@ Example: For blog features → `@docs/contexts/blog/`
 
 ### 🔧 For Technical Patterns and Standards
 
-**Location**: `@docs/reference/`
+**Location**: `@docs/architecture/`
 
-Consult when implementing:
-- **CQRS**: `@docs/reference/cqrs-pattern.md`
-- **Gateways**: `@docs/reference/gateway-pattern.md`
-- **Domain Layer**: `@docs/reference/domain-layer-pattern.md`
-- **Doctrine ORM**: `@docs/reference/doctrine-orm.md`
-- **PHP Best Practices**: `@docs/reference/php-features-best-practices.md`
-- **Sylius Admin UI**: `@docs/reference/sylius-admin-ui-integration.md` *(NEW)*
-- **Sylius Stack**: `@docs/reference/sylius-stack-integration.md` *(NEW)*
+Consult when implementing patterns:
+- **CQRS**: `@docs/architecture/patterns/cqrs-pattern.md`
+- **Gateways**: `@docs/architecture/patterns/gateway-pattern.md`
+- **Domain Layer**: `@docs/architecture/patterns/domain-layer-pattern.md`
+- **Generator**: `@docs/architecture/patterns/generator-pattern.md`
+- **Specification**: `@docs/architecture/patterns/specification-pattern.md`
+
+For coding standards:
+- **PSR Standards**: `@docs/architecture/standards/psr-standards.md` *(MANDATORY - PSR-4)*
+- **PHP Best Practices**: `@docs/architecture/standards/php-features-best-practices.md`
+
+For integrations:
+- **Sylius Admin UI**: `@docs/reference/integration/sylius-admin-ui-integration.md`
+- **Sylius Stack**: `@docs/reference/integration/sylius-stack-integration.md`
 
 ### 🧪 For Testing Guidelines
 
-**Location**: `@docs/testing/`
+**Location**: `@docs/development/testing/`
 
 Before writing tests:
-- **Testing Strategy**: `@docs/testing/README.md`
-- **Behat Tests**: `@docs/testing/behat-guide.md`
-- **Behat with Sylius Patterns**: `@docs/testing/behat-sylius-patterns.md` *(NEW)*
-- **Generator Pattern in Tests**: `@docs/testing/generator-pattern-testing.md`
+- **Testing Strategy**: `@docs/development/testing/README.md`
+- **Behat Tests**: `@docs/development/testing/behat-guide.md`
+- **Behat with Sylius**: `@docs/development/testing/behat-sylius-patterns.md`
+- **Generator Pattern Testing**: `@docs/development/testing/generator-pattern-testing.md`
 
 ### 💡 For Implementation Examples
 
-**Location**: `@docs/examples/`
+**Location**: `@docs/development/examples/`
 
 See concrete examples:
-- **Gateway Generator**: `@docs/examples/gateway-generator-usage.md`
-- **Specification Pattern**: `@docs/examples/specification-pattern-usage.md`
+- **Gateway Generator**: `@docs/development/examples/gateway-generator-usage.md`
+- **Specification Pattern**: `@docs/development/examples/specification-pattern-usage.md`
 
-### 🔧 For External Tool Documentation
+### 🛠️ For Development Tools
 
-**Location**: `@docs/external-tools/`
+**Locations**: 
+- `@docs/development/tools/makers/` - Code generators
+- `@docs/development/tools/external/` - External tools
+- `@docs/development/tools/qa-tools.md` - Quality assurance
 
-Tool-specific guides:
-- **Symfony Components**: Messenger, Serializer, Validator, etc.
+Tool documentation:
+- **Makers**: DDD code generators
+- **Symfony Components**: Messenger, Serializer, Validator
 - **Testing Tools**: Foundry Bundle
-- **Security Tools**: LexikJWT Authentication
 - **Development Tools**: GitHub CLI
 
 ## Quick Decision Tree
@@ -163,16 +191,16 @@ Need to understand WHAT to build?
 └── Go to: @docs/contexts/[context-name]/
 
 Need to know HOW to implement a pattern?
-└── Go to: @docs/reference/[pattern-name].md
+└── Go to: @docs/architecture/patterns/[pattern-name].md
 
 Need to see an EXAMPLE?
-└── Go to: @docs/examples/
+└── Go to: @docs/development/examples/
 
 Need to write TESTS?
-└── Go to: @docs/testing/
+└── Go to: @docs/development/testing/
 
-Need EXTERNAL TOOL help?
-└── Go to: @docs/external-tools/
+Need TOOL help?
+└── Go to: @docs/development/tools/
 
 Need AGENT-SPECIFIC guidance?
 └── Go to: @docs/agent/instructions/
@@ -191,23 +219,22 @@ Encountered an ERROR before?
 5. Follow workflows from: `@docs/agent/workflows/`
 
 ### Scenario 2: Creating a Gateway
-1. Read pattern: `@docs/reference/gateway-pattern.md`
-2. See example: `@docs/examples/gateway-generator-usage.md`
+1. Read pattern: `@docs/architecture/patterns/gateway-pattern.md`
+2. See example: `@docs/development/examples/gateway-generator-usage.md`
 3. Follow architecture: `@docs/agent/instructions/architecture.md`
 
 ### Scenario 3: Writing Tests
-1. Check strategy: `@docs/testing/README.md`
-2. For Behat: `@docs/testing/behat-guide.md`
-3. For Sylius patterns: `@docs/testing/behat-sylius-patterns.md`
-4. Follow TDD: `@docs/agent/workflows/tdd-implementation-guide.md`
+1. Check strategy: `@docs/development/testing/README.md`
+2. For Behat: `@docs/development/testing/behat-guide.md`
+3. For Sylius patterns: `@docs/development/testing/behat-sylius-patterns.md`
+4. Follow TDD: `@docs/development/workflows/tdd-implementation-guide.md`
 
 ### Scenario 4: Database Changes
 1. Read guidelines: `@docs/agent/instructions/doctrine-migrations.md`
-2. Check patterns: `@docs/reference/doctrine-orm.md`
-3. Follow workflow: `@docs/agent/workflows/database-migration-workflow.md`
+2. Follow workflow: `@docs/development/workflows/database-migration-workflow.md`
 
-### Scenario 5: Adding Admin UI *(NEW)*
-1. Read Sylius Admin UI guide: `@docs/reference/sylius-admin-ui-integration.md`
+### Scenario 5: Adding Admin UI
+1. Read Sylius Admin UI guide: `@docs/reference/integration/sylius-admin-ui-integration.md`
 2. Check UI implementation: `@docs/contexts/[context]/ui-layer-implementation.md`
 3. Follow architecture patterns: `@docs/agent/instructions/architecture.md`
 
@@ -216,9 +243,9 @@ Encountered an ERROR before?
 These are the most frequently needed documents:
 
 1. **Architecture Rules**: `@docs/agent/instructions/architecture.md`
-2. **CQRS Pattern**: `@docs/reference/cqrs-pattern.md`
-3. **Gateway Pattern**: `@docs/reference/gateway-pattern.md`
-4. **QA Tools**: `@docs/agent/instructions/qa-tools.md`
+2. **CQRS Pattern**: `@docs/architecture/patterns/cqrs-pattern.md`
+3. **Gateway Pattern**: `@docs/architecture/patterns/gateway-pattern.md`
+4. **QA Tools**: `@docs/development/tools/qa-tools.md`
 5. **Git Workflow**: `@docs/agent/instructions/git-workflow.md`
 
 ## Pro Tips

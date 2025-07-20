@@ -1,0 +1,33 @@
+Creates a domain-specific ID generator for entity identity generation.
+
+This command generates an ID generator that encapsulates the identity creation logic 
+for a specific domain entity, following Domain-Driven Design principles.
+
+<info>php %command.full_name% BlogContext Article</info>
+
+The generated ID generator:
+- Uses the shared GeneratorInterface for UUID generation
+- Encapsulates the specific entity ID creation logic
+- Returns strongly-typed ID value objects
+- Follows the factory pattern for identity creation
+
+Prerequisites:
+- The corresponding ID value object must exist (e.g., ArticleId)
+- Create it first with: make:domain:value-object Context EntityId
+
+Generated structure:
+- Infrastructure/Identity/{Entity}IdGenerator.php
+
+Usage in domain services:
+- Inject the generator via constructor
+- Call nextIdentity() to generate new IDs
+- Returns typed ID value objects, not raw UUIDs
+
+Example:
+  private ArticleIdGenerator $idGenerator;
+  
+  public function createArticle(): Article
+  {
+      $articleId = $this->idGenerator->nextIdentity();
+      return new Article($articleId, /* other params */);
+  }

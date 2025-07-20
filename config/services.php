@@ -26,14 +26,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->exclude([
             __DIR__.'/../src/DependencyInjection',
             __DIR__.'/../src/Kernel.php',
+            __DIR__.'/../src/Shared/Application/Gateway/Middleware/DefaultErrorHandler.php',
+            __DIR__.'/../src/Shared/Application/Gateway/Middleware/DefaultLogger.php',
         ])
     ;
-
-    # Repository interfaces binding
-    $services->alias(
-        \App\BlogContext\Domain\Shared\Repository\CategoryRepositoryInterface::class,
-        \App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\CategoryRepository::class
-    );
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

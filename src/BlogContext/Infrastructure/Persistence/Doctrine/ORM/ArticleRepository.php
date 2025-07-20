@@ -4,180 +4,254 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
 
-use App\BlogContext\Domain\Shared\Model\Article;
+use App\BlogContext\Domain\CreateArticle\Model\Article as CreateArticle;
+use App\BlogContext\Domain\Shared\ReadModel\ArticleReadModel;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
-use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
-use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Mapper\ArticleMappingRegistry;
-use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Mapper\EntityToArticleMapper;
-use App\Shared\Infrastructure\Paginator\PaginatorInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use App\BlogContext\Domain\UpdateArticle\Model\Article as UpdateArticle;
+use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\Article as DoctrineArticle;
+use App\BlogContext\Infrastructure\Persistence\Mapper\ArticleQueryMapper;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
 
-final readonly class ArticleRepository implements ArticleRepositoryInterface
+/**
+ * @extends ServiceEntityRepository<DoctrineArticle>
+ */
+final class ArticleRepository extends ServiceEntityRepository implements ArticleRepositoryInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private ArticleMappingRegistry $mappingRegistry,
-        private EntityToArticleMapper $entityToArticleMapper,
+        ManagerRegistry $registry,
+        private readonly ArticleQueryMapper $queryMapper,
     ) {
+        parent::__construct($registry, DoctrineArticle::class);
     }
 
-    public function save(object $article): void
+    public function add(CreateArticle $article): void
     {
-        // Get the article ID to find existing entity
-        $articleId = $this->extractArticleId($article);
-        $existingEntity = null;
+        $entity = new DoctrineArticle(
+            id: Uuid::fromString($article->id->getValue()),
+            title: $article->title->getValue(),
+            content: $article->content->getValue(),
+            slug: $article->slug->getValue(),
+            status: $article->status->value,
+            authorId: $article->authorId,
+            createdAt: $article->timestamps->getCreatedAt(),
+            updatedAt: $article->timestamps->getUpdatedAt(),
+            publishedAt: null,
+        );
 
-        if ($articleId instanceof ArticleId) {
-            $existingEntity = $this->entityManager->find(
-                BlogArticle::class,
-                Uuid::fromString($articleId->getValue())
-            );
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
+    }
+
+    public function update(UpdateArticle $article): void
+    {
+        $entity = $this->find(Uuid::fromString($article->id->getValue()));
+
+        if (!$entity) {
+            throw new \RuntimeException('Article not found for update');
         }
 
-        // Use the mapping registry to handle the conversion
-        $entity = $this->mappingRegistry->mapToEntity($article, $existingEntity);
+        $entity->title = $article->title->getValue();
+        $entity->content = $article->content->getValue();
+        $entity->slug = $article->slug->getValue();
+        $entity->status = $article->status->value;
+        $entity->updatedAt = $article->timestamps->getUpdatedAt();
 
-        // Persist new entities
-        if (!$existingEntity instanceof BlogArticle) {
-            $this->entityManager->persist($entity);
+        if ($article->publishedAt instanceof \DateTimeImmutable) {
+            $entity->publishedAt = $article->publishedAt;
         }
 
-        $this->entityManager->flush();
+        $this->getEntityManager()->flush();
+    }
+
+    public function findById(ArticleId $id): ArticleReadModel|null
+    {
+        $entity = $this->find(Uuid::fromString($id->getValue()));
+
+        return $entity ? $this->queryMapper->map($entity) : null;
+    }
+
+    public function findBySlug(Slug $slug): ArticleReadModel|null
+    {
+        $entity = $this->findOneBy([
+            'slug' => $slug->getValue(),
+        ]);
+
+        return $entity ? $this->queryMapper->map($entity) : null;
+    }
+
+    public function remove(ArticleId $id): void
+    {
+        $this->delete($id);
+    }
+
+    public function existsWithSlug(Slug $slug): bool
+    {
+        return null !== $this->findOneBy([
+            'slug' => $slug->getValue(),
+        ]);
     }
 
     /**
-     * Extract ArticleId from various domain article types
+     * @return ArticleReadModel[]
      */
-    private function extractArticleId(object $article): ArticleId|null
+    #[\Override]
+    public function findAllPaginated(int $page = 1, int $limit = 20): array
     {
-        // Check common property names
-        if (property_exists($article, 'id') && $article->id instanceof ArticleId) {
-            return $article->id;
-        }
+        $offset = ($page - 1) * $limit;
 
-        // Check for getter methods
-        if (method_exists($article, 'getArticleId')) {
-            /** @var ArticleId */
-            return $article->getArticleId();
-        }
+        /** @var list<DoctrineArticle> $entities */
+        $entities = $this->createQueryBuilder('a')
+            ->orderBy('a.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
 
-        if (method_exists($article, 'getId')) {
-            /** @var ArticleId */
-            return $article->getId();
-        }
-
-        return null;
+        /** @var ArticleReadModel[] */
+        return array_values(array_map($this->queryMapper->map(...), $entities));
     }
 
-    public function findById(ArticleId $id): Article|null
+    #[\Override]
+    public function count(array $criteria = []): int
     {
-        $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($id->toString()));
-
-        if (null === $entity) {
-            return null;
+        if ([] === $criteria) {
+            /** @var int<0, max> */
+            return (int) $this->createQueryBuilder('a')
+                ->select('COUNT(a.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
         }
 
-        return $this->entityToArticleMapper->mapToDomain($entity);
+        /** @var int<0, max> */
+        return parent::count($criteria);
     }
 
-    public function existsBySlug(Slug $slug): bool
+    public function countAll(): int
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('COUNT(a.id)')
-            ->from(BlogArticle::class, 'a')
-            ->where('a.slug = :slug')
-            ->setParameter('slug', $slug->getValue());
-
-        return 0 < $qb->getQuery()->getSingleScalarResult();
+        return (int) $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
-    public function remove(object $article): void
-    {
-        $articleId = $this->extractArticleId($article);
+    #[\Override]
+    public function findByFilters(
+        array $filters,
+        string|null $sortBy = null,
+        string $sortOrder = 'asc',
+        int $limit = 20,
+        int $offset = 0
+    ): array {
+        $qb = $this->createQueryBuilder('a');
 
-        if ($articleId instanceof ArticleId) {
-            $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($articleId->getValue()));
-            if ($entity instanceof BlogArticle) {
-                $this->entityManager->remove($entity);
-                $this->entityManager->flush();
-            }
-        }
-    }
-
-    public function findAllPaginated(int $page, int $limit, array $filters = []): PaginatorInterface
-    {
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('a')
-            ->from(BlogArticle::class, 'a')
-            ->orderBy('a.createdAt', 'DESC');
-
-        // Apply status filter
-        if (isset($filters['status'])) {
+        // Apply filters
+        if (null !== ($filters['status'] ?? null)) {
             $qb->andWhere('a.status = :status')
                 ->setParameter('status', $filters['status']);
         }
 
-        // Calculate offset
-        $offset = ($page - 1) * $limit;
-        $qb->setFirstResult($offset)
-            ->setMaxResults($limit);
+        if (null !== ($filters['authorId'] ?? null)) {
+            $qb->andWhere('a.authorId = :authorId')
+                ->setParameter('authorId', $filters['authorId']);
+        }
 
-        $entities = $qb->getQuery()->getResult();
+        // Apply sorting
+        if (null !== $sortBy) {
+            $qb->orderBy('a.' . $sortBy, $sortOrder);
+        } else {
+            $qb->orderBy('a.createdAt', 'DESC');
+        }
 
-        // Get total count
-        $countQb = $this->entityManager->createQueryBuilder();
-        $countQb->select('COUNT(a.id)')
-            ->from(BlogArticle::class, 'a');
+        // Apply pagination
+        $entities = $qb
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
 
-        if (isset($filters['status'])) {
-            $countQb->andWhere('a.status = :status')
+        return array_map($this->queryMapper->map(...), $entities);
+    }
+
+    #[\Override]
+    public function countByFilters(array $filters): int
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)');
+
+        // Apply filters
+        if (null !== ($filters['status'] ?? null)) {
+            $qb->andWhere('a.status = :status')
                 ->setParameter('status', $filters['status']);
         }
 
-        $total = (int) $countQb->getQuery()->getSingleScalarResult();
+        if (null !== ($filters['authorId'] ?? null)) {
+            $qb->andWhere('a.authorId = :authorId')
+                ->setParameter('authorId', $filters['authorId']);
+        }
 
-        // Convert entities to domain models
-        $items = array_map(
-            fn (BlogArticle $entity) => $this->entityToArticleMapper->mapToDomain($entity),
-            $entities
-        );
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 
-        return new readonly class($items, $total, $page, $limit) implements PaginatorInterface {
-            public function __construct(
-                private array $items,
-                private int $total,
-                private int $page,
-                private int $limit,
-            ) {
-            }
+    /**
+     * @return array{articles: ArticleReadModel[], total: int}
+     */
+    #[\Override]
+    public function findByCriteria(
+        ArticleStatus|null $status = null,
+        string|null $authorId = null,
+        int $limit = 20,
+        int $offset = 0,
+        string $sortBy = 'createdAt',
+        string $sortOrder = 'DESC'
+    ): array {
+        $qb = $this->createQueryBuilder('a');
 
-            public function getItems(): array
-            {
-                return $this->items;
-            }
+        // Apply filters
+        if ($status instanceof ArticleStatus) {
+            $qb->andWhere('a.status = :status')
+                ->setParameter('status', $status->value);
+        }
 
-            public function getTotalItems(): int
-            {
-                return $this->total;
-            }
+        if (null !== $authorId) {
+            $qb->andWhere('a.authorId = :authorId')
+                ->setParameter('authorId', $authorId);
+        }
 
-            public function getCurrentPage(): int
-            {
-                return $this->page;
-            }
+        // Count total results
+        $countQb = clone $qb;
+        $total = (int) $countQb->select('COUNT(a.id)')->getQuery()->getSingleScalarResult();
 
-            public function getItemsPerPage(): int
-            {
-                return $this->limit;
-            }
+        // Apply sorting
+        $qb->orderBy('a.' . $sortBy, $sortOrder);
 
-            public function hasNextPage(): bool
-            {
-                return ($this->page * $this->limit) < $this->total;
-            }
-        };
+        // Apply pagination
+        $entities = $qb
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        /** @var ArticleReadModel[] $articles */
+        $articles = array_map($this->queryMapper->map(...), $entities);
+
+        return [
+            'articles' => $articles,
+            'total' => $total,
+        ];
+    }
+
+    private function delete(ArticleId $id): void
+    {
+        $entity = $this->find(Uuid::fromString($id->getValue()));
+
+        if ($entity) {
+            $this->getEntityManager()->remove($entity);
+            $this->getEntityManager()->flush();
+        }
     }
 }

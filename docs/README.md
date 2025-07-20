@@ -1,175 +1,165 @@
-# Documentation Structure
+# Vibe PHP Project Documentation
 
-This directory contains all project documentation organized by type and purpose.
+This directory contains all project documentation organized by logical domains for better navigation and maintenance.
 
-## Directory Structure
+## 🗺️ Documentation Structure
 
 ```mermaid
 graph TD
-    docs[📁 docs/] --> agent[🤖 agent/]
-    docs --> architecture[🏗️ architecture/]
-    docs --> examples[💡 examples/]
-    docs --> plan[📋 plan/]
-    docs --> prd[🎯 prd/]
+    docs[📁 docs/] --> architecture[🏗️ architecture/]
+    docs --> development[💻 development/]
+    docs --> contexts[📦 contexts/]
+    docs --> agent[🤖 agent/]
     docs --> reference[📚 reference/]
+    docs --> archive[📦 archive/]
+    
+    architecture --> patterns[📐 patterns/]
+    architecture --> principles[🎯 principles/]
+    architecture --> standards[📏 standards/]
+    architecture --> decisions[📋 decisions/]
+    
+    development --> workflows[🔄 workflows/]
+    development --> testing[🧪 testing/]
+    development --> tools[🛠️ tools/]
+    development --> examples[💡 examples/]
     
     agent --> instructions[📋 instructions/]
-    agent --> workflows[🔄 workflows/]
-    agent --> errors[❌ errors.md]
-    
-    instructions --> arch_inst[architecture.md]
-    instructions --> git_inst[git-workflow.md]
-    instructions --> qa_inst[qa-tools.md]
-    instructions --> more_inst[...]
-    
-    reference --> patterns[Pattern docs]
-    reference --> external[External links]
-    reference --> frameworks[Framework refs]
+    agent --> methodologies[📚 methodologies/]
+    agent --> templates[📄 templates/]
+    agent --> snippets[📝 snippets/]
     
     style docs fill:#e1f5fe
-    style agent fill:#f3e5f5
     style architecture fill:#e8f5e8
-    style examples fill:#fff3e0
-    style plan fill:#f1f8e9
-    style prd fill:#fce4ec
+    style development fill:#fff3e0
+    style contexts fill:#f3e5f5
+    style agent fill:#fce4ec
     style reference fill:#e0f2f1
+    style archive fill:#f5f5f5
 ```
 
 ```
 docs/
-├── agent/           # AI agent instructions and workflows
-├── architecture/    # Architecture documentation and templates
-├── examples/        # Code examples and usage patterns
-├── plans/          # Technical implementation plans (HOW to build)
-├── prd/            # Product requirements documents (WHAT to build)
-└── reference/      # Technical references and external docs
+├── architecture/       # Architecture and technical patterns
+│   ├── patterns/      # Implementation patterns (CQRS, Gateway, etc.)
+│   ├── principles/    # Architectural principles (DDD, Hexagonal)
+│   ├── standards/     # Coding standards (PSR, PHP 8.4)
+│   └── decisions/     # Architecture Decision Records
+├── development/        # Developer guides and tools
+│   ├── workflows/     # Development workflows
+│   ├── testing/       # Testing guides and strategies
+│   ├── tools/         # Development tools (makers, external, QA)
+│   └── examples/      # Implementation examples
+├── contexts/          # Business domain documentation
+│   ├── blog/          # Blog context (requirements, design, etc.)
+│   ├── security/      # Security context
+│   └── billing/       # Billing context
+├── agent/             # AI agent specific documentation
+│   ├── instructions/  # Agent behavior guidelines
+│   ├── methodologies/ # Spec-driven methodology
+│   ├── templates/     # Document templates
+│   └── snippets/      # Code snippets
+├── reference/         # Quick references and integrations
+│   ├── integration/   # Integration guides (Sylius, API Platform)
+│   └── external-docs.md # External documentation links
+└── archive/          # Historical documents
+    ├── implementation-summaries/
+    └── old-plans/
 ```
 
 ## Documentation Types
 
-### 1. Product Requirements (PRD) - `/prd`
-**Purpose**: Define WHAT we need to build
-- Business objectives
-- User requirements
-- Functional specifications
-- Success metrics
+### 🏗️ Architecture (`/architecture`)
+**Purpose**: Technical architecture and patterns
+- **Patterns**: CQRS, Gateway, Domain Layer, etc.
+- **Principles**: DDD, Hexagonal Architecture, Clean Architecture  
+- **Standards**: PSR compliance, PHP 8.4 features
+- **Decisions**: Architecture Decision Records (ADRs)
 
-**Created with**: `/prd "Feature Name"`
+### 💻 Development (`/development`)
+**Purpose**: Developer guides and workflows
+- **Workflows**: TDD, database migrations, GitHub PR management
+- **Testing**: PHPUnit, Behat, testing patterns
+- **Tools**: Code generators (makers), external tools, QA tools
+- **Examples**: Implementation examples and usage patterns
 
-### 2. Technical Plans - `/plans`
-**Purpose**: Define HOW we will build it
-- Architecture decisions
-- Technology choices
-- Implementation approach
-- Technical specifications
+### 📦 Contexts (`/contexts`)
+**Purpose**: Business domain documentation
+- **Requirements**: Product requirements per context
+- **Design**: Technical designs and user stories
+- **Implementation**: Implementation notes and lessons learned
 
-**Created with**: `/plan`
+### 🤖 Agent (`/agent`)
+**Purpose**: AI agent instructions and methodologies
+- **Instructions**: Behavior guidelines for AI agents
+- **Methodologies**: Spec-driven development methodology
+- **Templates**: Document templates for various purposes
+- **Snippets**: Reusable code snippets
 
-### 3. Architecture Documentation - `/architecture`
-**Purpose**: Document system architecture
-- Bounded context overviews
-- Architecture patterns
-- Design decisions
-- Templates for new contexts
+### 📚 Reference (`/reference`)
+**Purpose**: Quick references and integrations
+- **Integration**: Sylius, API Platform integration guides
+- **External Docs**: Links to external documentation
 
-**Key files**:
-- `bounded-context-template.md` - Template for new contexts
-- `[context]-overview.md` - Specific context documentation
+### 📦 Archive (`/archive`)
+**Purpose**: Historical documentation
+- **Implementation Summaries**: Past implementation lessons
+- **Old Plans**: Historical planning documents
 
-### 4. Agent Instructions - `/agent`
-**Purpose**: Guide AI agents and developers
-- Coding standards
-- Workflow instructions
-- Error handling protocols
-- Best practices
+## Quick Navigation
 
-**Key directories**:
-- `instructions/` - Specific guidelines
-- `workflows/` - Process documentation
-- `errors.md` - Error tracking
+### 🎯 I want to implement a feature
+1. Start with: `@docs/contexts/[context]/` for requirements
+2. Check patterns: `@docs/architecture/patterns/`
+3. Follow workflows: `@docs/development/workflows/`
+4. See examples: `@docs/development/examples/`
 
-### 5. Examples - `/examples`
-**Purpose**: Demonstrate usage patterns
-- Code examples
-- Implementation patterns
-- Best practices examples
+### 🔧 I need to understand architecture
+1. Principles: `@docs/architecture/principles/`
+2. Patterns: `@docs/architecture/patterns/`
+3. Standards: `@docs/architecture/standards/`
 
-### 6. Reference Documentation - `/reference`
-**Purpose**: Technical references
-- Framework documentation links
-- Pattern explanations
-- External resources
+### 🧪 I want to write tests
+1. Testing guide: `@docs/development/testing/`
+2. TDD workflow: `@docs/development/workflows/tdd-implementation-guide.md`
 
-## Documentation Workflow
+### 🛠️ I need help with tools
+1. Code generators: `@docs/development/tools/makers/`
+2. External tools: `@docs/development/tools/external/`
+3. QA tools: `@docs/development/tools/qa-tools.md`
 
-### For New Features
-
-1. **Start with PRD**
-   ```
-   /prd "New Feature"
-   ```
-   Creates: `docs/prd/new-feature.md`
-
-2. **Create Technical Plan**
-   ```
-   /plan
-   ```
-   Creates: `docs/plans/plan-YYYY-MM-DD-HHMMSS.md`
-
-3. **Document Architecture**
-   - Copy `bounded-context-template.md`
-   - Fill in context-specific details
-   - Save as `[context]-overview.md`
-
-4. **Add Examples**
-   - Create examples showing usage
-   - Document in `examples/`
-
-### For AI Agents
-
-1. **Check Instructions**
-   - Review `agent/instructions/`
-   - Follow established patterns
-
-2. **Track Errors**
-   - Document in `agent/errors.md`
-   - Update instructions if needed
-
-3. **Use Workflows**
-   - Follow `agent/workflows/`
-   - Maintain consistency
+### 🤖 I'm an AI agent
+1. Instructions: `@docs/agent/instructions/`
+2. Navigation guide: `@docs/agent/instructions/documentation-navigation.md`
+3. Error tracking: `@docs/agent/errors.md`
 
 ## Best Practices
 
-1. **Separation of Concerns**
-   - PRDs focus on business (WHAT)
-   - Plans focus on technical (HOW)
-   - Keep them separate
+### 📁 Organization
+- **Logical grouping**: Related docs are together
+- **Clear separation**: Agent instructions vs developer guides
+- **Consistent structure**: Each domain follows same patterns
 
-2. **Versioning**
-   - Plans use timestamps
-   - PRDs use descriptive names
-   - Architecture docs evolve in place
+### 🔗 Cross-References  
+- Use `@docs/path/to/file.md` format for internal links
+- Link related documents for easy navigation
+- Update links when moving files
 
-3. **Cross-References**
-   - Link between related documents
-   - Reference PRDs in plans
-   - Reference plans in architecture
+### 🔄 Maintenance
+- Keep documentation current with code changes
+- Archive outdated documents instead of deleting
+- Review regularly and consolidate when needed
 
-4. **Maintenance**
-   - Keep documentation current
-   - Archive outdated content
-   - Review regularly
+### 🏷️ Naming Conventions
+- Use descriptive filenames
+- Follow kebab-case for consistency  
+- Include context in filenames when needed
 
-## Quick Reference
+## Contributing to Documentation
 
-| Need to... | Use... | Creates in... |
-|------------|--------|---------------|
-| Define requirements | `/prd` | `docs/prd/` |
-| Plan implementation | `/plan` | `docs/plans/` |
-| Document architecture | Template | `docs/architecture/` |
-| Add examples | Manual | `docs/examples/` |
-| Guide agents | Manual | `docs/agent/` |
+1. **Follow the structure**: Place docs in the appropriate domain folder
+2. **Use templates**: Check `@docs/agent/templates/` for document templates
+3. **Link appropriately**: Reference related documentation
+4. **Update navigation**: Update this README when adding new sections
 
 ---
 

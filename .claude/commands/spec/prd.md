@@ -1,5 +1,4 @@
 ---
-name: spec:prd
 description: Create a comprehensive Product Requirements Document with EARS format and integrated structure
 args:
   - name: context-name
@@ -8,6 +7,7 @@ args:
   - name: feature-name
     description: Name of the feature or product to document
     required: true
+allowed-tools: Read(*), Write(docs/contexts/**), Edit(docs/contexts/**), MultiEdit(docs/contexts/**), Glob(*), Grep(*), Bash(*), LS(*), TodoWrite, WebFetch, WebSearch, exit_plan_mode
 ---
 
 I'll help you create a comprehensive Product Requirements Document for "{{feature-name}}" in the {{context-name}} context, combining business vision with structured EARS requirements.
@@ -49,42 +49,16 @@ stateDiagram-v2
     ApprovalGate : • Stakeholder sign-off
 ```
 
-<function_calls>
-<invoke name="TodoWrite">
-<parameter name="todos">[
-  {
-    "id": "prd-1",
-    "content": "🎯 Define business vision and objectives for {{feature-name}}",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "id": "prd-2", 
-    "content": "📋 Document requirements using EARS format",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "prd-3",
-    "content": "📝 Create user stories with acceptance criteria",
-    "status": "pending", 
-    "priority": "high"
-  },
-  {
-    "id": "prd-4",
-    "content": "⚙️ Define technical constraints and NFRs",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "id": "prd-5",
-    "content": "✅ Prepare for approval gate review",
-    "status": "pending",
-    "priority": "medium"
-  }
-]</parameter>
-</invoke>
-</function_calls>
+## Setting up the PRD workflow
+
+First, I'll create a todo list to track our progress through the PRD creation process.
+
+[Use TodoWrite to create the following tasks:
+- 🎯 Define business vision and objectives for {{feature-name}} (in_progress, high)
+- 📋 Document requirements using EARS format (pending, high)
+- 📝 Create user stories with acceptance criteria (pending, high)
+- ⚙️ Define technical constraints and NFRs (pending, medium)
+- ✅ Prepare for approval gate review (pending, medium)]
 
 ## Information Gathering
 
@@ -208,11 +182,30 @@ Using EARS (Easy Approach to Requirements Syntax):
 
 ### 5. User Stories Overview
 
-Summary of user stories with:
+#### 5.1 Foundation User Story (MANDATORY)
+
+Each iteration/feature MUST begin with a foundation user story that:
+- **Sets up the core data models and infrastructure** needed by all other stories
+- **Establishes the basic CRUD operations** that other features will build upon
+- **Creates the essential domain objects** (entities, value objects, aggregates)
+- **Implements the fundamental business rules** that govern the feature
+- **Provides the minimal viable functionality** that can be tested independently
+
+**Example**: For a blog context, US-001 "Basic Article Management" would create:
+- Article entity with core fields (id, title, content, status, timestamps)
+- Basic create/read/update operations via gateways
+- Essential validation rules (title required, content required)
+- Domain events (ArticleCreated, ArticleUpdated)
+- Repository interface and basic implementation
+
+#### 5.2 User Stories Summary
+
+Summary of all user stories with:
 - Story ID and title
+- Story type (Foundation/Feature/Enhancement)
 - Priority (High/Medium/Low)
 - Estimated effort
-- Dependencies
+- Dependencies (especially on foundation story)
 
 ### 6. Constraints and Assumptions
 
@@ -263,18 +256,32 @@ Each user story will follow this structure:
 ```markdown
 # US-XXX: [Story Title]
 
+## Story Type
+- [ ] **Foundation** - First story of iteration, sets up core infrastructure
+- [ ] **Feature** - Adds new functionality, depends on foundation
+- [ ] **Enhancement** - Improves or extends existing features
+
 ## Story
 As a [user type]
 I want to [action/feature]
 So that [benefit/value]
 
+## Dependencies
+- **Foundation Story**: US-XXX (if this is not a foundation story)
+- **Other Dependencies**: [List any other story dependencies]
+
 ## Acceptance Criteria
 - [ ] Given [context] When [action] Then [outcome]
 - [ ] Given [context] When [action] Then [outcome]
 
+## Technical Foundation (for Foundation stories only)
+- **Domain Objects**: [List entities, value objects, aggregates to create]
+- **Core Operations**: [List CRUD operations to implement]
+- **Business Rules**: [List fundamental rules to enforce]
+- **Infrastructure**: [List repositories, services to create]
+
 ## Technical Notes
 - Related requirements: REQ-XXX, REQ-YYY
-- Dependencies: [List any dependencies]
 - Considerations: [Technical considerations]
 
 ## Test Scenarios
@@ -290,23 +297,39 @@ So that [benefit/value]
 3. Break down into detailed user stories
 4. Prepare for approval gate review
 
-<function_calls>
-<invoke name="Bash">
-<parameter name="command">mkdir -p docs/contexts/{{context-name}}/{requirements/user-stories,design,implementation,iterations}</parameter>
-<parameter name="description">Create directory structure for unified methodology</parameter>
-</invoke>
-</function_calls>
+## Setting up directory structure
 
-## Approval Gate
+Now I'll create the necessary directory structure for the PRD documentation.
 
-Once the PRD is complete, I'll present it for review with these questions:
+[Use Bash to run: mkdir -p docs/contexts/{{context-name}}/{requirements/user-stories,design,implementation,iterations}]
 
+## PRD Generation Process
+
+Based on your requirements, I'll now generate a comprehensive Product Requirements Document for {{feature-name}} in the {{context-name}} context.
+
+[The PRD content will be generated here based on the user's input]
+
+## Ready to Save the PRD
+
+[Use exit_plan_mode with the following plan:]
+
+I've generated the Product Requirements Document for {{feature-name}} in the {{context-name}} context.
+
+### Next Actions:
+1. **Save the PRD** to `docs/contexts/{{context-name}}/requirements/prd.md`
+2. **Create user story files** for each identified story
+3. **Set up the directory structure** for the feature
+
+### Approval Questions:
 1. **Do the requirements accurately capture the business needs?**
 2. **Are all user scenarios covered?**
 3. **Are the success metrics clear and measurable?**
 4. **Are there any missing requirements or constraints?**
 5. **Is the scope appropriate for the timeline and resources?**
 
-After approval, we'll proceed to the technical design phase with `/spec:plan`.
+Once approved, I will:
+- Save all the generated documents
+- Confirm the files have been created
+- You can then proceed to the technical design phase with `/spec:design`
 
-Please provide the information about {{feature-name}} and I'll create the comprehensive PRD following this unified methodology.
+Would you like me to save the PRD and create the necessary files?

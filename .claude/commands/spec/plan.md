@@ -1,5 +1,4 @@
 ---
-name: spec:plan
 description: Create technical architecture and design from approved requirements
 args:
   - name: context-name
@@ -62,58 +61,19 @@ graph TD
     style RISK fill:#ffebee
 ```
 
-<function_calls>
-<invoke name="TodoWrite">
-<parameter name="todos">[
-  {
-    "id": "plan-1",
-    "content": "📋 Analyze PRD and requirements for {{context-name}}",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "id": "plan-2",
-    "content": "🏛️ Design architecture following DDD principles",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "plan-3",
-    "content": "🎯 Create domain model with aggregates and value objects",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "plan-4",
-    "content": "🔌 Design API endpoints and contracts",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "plan-5",
-    "content": "🗄️ Design database schema and migrations",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "id": "plan-6",
-    "content": "⚠️ Identify risks and mitigation strategies",
-    "status": "pending",
-    "priority": "medium"
-  }
-]</parameter>
-</invoke>
-</function_calls>
+[Use TodoWrite to create the following tasks:
+- 📋 Analyze PRD and requirements for {{context-name}} (plan-1, in_progress, high)
+- 🏛️ Design architecture following DDD principles (plan-2, pending, high)
+- 🎯 Create domain model with aggregates and value objects (plan-3, pending, high)
+- 🔌 Design API endpoints and contracts (plan-4, pending, high)
+- 🗄️ Design database schema and migrations (plan-5, pending, medium)
+- ⚠️ Identify risks and mitigation strategies (plan-6, pending, medium)]
 
 ## Prerequisites Check
 
 First, let me verify the requirements are approved:
 
-<function_calls>
-<invoke name="Read">
-<parameter name="file_path">docs/contexts/{{context-name}}/requirements/prd.md</parameter>
-</invoke>
-</function_calls>
+[Use Read to load: docs/contexts/{{context-name}}/requirements/prd.md]
 
 ## Technical Design Approach
 
@@ -384,12 +344,38 @@ final class CreateCategoryGateway extends DefaultGateway
 }
 ```
 
+## User Story Validation
+
+Before finalizing the technical design, validate the user story structure:
+
+### Foundation Story Checklist
+For each iteration/feature set, verify:
+- [ ] **The FIRST user story is marked as "Foundation"**
+- [ ] Foundation story includes all necessary setup for subsequent stories:
+  - [ ] Core domain entities and value objects
+  - [ ] Basic CRUD operations (Create, Read, Update minimum)
+  - [ ] Essential business rules and validations
+  - [ ] Repository interfaces and implementations
+  - [ ] Initial database schema/migrations
+- [ ] All other stories have clear dependencies on the foundation story
+- [ ] No circular dependencies between stories
+
+### Story Sequencing Validation
+- [ ] Stories are ordered by dependency (foundation → features → enhancements)
+- [ ] Each story can be implemented independently once its dependencies are met
+- [ ] Test scenarios don't assume features from later stories
+
 ## User Story Technical Updates
 
 For each user story, I'll add:
 
 ```markdown
 ## Technical Implementation Details
+
+### Story Type & Dependencies
+- **Type**: Foundation / Feature / Enhancement
+- **Depends On**: US-XXX (foundation story), US-YYY
+- **Enables**: US-XXX, US-YYY (stories that depend on this)
 
 ### Components Required
 - Domain: [List of domain objects]
@@ -432,12 +418,22 @@ After completing the technical design:
 4. Create the comprehensive technical plan
 5. Prepare risk assessment and mitigation strategies
 
-Once approved, we'll proceed to implementation with `/spec:act`.
+Once approved, we'll proceed to implementation with `/act`.
 
-<function_calls>
-<invoke name="LS">
-<parameter name="path">docs/contexts/{{context-name}}/requirements</parameter>
-</invoke>
-</function_calls>
+[Use LS to check: docs/contexts/{{context-name}}/requirements]
 
-Please confirm the context name and I'll begin creating the technical design based on the approved requirements.
+## File Organization
+
+I'll create the following files in the proper directories:
+
+[Use Write to create: docs/contexts/{{context-name}}/design/technical-design.md with the technical architecture and design]
+
+[Use Write to create: docs/contexts/{{context-name}}/design/risk-assessment.md with risk analysis and mitigation strategies]
+
+[Use Write to create: docs/contexts/{{context-name}}/implementation/implementation-guide.md with step-by-step implementation instructions]
+
+## Ready to Create Technical Design
+
+I'll now create a comprehensive technical design for the {{context-name}} context following DDD principles and our architectural patterns.
+
+I'll now begin creating the technical design based on the approved requirements.

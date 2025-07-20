@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\BlogContext\Domain\Shared\ValueObject;
 
 use App\BlogContext\Domain\Shared\Exception\ValidationException;
-use Symfony\Component\Uid\Uuid;
 
-final class ArticleId
+final class ArticleId implements \Stringable
 {
+    // UUID v4 pattern
+    private const string UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+
     public function __construct(
         private(set) string $value,
     ) {
@@ -18,11 +20,11 @@ final class ArticleId
     private function validate(): void
     {
         if ('' === $this->value) {
-            throw ValidationException::withTranslationKey('validation.article.id.invalid_uuid');
+            throw ValidationException::withTranslationKey('validation.article_id.empty');
         }
 
-        if (!Uuid::isValid($this->value)) {
-            throw ValidationException::withTranslationKey('validation.article.id.invalid_uuid');
+        if (!preg_match(self::UUID_PATTERN, $this->value)) {
+            throw ValidationException::withTranslationKey('validation.article_id.invalid_format');
         }
     }
 
@@ -31,13 +33,18 @@ final class ArticleId
         return $this->value;
     }
 
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+
     public function toString(): string
     {
         return $this->value;
     }
 
-    public function equals(self $other): bool
+    public function __toString(): string
     {
-        return $this->value === $other->value;
+        return $this->value;
     }
 }

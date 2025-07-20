@@ -9,18 +9,16 @@ use App\Shared\Application\Gateway\GatewayResponse;
 final readonly class Response implements GatewayResponse
 {
     public function __construct(
-        public string $articleId,
-        public string $status,
-        public \DateTimeImmutable $publishedAt,
+        public bool $success,
+        public string $message,
     ) {
     }
 
     public function data(): array
     {
         return [
-            'articleId' => $this->articleId,
-            'status' => $this->status,
-            'publishedAt' => $this->publishedAt->format(\DateTimeInterface::ATOM),
+            'success' => $this->success,
+            'message' => $this->message,
         ];
     }
 }

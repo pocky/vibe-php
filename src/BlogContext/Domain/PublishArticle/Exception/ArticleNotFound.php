@@ -6,18 +6,10 @@ namespace App\BlogContext\Domain\PublishArticle\Exception;
 
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 
-final class ArticleNotFound extends PublishArticleException
+final class ArticleNotFound extends \DomainException
 {
-    public function __construct(
-        private readonly ArticleId $articleId,
-    ) {
-        parent::__construct(
-            sprintf('Article with ID "%s" not found', $articleId->getValue())
-        );
-    }
-
-    public function articleId(): ArticleId
+    public function __construct(ArticleId $articleId)
     {
-        return $this->articleId;
+        parent::__construct(sprintf('Article with ID %s not found', $articleId->getValue()));
     }
 }

@@ -81,7 +81,7 @@ graph LR
         C -.-> I[Processor]
     end
 ```
-**Location**: `@docs/reference/gateway-pattern.md`  
+**Location**: `@docs/architecture/patterns/gateway-pattern.md`  
 **Example**: `@docs/examples/gateway-generator-usage.md`
 
 ### 📐 CQRS Pattern
@@ -96,7 +96,7 @@ graph TB
         H --> R[Response]
     end
 ```
-**Location**: `@docs/reference/cqrs-pattern.md`  
+**Location**: `@docs/architecture/patterns/cqrs-pattern.md`  
 **Testing**: `@docs/testing/README.md`
 
 ### 🏗️ Domain Layer Pattern
@@ -115,7 +115,7 @@ graph TD
         R --> A
     end
 ```
-**Location**: `@docs/reference/domain-layer-pattern.md`  
+**Location**: `@docs/architecture/patterns/domain-layer-pattern.md`  
 **PHP Guidelines**: `@docs/reference/php-features-best-practices.md`
 
 ## 📋 EARS Requirements Format
@@ -204,18 +204,18 @@ sequenceDiagram
 ```mermaid
 graph TD
     Start{Have a task?}
-    Start -->|No| WS[/workflow-status]
+    Start -->|No| WS{/workflow-status}
     Start -->|Yes| Type{Task type?}
     
-    Type -->|New Feature| PRD[/prd]
-    Type -->|Bug Fix| ACT[/act]
-    Type -->|Architecture| PLAN[/plan]
-    Type -->|Decision| ADR[/adr]
+    Type -->|New Feature| PRD{/prd}
+    Type -->|Bug Fix| ACT{/act}
+    Type -->|Architecture| PLAN{/plan}
+    Type -->|Decision| ADR{/adr}
     
     WS --> Type
     PRD --> PLAN
     PLAN --> ACT
-    ACT --> QA[/qa]
+    ACT --> QA{/qa}
 ```
 
 ### Which Pattern to Use?
@@ -229,11 +229,11 @@ graph TD
     Q -->|ID Generation| GEN[Generator Pattern]
     Q -->|Business Rules| SPEC[Specification Pattern]
     
-    GW --> D1[@docs/reference/gateway-pattern.md]
-    DDD --> D2[@docs/reference/domain-layer-pattern.md]
-    CQRS --> D3[@docs/reference/cqrs-pattern.md]
-    GEN --> D4[@docs/reference/generator-pattern.md]
-    SPEC --> D5[@docs/reference/specification-pattern.md]
+    GW --> D1[@docs/architecture/patterns/gateway-pattern.md]
+    DDD --> D2[@docs/architecture/patterns/domain-layer-pattern.md]
+    CQRS --> D3[@docs/architecture/patterns/cqrs-pattern.md]
+    GEN --> D4[@docs/architecture/patterns/generator-pattern.md]
+    SPEC --> D5[@docs/architecture/patterns/specification-pattern.md]
 ```
 
 ## 🚀 Quick Wins for Agents

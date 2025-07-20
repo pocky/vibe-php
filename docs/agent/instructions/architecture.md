@@ -5,9 +5,9 @@
 This document defines architectural patterns and constraints for implementing Domain-Driven Design (DDD) with Hexagonal and Clean Architecture principles in this project.
 
 **Note**: For detailed pattern implementations and examples, refer to:
-- Pattern documentation: @docs/reference/
-- Implementation examples: @docs/examples/
-- Testing guidelines: @docs/testing/
+- Pattern documentation: @docs/architecture/patterns/
+- Implementation examples: @docs/development/examples/
+- Testing guidelines: @docs/development/testing/
 - Navigation guide: @docs/agent/instructions/documentation-navigation.md
 
 ## Core Architectural Patterns
@@ -57,15 +57,20 @@ graph TB
 ```
 
 ```
-src/
-├── [Context]Context/        # Each bounded context
+src/                         # Root namespace: App\
+├── [Context]Context/        # Each bounded context (e.g., App\BlogContext\)
 │   ├── Application/         # Use cases and gateways
 │   ├── Domain/             # Business logic (pure PHP)
 │   ├── Infrastructure/     # External adapters
 │   ├── UI/                # User interfaces (Web, API, CLI)
 │   └── Shared/            # Context-specific shared code
-└── Shared/                # Global shared across all contexts
+└── Shared/                # Global shared across all contexts (App\Shared\)
 ```
+
+**PSR-4 Compliance**: All namespaces follow PSR-4 autoloading standard:
+- Namespace `App\BlogContext\Domain\CreateArticle` → File `src/BlogContext/Domain/CreateArticle/`
+- Class names match filenames exactly (case-sensitive)
+- One class per file requirement
 
 #### Domain Layer Organization
 Organize by use cases, not technical layers:
@@ -111,7 +116,7 @@ Domain/
 
 ### CQRS Pattern
 
-**See @docs/reference/cqrs-pattern.md for complete CQRS implementation patterns.**
+**See @docs/architecture/patterns/cqrs-pattern.md for complete CQRS implementation patterns.**
 
 #### Command Side (Write Operations)
 ```php
@@ -170,7 +175,7 @@ Application/Operation/Query/GetArticle/
 - Orchestrate use case execution with instrumentation
 - One gateway per use case or tightly related operations
 
-**See @docs/reference/gateway-pattern.md for complete implementation guide.**
+**See @docs/architecture/patterns/gateway-pattern.md for complete implementation guide.**
 
 #### Implementation Rules (MANDATORY)
 ```php
@@ -263,7 +268,7 @@ Gateway Execution Flow:
 
 ### Domain Layer (STRICT)
 
-**See @docs/reference/domain-layer-pattern.md for domain modeling guidelines.**
+**See @docs/architecture/patterns/domain-layer-pattern.md for domain modeling guidelines.**
 
 #### Entry Points
 - Use `__invoke()` method for single responsibility

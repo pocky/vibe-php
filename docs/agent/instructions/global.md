@@ -1,6 +1,7 @@
-- You must answer in the same language as the question
-- You must write in english in files
-- Always write documentation in English, regardless of the language used in conversation
+- You must answer in the same language as the question when conversing with the user
+- You must ALWAYS write ALL files and documentation in English, regardless of the language used in conversation
+- This includes: PRDs, technical designs, user stories, test scenarios, code comments, commit messages, and any other written artifacts
+- Always write documentation in English, even if the user provides requirements in another language
 - You must use LF (even on Windows OS) for end of line.
 
 # Documentation-First Approach

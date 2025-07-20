@@ -6,29 +6,19 @@ namespace App\BlogContext\Domain\Shared\Exception;
 
 final class ValidationException extends \InvalidArgumentException
 {
-    private function __construct(
-        string $message,
+    public function __construct(
         private readonly string $translationKey,
-        private readonly array $translationParameters = [],
-        private readonly string|null $translationDomain = 'messages',
+        private readonly array $parameters = [],
+        string $message = '',
+        int $code = 0,
+        \Throwable|null $previous = null
     ) {
-        parent::__construct($message);
+        parent::__construct($message ?: $translationKey, $code, $previous);
     }
 
-    public static function withTranslationKey(
-        string $translationKey,
-        array $translationParameters = [],
-        string|null $translationDomain = 'messages',
-        string|null $fallbackMessage = null
-    ): self {
-        $message = $fallbackMessage ?? "Validation failed for key: {$translationKey}";
-
-        return new self(
-            $message,
-            $translationKey,
-            $translationParameters,
-            $translationDomain
-        );
+    public static function withTranslationKey(string $translationKey, array $parameters = []): self
+    {
+        return new self($translationKey, $parameters);
     }
 
     public function getTranslationKey(): string
@@ -36,13 +26,8 @@ final class ValidationException extends \InvalidArgumentException
         return $this->translationKey;
     }
 
-    public function getTranslationParameters(): array
+    public function getParameters(): array
     {
-        return $this->translationParameters;
-    }
-
-    public function getTranslationDomain(): string|null
-    {
-        return $this->translationDomain;
+        return $this->parameters;
     }
 }

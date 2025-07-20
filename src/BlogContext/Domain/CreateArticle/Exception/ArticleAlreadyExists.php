@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\CreateArticle\Exception;
 
-use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 
 final class ArticleAlreadyExists extends \DomainException
 {
-    public function __construct(
-        private readonly Slug $slug,
-    ) {
-        parent::__construct(
-            sprintf('Article with slug "%s" already exists', $slug->getValue())
-        );
-    }
-
-    public function slug(): Slug
+    public function __construct(ArticleId $articleId)
     {
-        return $this->slug;
+        parent::__construct(
+            sprintf(
+                'Article with ID "%s" already exists.',
+                $articleId->getValue()
+            )
+        );
     }
 }

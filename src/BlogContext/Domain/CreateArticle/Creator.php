@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
 use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
 
 final readonly class Creator implements CreatorInterface
 {
@@ -21,28 +24,38 @@ final readonly class Creator implements CreatorInterface
         Title $title,
         Content $content,
         Slug $slug,
-        ArticleStatus $status,
-        \DateTimeImmutable $createdAt,
-    ): Article {
-        // Check if article with this slug already exists
-        if ($this->repository->existsBySlug($slug)) {
-            throw new ArticleAlreadyExists($slug);
+        string $authorId,
+    ): Model\Article {
+        // Verify slug uniqueness
+        if ($this->repository->existsWithSlug($slug)) {
+            throw new ArticleAlreadyExists($articleId);
         }
 
-        // Create article with provided values
-        $article = new Article(
+        // Create the article data
+        $articleData = Model\Article::create(
             id: $articleId,
             title: $title,
             content: $content,
             slug: $slug,
-            status: $status,
-            createdAt: $createdAt,
+            authorId: $authorId,
         );
 
-        // Persist
-        $this->repository->save($article);
+        // Create the domain event
+        $event = new Event\ArticleCreated(
+            articleId: $articleId->getValue(),
+            title: $title->getValue(),
+            authorId: $authorId,
+            status: ArticleStatus::DRAFT->value,
+            createdAt: $articleData->timestamps->getCreatedAt(),
+        );
 
-        // Return article with unreleased events for Application layer to handle
-        return $article;
+        // Add event to article data
+        $articleData = $articleData->withEvents([$event]);
+
+        // Persist
+        $this->repository->add($articleData);
+
+        // Return article data with events for Application layer to handle
+        return $articleData;
     }
 }

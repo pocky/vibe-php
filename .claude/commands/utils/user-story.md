@@ -1,5 +1,4 @@
 ---
-name: user-story
 description: Create a detailed user story with integrated business and technical specifications
 args:
   - name: context-name
@@ -15,42 +14,12 @@ args:
 
 I'll help you create a comprehensive user story for {{context-name}} context: US-{{story-id}} {{story-title}}.
 
-<function_calls>
-<invoke name="TodoWrite">
-<parameter name="todos">[
-  {
-    "id": "1",
-    "content": "📋 Extract business context from PRD",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "id": "2",
-    "content": "🎯 Define user story and acceptance criteria",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "3",
-    "content": "🏗️ Extract technical details from plan",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "4",
-    "content": "🧪 Create test scenarios",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "id": "5",
-    "content": "📝 Generate complete user story document",
-    "status": "pending",
-    "priority": "medium"
-  }
-]</parameter>
-</invoke>
-</function_calls>
+[Use TodoWrite to create the following tasks:
+- 📋 Extract business context from PRD (1, in_progress, high)
+- 🎯 Define user story and acceptance criteria (2, pending, high)
+- 🏗️ Extract technical details from plan (3, pending, high)
+- 🧪 Create test scenarios (4, pending, medium)
+- 📝 Generate complete user story document (5, pending, medium)]
 
 ## User Story Creation Process
 

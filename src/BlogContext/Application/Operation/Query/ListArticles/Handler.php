@@ -4,36 +4,29 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Query\ListArticles;
 
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use App\BlogContext\Domain\GetArticles\ArticlesListData;
+use App\BlogContext\Domain\GetArticles\ListCriteria;
+use App\BlogContext\Domain\GetArticles\ListerInterface;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
 
-#[AsMessageHandler]
-readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
-        private ArticleRepositoryInterface $repository,
+        private ListerInterface $lister,
     ) {
     }
 
-    public function __invoke(Query $query): array
+    public function __invoke(Query $query): ArticlesListData
     {
-        $filters = [];
-        if (null !== $query->status) {
-            $filters['status'] = $query->status;
-        }
-
-        $paginator = $this->repository->findAllPaginated(
-            $query->page,
-            $query->limit,
-            $filters
+        $criteria = new ListCriteria(
+            status: $query->status ? ArticleStatus::from($query->status) : null,
+            authorId: $query->authorId,
+            page: $query->page,
+            limit: $query->limit,
+            sortBy: $query->sortBy ?? 'createdAt',
+            sortOrder: strtoupper($query->sortOrder ?? 'DESC'),
         );
 
-        return [
-            'articles' => $paginator->getItems(),
-            'total' => $paginator->getTotalItems(),
-            'page' => $paginator->getCurrentPage(),
-            'limit' => $paginator->getItemsPerPage(),
-            'hasNextPage' => $paginator->hasNextPage(),
-        ];
+        return ($this->lister)($criteria);
     }
 }

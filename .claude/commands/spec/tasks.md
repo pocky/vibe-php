@@ -13,7 +13,7 @@ Generate structured implementation tasks from existing design.md in the current 
 ## Process
 1. **Read methodology**: Reference `.claude/CLAUDE.md` for TDD guidance
 2. **Locate design**: Find and read the design.md file in current context
-3. **Generate tasks**: Create comprehensive tasks.md with TDD approach
+3. **Generate tasks**: Create comprehensive tasks.md in docs/contexts/[context]/features/[feature-name]/ with TDD approach
 4. **Seek approval**: Request explicit user approval before proceeding to implementation
 
 ## TDD Task Structure

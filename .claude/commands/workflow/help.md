@@ -1,5 +1,4 @@
 ---
-name: workflow-help
 description: Show comprehensive help for all available commands and workflows
 ---
 
@@ -25,22 +24,26 @@ graph LR
     A[spec:plan] --> B[spec:requirements]
     B --> C[spec:design]
     C --> D[spec:tasks]
-    D --> E[spec:act]
+    D --> E[act]
+    E --> F[orchestrate]
+    F --> G["utils:qa<br/>(MANDATORY)"]
     
     style A fill:#fff3e0
     style B fill:#e3f2fd
     style C fill:#f3e5f5
     style D fill:#fce4ec
     style E fill:#e8f5e9
+    style F fill:#e1f5fe
+    style G fill:#ff6666,stroke:#333,stroke-width:4px
 ```
 
 | Command | Purpose | Example |
 |---------|---------|---------|
 | `/spec:plan` | Break project into features | `/spec:plan "Blog management system"` |
+| `/spec:prd` | Create Product Requirements Document | `/spec:prd blog article-management` |
 | `/spec:requirements` | Define EARS requirements | `/spec:requirements blog-posts` |
 | `/spec:design` | Create technical design | `/spec:design` |
-| `/spec:tasks` | Generate TDD tasks | `/spec:tasks` |
-| `/spec:act` | Start TDD implementation | `/spec:act` |
+| `/act` | Start TDD implementation | `/act` |
 | `/spec:help` | Get spec methodology help | `/spec:help` |
 
 ### 2️⃣ Domain-Driven Design (`/ddd:*`)
@@ -81,7 +84,8 @@ Commands for Sylius Admin UI:
 |---------|---------|---------|
 | `/workflow:help` | Show this help (you are here) | `/workflow:help` |
 | `/workflow:status` | Check project status & todos | `/workflow:status` |
-| `/workflow:qa` | Run quality assurance | `/workflow:qa` |
+| `/workflow:qa` | Run quality assurance 🚨 | `/workflow:qa` |
+| `/utils:qa` | Run QA tools (auto-executed) | `/utils:qa fix all` |
 
 ### 6️⃣ Utility Commands (`/utils:*`)
 
@@ -93,14 +97,24 @@ Commands for Sylius Admin UI:
 
 ## 🔄 Common Workflows
 
-### New Feature Development (Spec-Driven)
+### 🚨 Important: Quality Assurance is MANDATORY
+
+All development workflows now conclude with an automatic QA phase:
+- ✅ **Automatic execution**: QA runs automatically after orchestration
+- 🔧 **Auto-fixes applied**: ECS, Rector, and Twig CS Fixer fix issues
+- 🧪 **Tests must pass**: PHPUnit and Behat tests are required
+- 🔍 **Static analysis**: PHPStan ensures code quality
+- ❌ **No completion without QA**: Features aren't done until QA passes
+
+### Comprehensive Feature Development (with PRD)
 ```bash
-1. /spec:plan "My new project"        # Break into features
-2. /spec:requirements feature-name    # Define requirements
-3. /spec:design                       # Technical design
-4. /spec:tasks                        # Task breakdown
-5. /spec:act                          # TDD implementation
-6. /workflow:qa                       # Quality checks
+1. /spec:prd context feature-name     # Create comprehensive PRD
+2. /spec:plan "My new project"        # Break into features
+3. /spec:requirements feature-name    # Detail requirements (or use from PRD)
+4. /spec:design                       # Technical design
+5. /act                          # TDD implementation
+6. /agent:orchestrate feature         # Orchestrate agents
+7. # 🚨 /utils:qa fix all runs automatically at the end!
 ```
 
 ### DDD Component Creation
@@ -123,7 +137,7 @@ Commands for Sylius Admin UI:
 
 ### Quick Implementation
 ```bash
-1. /spec:act                         # Jump to TDD if plan exists
+1. /act                         # Jump to TDD if plan exists
 2. /workflow:qa                      # Run quality checks
 3. /utils:adr "Decision made"        # Document decisions
 ```
@@ -155,7 +169,8 @@ docs/
 ### 1. **Follow the Flow**
 - Start with `/spec:plan` for new projects
 - Use `/spec:requirements` before jumping to code
-- Always run `/workflow:qa` before committing
+- QA runs automatically after orchestration
+- Can also run `/utils:qa` manually anytime
 
 ### 2. **Use Templates**
 - Methodology templates in `docs/agent/templates/`
@@ -177,7 +192,8 @@ docs/
 - **Context Matters**: Most DDD/API commands need `[context]` (e.g., Blog, Security)
 - **Check Status**: Use `/workflow:status` to see active tasks
 - **Get Specific Help**: Each category has its own help (e.g., `/spec:help`)
-- **Quality First**: Always run `/workflow:qa` before creating PRs
+- **Quality First**: QA is mandatory and runs automatically
+- **Manual QA**: Run `/utils:qa` anytime for immediate checks
 
 ## 📚 More Resources
 

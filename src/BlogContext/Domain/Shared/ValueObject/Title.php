@@ -6,9 +6,9 @@ namespace App\BlogContext\Domain\Shared\ValueObject;
 
 use App\BlogContext\Domain\Shared\Exception\ValidationException;
 
-final class Title
+final class Title implements \Stringable
 {
-    private const int MIN_LENGTH = 3;
+    private const int MIN_LENGTH = 1;
     private const int MAX_LENGTH = 200;
 
     public function __construct(
@@ -22,22 +22,24 @@ final class Title
         $trimmed = trim($this->value);
 
         if ('' === $trimmed) {
-            throw ValidationException::withTranslationKey('validation.article.title.empty');
+            throw ValidationException::withTranslationKey('validation.title.empty');
         }
 
-        if (self::MIN_LENGTH > strlen($trimmed)) {
-            throw ValidationException::withTranslationKey('validation.article.title.too_short', [
+        if (self::MIN_LENGTH > mb_strlen($trimmed)) {
+            throw ValidationException::withTranslationKey('validation.title.too_short', [
                 'min_length' => self::MIN_LENGTH,
-                'actual_length' => strlen($trimmed),
+                'actual_length' => mb_strlen($trimmed),
             ]);
         }
 
-        if (self::MAX_LENGTH < strlen($trimmed)) {
-            throw ValidationException::withTranslationKey('validation.article.title.too_long', [
+        if (self::MAX_LENGTH < mb_strlen($trimmed)) {
+            throw ValidationException::withTranslationKey('validation.title.too_long', [
                 'max_length' => self::MAX_LENGTH,
-                'actual_length' => strlen($trimmed),
+                'actual_length' => mb_strlen($trimmed),
             ]);
         }
+
+        $this->value = $trimmed;
     }
 
     public function getValue(): string
@@ -48,5 +50,15 @@ final class Title
     public function equals(self $other): bool
     {
         return $this->value === $other->value;
+    }
+
+    public function toString(): string
+    {
+        return $this->value;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 }

@@ -13,8 +13,8 @@ use App\Shared\Application\Gateway\Middleware\DefaultValidation;
 
 #[AsGateway(
     context: 'blog',
-    domain: 'article',
-    operation: 'list_article',
+    domain: 'articles',
+    operation: 'list_articles',
     middlewares: [
         DefaultLogger::class,
         DefaultErrorHandler::class,

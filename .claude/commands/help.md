@@ -1,6 +1,6 @@
 ---
-name: help
 description: Main help entry point - shows all available commands
+allowed-tools: Glob(*)
 ---
 
 # Claude Code Help
@@ -16,6 +16,23 @@ Start here: `/workflow:help` - Shows all available commands and workflows
 Jump directly to specific help:
 - `/spec:help` - Spec-driven development methodology
 - `/workflow:help` - All commands and workflows overview
+- `/agent:help` - Agent orchestration system 🆕
+
+## 🔧 IMPORTANT: Mandatory Workflows
+
+**⚠️ Many commands require using Symfony Maker commands FIRST!**
+
+See complete workflow diagrams: [Code Generation Workflows](./.claude/commands/code/workflow-graphs.md)
+
+### Commands with MANDATORY makers:
+- `/admin:resource` → `make:admin:resource` ✅
+- `/api:resource` → `make:api:resource` ✅
+- `/code:hexagonal:aggregate` → `make:domain:aggregate` ✅
+- `/code:hexagonal:entity` → `make:infrastructure:entity` ✅
+- `/code:hexagonal:value-object` → `make:domain:value-object` ✅
+- `/code:hexagonal:id-generator` → `make:domain:id-generator` ✅
+- `/code:hexagonal:gateway` → `make:application:gateway` ✅
+- `/code:hexagonal:migration` → `doctrine:migrations:diff` ✅
 
 ## 📚 Available Command Categories
 
@@ -28,22 +45,38 @@ Structured approach to feature development:
 ### 2. **Domain-Driven Design** (`/ddd:*`)
 Create DDD components:
 - Entities, Aggregates, Gateways, Migrations
+- **⚠️ MUST use makers first!** See workflows above.
 
 **Examples**: `/ddd:entity Blog Article`, `/ddd:gateway Blog CreateArticle`
 
 ### 3. **API Development** (`/api:*`)
 Build REST APIs:
 - Resources, Tests
+- **⚠️ API resources MUST use `make:api:resource` first!**
 
 **Examples**: `/api:resource Blog Article`, `/api:behat Blog article-api`
 
-### 4. **Workflow Management** (`/workflow:*`)
+### 4. **Agent Orchestration** (`/agent:*`) 🆕
+Coordinate specialized AI agents:
+- Hexagonal/DDD, Test, API, Admin agents
+- Sequential, parallel, and collaborative patterns
+
+**Key commands**: `/agent:orchestrate`, `/agent:status`, `/agent:help`
+
+### 5. **Admin UI Development** (`/admin:*`) 🏗️
+Build Sylius admin interfaces:
+- Resources, Forms, Grids, Menus, Tests
+- **⚠️ Admin resources MUST use `make:admin:resource` first!**
+
+**Examples**: `/admin:resource Blog Category`, `/admin:grid Blog Category`
+
+### 6. **Workflow Management** (`/workflow:*`)
 Project coordination:
 - Status tracking, Quality assurance, Help
 
 **Key commands**: `/workflow:status`, `/workflow:qa`
 
-### 5. **Utilities** (`/utils:*`)
+### 7. **Utilities** (`/utils:*`)
 Supporting tools:
 - Debug, ADR, PRD, User Stories
 
@@ -51,13 +84,20 @@ Supporting tools:
 
 ## 🎯 Common Workflows
 
+### 🚑 CRITICAL: Always Check Workflow First!
+Before using any `/code/*` command, check if it requires a maker:
+```bash
+# View the mandatory workflow diagrams
+cat .claude/commands/code/workflow-graphs.md
+```
+
 ### Starting a New Feature
 ```bash
 1. /spec:plan "Feature description"     # Plan the feature
 2. /spec:requirements feature-name      # Define requirements  
 3. /spec:design                         # Technical design
 4. /spec:tasks                          # Break into tasks
-5. /spec:act                            # Start coding
+5. /act                                 # Start coding
 ```
 
 ### Creating DDD Components
@@ -68,10 +108,19 @@ Supporting tools:
 4. /api:behat Blog article-api         # Add tests
 ```
 
+### Using Agent Orchestration 🆕
+```bash
+# Full feature with all agents
+/agent:orchestrate feature:blog-management --agents all --pattern collaborative
+
+# Monitor progress
+/agent:status
+```
+
 ### Quick Implementation
 ```bash
-1. /spec:act                           # Jump to implementation
-2. /workflow:qa                        # Run quality checks
+1. /act                           # Jump to implementation
+2. /workflow:qa                   # Run quality checks
 ```
 
 ## 📖 Documentation Structure
@@ -82,8 +131,14 @@ Supporting tools:
 │   ├── spec/        # Spec-driven commands
 │   ├── ddd/         # Domain-driven commands
 │   ├── api/         # API commands
+│   ├── agent/       # Agent orchestration commands 🆕
 │   ├── workflow/    # Workflow commands
 │   └── utils/       # Utility commands
+├── agents/          # Agent configurations 🆕
+│   ├── hexagonal/   # DDD/Clean Architecture agent
+│   ├── test/        # TDD/Testing agent
+│   ├── api/         # API Platform agent
+│   └── admin/       # Sylius Admin UI agent
 ├── templates/       # Code generation templates
 └── CLAUDE.md       # Main methodology guide
 
@@ -105,7 +160,7 @@ docs/
 ## 🆘 Need More Help?
 
 - **Detailed workflow help**: `/workflow:help`
-- **Methodology guide**: `.claude/CLAUDE.md`
+- **Methodology guide**: @.claude/CLAUDE.md
 - **Project docs**: `docs/` directory
 - **Command source**: `.claude/commands/[category]/[command].md`
 

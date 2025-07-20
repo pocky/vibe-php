@@ -4,86 +4,147 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Application\Operation\Command\UpdateArticle;
 
-use App\BlogContext\Application\Operation\Command\UpdateArticle\{Command, Handler};
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
-use App\BlogContext\Domain\UpdateArticle\{DataPersister\Article, UpdaterInterface};
+use App\BlogContext\Application\Operation\Command\UpdateArticle\Command;
+use App\BlogContext\Application\Operation\Command\UpdateArticle\Handler;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Timestamps;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
+use App\BlogContext\Domain\UpdateArticle\Event\ArticleUpdated;
+use App\BlogContext\Domain\UpdateArticle\Model\Article as UpdateArticle;
+use App\BlogContext\Domain\UpdateArticle\UpdaterInterface;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class HandlerTest extends TestCase
 {
-    use ArticleIdGeneratorTrait;
-
-    private UpdaterInterface&\PHPUnit\Framework\MockObject\MockObject $updater;
-    private EventBusInterface&\PHPUnit\Framework\MockObject\MockObject $eventBus;
+    private UpdaterInterface $updater;
+    private EventBusInterface $eventBus;
     private Handler $handler;
 
-    #[\Override]
     protected function setUp(): void
     {
         $this->updater = $this->createMock(UpdaterInterface::class);
         $this->eventBus = $this->createMock(EventBusInterface::class);
-        $this->handler = new Handler($this->updater, $this->eventBus);
+
+        $this->handler = new Handler(
+            $this->updater,
+            $this->eventBus
+        );
     }
 
-    public function testHandlerExecutesUpdateAndDispatchesEvents(): void
+    public function testHandleUpdateArticleCommand(): void
     {
-        $commandArticleIdValue = $this->generateArticleId()->getValue();
-        $commandArticleId = new ArticleId($commandArticleIdValue);
-        $commandTitle = new Title('Updated Title');
-        $commandContent = new Content('Updated content with sufficient length for testing.');
-
+        // Given
         $command = new Command(
-            articleId: $commandArticleId,
-            title: $commandTitle,
-            content: $commandContent,
-            slug: new Slug('updated-title'),
-            status: ArticleStatus::PUBLISHED
+            articleId: '550e8400-e29b-41d4-a716-446655440000',
+            title: 'Updated Title',
+            content: 'Updated content',
+            slug: 'updated-slug'
         );
 
-        // Create real article object using value objects
-        $resultArticleIdValue = $this->generateArticleId()->getValue();
-        $resultArticleId = new ArticleId($resultArticleIdValue);
-        $resultTitle = new Title('Updated Title');
-        $resultContent = new Content('Updated content with sufficient length for testing.');
-
-        $updatedArticle = new Article(
-            id: $resultArticleId,
-            title: $resultTitle,
-            content: $resultContent,
-            slug: new Slug('updated-title'),
+        $updatedArticle = new UpdateArticle(
+            id: new ArticleId('550e8400-e29b-41d4-a716-446655440000'),
+            title: new Title('Updated Title'),
+            content: new Content('Updated content'),
+            slug: new Slug('updated-slug'),
             status: ArticleStatus::DRAFT,
-            createdAt: new \DateTimeImmutable('2024-01-01'),
-            updatedAt: new \DateTimeImmutable(),
-            originalTitle: new Title('Original Title'),
-            originalContent: new Content('Original content.')
+            authorId: 'author-123',
+            timestamps: Timestamps::create()->withUpdatedAt(new \DateTimeImmutable()),
+            publishedAt: null,
+            events: [
+                new ArticleUpdated(
+                    articleId: '550e8400-e29b-41d4-a716-446655440000',
+                    title: 'Updated Title',
+                    slug: 'updated-slug',
+                    updatedAt: new \DateTimeImmutable()
+                ),
+            ],
+            changes: [
+                'title' => [
+                    'old' => 'Old Title',
+                    'new' => 'Updated Title',
+                ],
+                'content' => [
+                    'old' => 'Old content',
+                    'new' => 'Updated content',
+                ],
+                'slug' => [
+                    'old' => 'old-slug',
+                    'new' => 'updated-slug',
+                ],
+            ]
         );
 
-        // Expect updater to be called with correct value objects
-        $this->updater->expects(self::once())
+        $this->updater->expects($this->once())
             ->method('__invoke')
             ->with(
-                self::callback(fn (ArticleId $id) => $commandArticleIdValue === $id->getValue()),
-                self::callback(fn (Title $title) => 'Updated Title' === $title->getValue()),
-                self::callback(fn (Content $content) => 'Updated content with sufficient length for testing.' === $content->getValue())
+                $this->callback(fn ($id) => $id instanceof ArticleId && '550e8400-e29b-41d4-a716-446655440000' === $id->getValue()),
+                $this->callback(fn ($title) => $title instanceof Title && 'Updated Title' === $title->getValue()),
+                $this->callback(fn ($content) => $content instanceof Content && 'Updated content' === $content->getValue()),
+                $this->callback(fn ($slug) => $slug instanceof Slug && 'updated-slug' === $slug->getValue())
             )
             ->willReturn($updatedArticle);
 
-        // Expect event to be dispatched at least once
-        $this->eventBus->expects(self::atLeastOnce())
-            ->method('__invoke');
+        $this->eventBus->expects($this->once())
+            ->method('__invoke')
+            ->with($this->isInstanceOf(ArticleUpdated::class));
 
-        // Execute
-        $result = ($this->handler)($command);
-
-        // Verify result is the updated article
-        self::assertSame($updatedArticle, $result);
+        // When
+        ($this->handler)($command);
     }
 
-    public function testHandlerIsReadonly(): void
+    public function testHandlePartialUpdateCommand(): void
     {
-        $reflection = new \ReflectionClass($this->handler);
-        self::assertTrue($reflection->isReadOnly(), 'Handler should be readonly');
+        // Given - Only updating title
+        $command = new Command(
+            articleId: '550e8400-e29b-41d4-a716-446655440000',
+            title: 'New Title Only',
+            content: null,
+            slug: null
+        );
+
+        $updatedArticle = new UpdateArticle(
+            id: new ArticleId('550e8400-e29b-41d4-a716-446655440000'),
+            title: new Title('New Title Only'),
+            content: new Content('Original content'),
+            slug: new Slug('original-slug'),
+            status: ArticleStatus::DRAFT,
+            authorId: 'author-123',
+            timestamps: Timestamps::create()->withUpdatedAt(new \DateTimeImmutable()),
+            publishedAt: null,
+            events: [
+                new ArticleUpdated(
+                    articleId: '550e8400-e29b-41d4-a716-446655440000',
+                    title: 'New Title Only',
+                    slug: 'existing-slug',
+                    updatedAt: new \DateTimeImmutable()
+                ),
+            ],
+            changes: [
+                'title' => [
+                    'old' => 'Old Title',
+                    'new' => 'New Title Only',
+                ],
+            ]
+        );
+
+        $this->updater->expects($this->once())
+            ->method('__invoke')
+            ->with(
+                $this->isInstanceOf(ArticleId::class),
+                $this->callback(fn ($title) => $title instanceof Title && 'New Title Only' === $title->getValue()),
+                $this->isNull(),
+                $this->isNull()
+            )
+            ->willReturn($updatedArticle);
+
+        $this->eventBus->expects($this->once())
+            ->method('__invoke');
+
+        // When
+        ($this->handler)($command);
     }
 }

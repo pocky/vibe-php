@@ -6,72 +6,75 @@ namespace App\Tests\BlogContext\Unit\Application\Operation\Query\GetArticle;
 
 use App\BlogContext\Application\Operation\Query\GetArticle\Handler;
 use App\BlogContext\Application\Operation\Query\GetArticle\Query;
-use App\BlogContext\Domain\Shared\Model\Article;
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\BlogContext\Domain\GetArticle\GetterInterface;
+use App\BlogContext\Domain\GetArticle\Model\Article;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
 use App\BlogContext\Domain\Shared\ValueObject\Content;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Timestamps;
 use App\BlogContext\Domain\Shared\ValueObject\Title;
-use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class HandlerTest extends TestCase
 {
-    use ArticleIdGeneratorTrait;
-
-    private ArticleRepositoryInterface&MockObject $repository;
+    private GetterInterface $getter;
     private Handler $handler;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(ArticleRepositoryInterface::class);
-        $this->handler = new Handler($this->repository);
+        $this->getter = $this->createMock(GetterInterface::class);
+        $this->handler = new Handler($this->getter);
     }
 
-    public function testHandleWithExistingArticle(): void
+    public function testHandleGetArticleQuery(): void
     {
-        $articleId = $this->generateArticleId()->getValue();
-        $query = new Query($articleId);
+        // Given
+        $query = new Query(id: '550e8400-e29b-41d4-a716-446655440000');
 
         $article = new Article(
-            id: new ArticleId($articleId),
+            id: new ArticleId('550e8400-e29b-41d4-a716-446655440000'),
             title: new Title('Test Article'),
             content: new Content('Test content'),
             slug: new Slug('test-article'),
-            status: ArticleStatus::DRAFT,
-            createdAt: new \DateTimeImmutable('2024-01-01T12:00:00+00:00'),
-            updatedAt: new \DateTimeImmutable('2024-01-01T12:00:00+00:00'),
-            publishedAt: null
+            status: ArticleStatus::PUBLISHED,
+            authorId: 'author-123',
+            timestamps: Timestamps::create(),
+            publishedAt: new \DateTimeImmutable()
         );
 
-        $this->repository
-            ->expects($this->once())
-            ->method('findById')
-            ->with($this->callback(fn (ArticleId $id) => $id->toString() === $articleId))
+        $this->getter->expects($this->once())
+            ->method('__invoke')
+            ->with($this->callback(fn ($id) => $id instanceof ArticleId && '550e8400-e29b-41d4-a716-446655440000' === $id->getValue()))
             ->willReturn($article);
 
-        $result = $this->handler->__invoke($query);
+        // When
+        $result = ($this->handler)($query);
 
+        // Then
         $this->assertInstanceOf(Article::class, $result);
-        $this->assertEquals($articleId, $result->getId()->toString());
-        $this->assertEquals('Test Article', $result->getTitle()->getValue());
+        $this->assertEquals('550e8400-e29b-41d4-a716-446655440000', $result->id->getValue());
+        $this->assertEquals('Test Article', $result->title->getValue());
+        $this->assertEquals('Test content', $result->content->getValue());
+        $this->assertEquals('test-article', $result->slug->getValue());
+        $this->assertEquals('published', $result->status->value);
+        $this->assertEquals('author-123', $result->authorId);
     }
 
-    public function testHandleWithNonExistentArticle(): void
+    public function testHandleGetArticleNotFound(): void
     {
-        $articleId = $this->generateArticleId()->getValue();
-        $query = new Query($articleId);
+        // Given
+        $query = new Query(id: '550e8400-e29b-41d4-a716-446655440000');
 
-        $this->repository
-            ->expects($this->once())
-            ->method('findById')
-            ->willReturn(null);
+        $this->getter->expects($this->once())
+            ->method('__invoke')
+            ->with($this->isInstanceOf(ArticleId::class))
+            ->willThrowException(new \App\BlogContext\Domain\GetArticle\Exception\ArticleNotFound(new ArticleId('550e8400-e29b-41d4-a716-446655440000')));
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Article not found');
+        // Then
+        $this->expectException(\App\BlogContext\Domain\GetArticle\Exception\ArticleNotFound::class);
 
-        $this->handler->__invoke($query);
+        // When
+        ($this->handler)($query);
     }
 }

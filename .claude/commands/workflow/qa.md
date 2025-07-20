@@ -1,297 +1,258 @@
 ---
-name: qa
-description: Run code quality checks and fixes
-args:
-  - name: action
-    description: Action to perform (check, fix, debug, all)
-    required: false
-    default: check
-  - name: tool
-    description: Specific tool to run (tests, behat, ecs, phpstan, rector, twig-cs-fixer, all)
-    required: false
-    default: all
-  - name: verbose
-    description: Enable verbose output for debugging
-    required: false
-    default: false
+description: Quality Assurance workflow documentation and integration guide
 ---
 
-I'll run code quality checks to ensure your code meets the project standards.
+# Quality Assurance Workflow
 
-<function_calls>
-<invoke name="TodoWrite">
-<parameter name="todos">[
-  {
-    "id": "1",
-    "content": "🎨 Run ECS (Easy Coding Standard) - Auto-fix code style",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "2",
-    "content": "♻️ Run Rector - Auto-modernize code",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "3",
-    "content": "📐 Run Twig CS Fixer - Auto-fix template style",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "4",
-    "content": "🧪 Run PHPUnit tests",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "5",
-    "content": "🔍 Run PHPStan - Static analysis (final check)",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "id": "6",
-    "content": "📊 Generate QA report",
-    "status": "pending",
-    "priority": "low"
-  }
-]</parameter>
-</invoke>
-</function_calls>
+## 🚨 Overview: QA is MANDATORY
 
-## Running QA Tools - Action: {{action}}, Tool: {{tool}}{{#if verbose}} (Verbose Mode){{/if}}
+Quality Assurance is the final, mandatory phase of all development workflows. No feature is considered complete without passing QA.
 
-{{#if (eq action "check")}}
-### 🔍 Running Quality Checks
-
-I'll run the quality checks to identify any issues without making changes.
-
-{{else if (eq action "fix")}}
-### 🔧 Running Quality Fixes
-
-I'll run the tools in fix mode to automatically correct issues where possible.
-
-{{else if (eq action "debug")}}
-### 🐛 Running QA Debug Mode
-
-I'll run the tools with maximum verbosity to help diagnose issues.
-
-{{else}}
-### 🔧 Running Complete QA Suite (Fix & Verify)
-
-I'll first run auto-fixes, then verify with tests and static analysis.
-{{/if}}
-
-<function_calls>
-{{#if (eq action "check")}}
-{{#if (or (eq tool "tests") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app bin/phpunit{{#if verbose}} -v{{/if}}</parameter>
-<parameter name="description">Run PHPUnit tests</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "behat") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/behat{{#if verbose}} -vvv{{/if}}</parameter>
-<parameter name="description">Run Behat functional tests</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "ecs") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/ecs{{#if verbose}} --output-format=verbose{{/if}}</parameter>
-<parameter name="description">Run Easy Coding Standard check only</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "phpstan") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/phpstan analyse{{#if verbose}} -vvv{{/if}}</parameter>
-<parameter name="description">Run PHPStan static analysis</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "rector") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/rector --dry-run{{#if verbose}} --debug{{/if}}</parameter>
-<parameter name="description">Run Rector in dry-run mode</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "twig-cs-fixer") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates{{#if verbose}} -v{{/if}}</parameter>
-<parameter name="description">Run Twig CS Fixer check only</parameter>
-</invoke>
-{{/if}}
-
-{{else if (eq action "debug")}}
-<!-- Debug mode: Run with maximum verbosity and additional diagnostics -->
-{{#if (or (eq tool "tests") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app bin/phpunit --debug -vvv --testdox</parameter>
-<parameter name="description">Run PHPUnit tests with debug output</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "behat") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/behat -vvv --format=pretty --no-colors</parameter>
-<parameter name="description">Run Behat with maximum verbosity</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "ecs") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/ecs --output-format=verbose --show-progress=dots</parameter>
-<parameter name="description">Run ECS with detailed output</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "phpstan") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/phpstan analyse -vvv --debug --error-format=table</parameter>
-<parameter name="description">Run PHPStan with debug information</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "rector") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/rector --dry-run --debug --output-format=console</parameter>
-<parameter name="description">Run Rector with debug output</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "twig-cs-fixer") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates -vvv</parameter>
-<parameter name="description">Run Twig CS Fixer with verbose output</parameter>
-</invoke>
-{{/if}}
-
-{{else}}
-<!-- Default action: Fix first, then verify -->
-{{#if (or (eq tool "ecs") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/ecs --fix{{#if verbose}} --output-format=verbose{{/if}}</parameter>
-<parameter name="description">Run Easy Coding Standard with fixes</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "rector") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/rector process{{#if verbose}} --debug{{/if}}</parameter>
-<parameter name="description">Run Rector to modernize code</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "twig-cs-fixer") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/twig-cs-fixer lint templates --fix{{#if verbose}} -v{{/if}}</parameter>
-<parameter name="description">Run Twig CS Fixer with fixes</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "tests") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app bin/phpunit{{#if verbose}} -v{{/if}}</parameter>
-<parameter name="description">Run PHPUnit tests</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "behat") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/behat{{#if verbose}} -vvv{{/if}}</parameter>
-<parameter name="description">Run Behat functional tests</parameter>
-</invoke>
-{{/if}}
-
-{{#if (or (eq tool "phpstan") (eq tool "all"))}}
-<invoke name="Bash">
-<parameter name="command">docker compose exec app vendor/bin/phpstan analyse{{#if verbose}} -vvv{{/if}}</parameter>
-<parameter name="description">Run PHPStan static analysis</parameter>
-</invoke>
-{{/if}}
-{{/if}}
-</function_calls>
-
-### QA Tools Overview
-
-1. **PHPUnit** 🧪
-   - Runs unit tests for domain logic
-   - Ensures code functionality and prevents regressions
-   - Must pass for any PR
-
-2. **Behat** 🥒
-   - Runs functional and acceptance tests
-   - Tests API endpoints and user scenarios
-   - BDD approach with Gherkin syntax
-
-3. **ECS (Easy Coding Standard)** 🎨
-   - Checks PHP code style against PSR-12 and Symfony standards
-   - Can automatically fix most style issues
-
-4. **PHPStan** 🔍
-   - Static analysis at maximum level
-   - Catches bugs without running code
-   - Type safety and logic checks
-
-5. **Rector** ♻️
-   - Modernizes code to latest PHP standards
-   - Refactors deprecated patterns
-   - Upgrades to newer syntax
-
-6. **Twig CS Fixer** 📐
-   - Ensures consistent Twig template formatting
-   - Validates template syntax
-
-### Common Commands
-
-```bash
-# Check all tools
-/qa
-
-# Fix all fixable issues
-/qa fix
-
-# Debug mode for troubleshooting
-/qa debug
-/qa debug tests verbose:true
-/qa debug phpstan verbose:true
-
-# Check specific tool
-/qa check tests
-/qa check behat
-/qa check ecs
-/qa check phpstan
-
-# Fix with specific tool
-/qa fix ecs
-/qa fix rector
-/qa fix twig-cs-fixer
-
-# Verbose mode for more details
-/qa check all verbose:true
+```mermaid
+graph TB
+    subgraph "Development Lifecycle"
+        Dev[Development] --> Test[Testing]
+        Test --> Orch[Orchestration]
+        Orch --> QA["🚨 MANDATORY QA"]
+        QA --> Complete[✅ Feature Complete]
+        
+        QA -.->|Fails| Fix[Manual Fix Required]
+        Fix --> QA
+        
+        style QA fill:#ff6666,stroke:#333,stroke-width:4px
+        style Complete fill:#66ff66
+    end
 ```
 
-### Pre-PR Checklist
+## QA Integration Points
 
-Before creating any PR, ensure:
-- [ ] All QA checks pass (`/qa check all`)
-- [ ] Auto-fixable issues resolved (`/qa fix all`)
-- [ ] PHPStan reports no errors
-- [ ] No Rector suggestions remain
-- [ ] All tests pass (PHPUnit + Behat)
+### 1. **Manual Execution** (During Development)
+```bash
+# Check only
+/utils:qa check all
 
-### Debugging QA Issues
+# Fix and verify
+/utils:qa fix all
 
-If you encounter errors:
-1. Use debug mode: `/qa debug [tool] verbose:true`
-2. Check specific tool: `/qa check [tool] verbose:true`
-3. Use `/debug qa` for comprehensive diagnostics
-4. Check error patterns in `@docs/agent/errors.md`
+# Debug issues
+/utils:qa debug phpstan verbose:true
+```
 
-I'll now run the requested checks and provide you with the results.
+### 2. **Automatic Execution** (End of Orchestration)
+- Automatically triggered by `/agent:orchestrate`
+- Runs `/utils:qa fix all` without manual intervention
+- Blocks feature completion if QA fails
+
+## QA Suite Components
+
+```mermaid
+flowchart LR
+    subgraph "QA Execution Order"
+        subgraph "Auto-Fix Phase"
+            ECS["🎨 ECS<br/>Code Style"]
+            Rector["♻️ Rector<br/>Modernization"]
+            Twig["📐 Twig CS<br/>Templates"]
+        end
+        
+        subgraph "Verification Phase"
+            PHPUnit["🧪 PHPUnit<br/>Unit Tests"]
+            Behat["🥒 Behat<br/>Functional Tests"]
+            PHPStan["🔍 PHPStan<br/>Static Analysis"]
+        end
+        
+        ECS --> Rector
+        Rector --> Twig
+        Twig --> PHPUnit
+        PHPUnit --> Behat
+        Behat --> PHPStan
+        
+        style ECS fill:#e1f5fe
+        style Rector fill:#e1f5fe
+        style Twig fill:#e1f5fe
+        style PHPUnit fill:#fff3e0
+        style Behat fill:#fff3e0
+        style PHPStan fill:#f3e5f5
+    end
+```
+
+### Component Details
+
+#### 🎨 **ECS (Easy Coding Standard)**
+- **Purpose**: Enforces PSR-12 and Symfony coding standards
+- **Action**: Automatically fixes code style issues
+- **Command**: `vendor/bin/ecs --fix`
+
+#### ♻️ **Rector**
+- **Purpose**: Modernizes PHP code to latest standards
+- **Action**: Applies safe automated refactorings
+- **Command**: `vendor/bin/rector process`
+
+#### 📐 **Twig CS Fixer**
+- **Purpose**: Formats Twig templates consistently
+- **Action**: Fixes template indentation and spacing
+- **Command**: `vendor/bin/twig-cs-fixer lint templates --fix`
+
+#### 🧪 **PHPUnit**
+- **Purpose**: Runs unit tests for domain logic
+- **Action**: Verifies code functionality
+- **Command**: `bin/phpunit`
+
+#### 🥒 **Behat**
+- **Purpose**: Runs functional and acceptance tests
+- **Action**: Validates API and UI behavior
+- **Command**: `vendor/bin/behat`
+
+#### 🔍 **PHPStan**
+- **Purpose**: Static analysis at maximum level
+- **Action**: Catches type errors and logic issues
+- **Command**: `vendor/bin/phpstan analyse`
+
+## QA States and Outcomes
+
+```mermaid
+stateDiagram-v2
+    [*] --> QAStarted
+    QAStarted --> AutoFixing : Start QA
+    AutoFixing --> Testing : Fixes Applied
+    Testing --> Analyzing : Tests Pass
+    Testing --> Failed : Tests Fail
+    Analyzing --> Passed : Analysis Clean
+    Analyzing --> Failed : Issues Found
+    Passed --> [*] : ✅ QA Complete
+    Failed --> ManualFix : ❌ Intervention Required
+    ManualFix --> QAStarted : Retry
+```
+
+### Success Criteria
+
+All of the following must be true for QA to pass:
+- ✅ Code style compliant (ECS)
+- ✅ Code modernized (Rector)
+- ✅ Templates formatted (Twig CS)
+- ✅ All unit tests pass (PHPUnit)
+- ✅ All functional tests pass (Behat)
+- ✅ Static analysis clean (PHPStan)
+
+### Failure Handling
+
+When QA fails:
+1. **Automatic fixes already applied**: ECS, Rector, Twig fixes are done
+2. **Test failures**: Must be fixed manually
+3. **Static analysis errors**: Must be resolved manually
+4. **Orchestration marked as failed**: Until QA passes
+
+## Common QA Scenarios
+
+### Scenario 1: Clean Pass
+```mermaid
+sequenceDiagram
+    participant O as Orchestration
+    participant Q as QA Suite
+    participant D as Developer
+    
+    O->>Q: Start QA
+    Q->>Q: Run ECS (no issues)
+    Q->>Q: Run Rector (no changes)
+    Q->>Q: Run Twig CS (clean)
+    Q->>Q: PHPUnit (all pass)
+    Q->>Q: Behat (all pass)
+    Q->>Q: PHPStan (no errors)
+    Q->>O: ✅ QA Passed
+    O->>D: Feature Complete!
+```
+
+### Scenario 2: Auto-fixes Applied
+```mermaid
+sequenceDiagram
+    participant O as Orchestration
+    participant Q as QA Suite
+    participant D as Developer
+    
+    O->>Q: Start QA
+    Q->>Q: Run ECS (fixes applied)
+    Q->>Q: Run Rector (code modernized)
+    Q->>Q: Run Twig CS (templates fixed)
+    Q->>Q: PHPUnit (all pass)
+    Q->>Q: Behat (all pass)
+    Q->>Q: PHPStan (no errors)
+    Q->>O: ✅ QA Passed (with fixes)
+    O->>D: Feature Complete + Fixes Applied!
+```
+
+### Scenario 3: Manual Intervention Required
+```mermaid
+sequenceDiagram
+    participant O as Orchestration
+    participant Q as QA Suite
+    participant D as Developer
+    
+    O->>Q: Start QA
+    Q->>Q: Run ECS (fixes applied)
+    Q->>Q: Run Rector (code modernized)
+    Q->>Q: Run Twig CS (templates fixed)
+    Q->>Q: PHPUnit (2 failures)
+    Q->>O: ❌ QA Failed
+    O->>D: Manual fix required!
+    D->>D: Fix failing tests
+    D->>Q: Re-run QA
+    Q->>O: ✅ QA Passed
+    O->>D: Feature Complete!
+```
+
+## Best Practices
+
+### 1. **Run QA Early and Often**
+- Don't wait for orchestration to finish
+- Use `/utils:qa` during development
+- Fix issues as they arise
+
+### 2. **Understand QA Tools**
+- Each tool has a specific purpose
+- Auto-fixes are safe and recommended
+- Manual fixes require understanding
+
+### 3. **Common Issues and Solutions**
+
+| Issue | Tool | Solution |
+|-------|------|----------|
+| Inconsistent spacing | ECS | Auto-fixed |
+| Old PHP syntax | Rector | Auto-fixed |
+| Type errors | PHPStan | Add type hints |
+| Test failures | PHPUnit/Behat | Fix logic/assertions |
+| Template formatting | Twig CS | Auto-fixed |
+
+### 4. **QA Command Options**
+
+```bash
+# During development
+/utils:qa check all          # Check without fixing
+/utils:qa fix all            # Fix and verify
+/utils:qa debug [tool]       # Debug specific tool
+
+# Tool-specific
+/utils:qa check phpstan      # Just static analysis
+/utils:qa fix ecs            # Just code style
+/utils:qa check tests        # Just PHPUnit
+
+# Verbose output
+/utils:qa check all verbose:true
+```
+
+## Integration with CI/CD
+
+The same QA suite runs in:
+1. **Local Development**: Via `/utils:qa`
+2. **Agent Orchestration**: Automatically
+3. **GitHub Actions**: On PR creation
+4. **Pre-commit Hooks**: Optional local setup
+
+## Summary
+
+🚨 **Remember**: No feature is complete without passing QA. The orchestration process enforces this by running QA automatically at the end. This ensures:
+- Consistent code quality
+- Working tests
+- Modern PHP practices
+- Clean static analysis
+- Professional standards
+
+The QA phase is not optional—it's the final gatekeeper ensuring only quality code makes it into the project.

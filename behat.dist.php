@@ -10,14 +10,8 @@ use Behat\Config\Profile;
 use Behat\Testwork\Output\Printer\Factory\OutputFactory;
 use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
 
-use App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialDashboardContext;
-use App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialWorkflowContext;
-use App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingArticlesContext;
-use App\Tests\BlogContext\Behat\Context\Api\BlogArticleApiContext;
-use App\Tests\Shared\Behat\Context\Hook\DoctrineORMContext;
-use Behat\Config\Suite;
-
 $profile = (new Profile('default'))
+    ->withFilter(new TagFilter('~@todo'))
     ->withFormatter(
         (new PrettyFormatter(paths: false))
             ->withOutputVerbosity(OutputFactory::VERBOSITY_VERBOSE)

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\BlogContext\Application\Operation\Command\UpdateArticle;
 
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\Content;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Title;
 use App\BlogContext\Domain\UpdateArticle\UpdaterInterface;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
         private UpdaterInterface $updater,
@@ -17,16 +19,25 @@ final readonly class Handler
     ) {
     }
 
-    public function __invoke(Command $command): \App\BlogContext\Domain\UpdateArticle\DataPersister\Article
+    public function __invoke(Command $command): void
     {
-        // Execute domain operation using value objects from command
-        $updatedArticle = ($this->updater)($command->articleId, $command->title, $command->content, $command->slug, $command->status);
+        // Transform command data to value objects
+        $articleId = new ArticleId($command->articleId);
+        $title = null !== $command->title ? new Title($command->title) : null;
+        $content = null !== $command->content ? new Content($command->content) : null;
+        $slug = null !== $command->slug ? new Slug($command->slug) : null;
 
-        // Dispatch domain events via EventBus
-        foreach ($updatedArticle->releaseEvents() as $event) {
+        // Execute domain operation
+        $updateData = ($this->updater)(
+            articleId: $articleId,
+            title: $title,
+            content: $content,
+            slug: $slug,
+        );
+
+        // Dispatch domain events
+        foreach ($updateData->getEvents() as $event) {
             ($this->eventBus)($event);
         }
-
-        return $updatedArticle;
     }
 }

@@ -394,7 +394,7 @@ Before applying any migration:
 
 ## Integration with DDD Architecture
 
-**See @docs/reference/doctrine-orm.md for complete ORM patterns and best practices.**
+**See @docs/archive/implementation-summaries/doctrine-orm.md for complete ORM patterns and best practices.**
 
 ### Entity vs Domain Model Separation
 
@@ -468,6 +468,6 @@ Remember: Migrations are the single source of truth for database schema evolutio
 
 ## Related Documentation
 
-- **Complete Workflow**: @docs/agent/workflows/database-migration-workflow.md
-- **ORM Patterns**: @docs/reference/doctrine-orm.md
+- **Complete Workflow**: @docs/development/workflows/database-migration-workflow.md
+- **ORM Patterns**: @docs/archive/implementation-summaries/doctrine-orm.md
 - **Architecture Guidelines**: @docs/agent/instructions/architecture.md

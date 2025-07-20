@@ -7,10 +7,8 @@ namespace App\BlogContext\Application\Operation\Command\PublishArticle;
 use App\BlogContext\Domain\PublishArticle\PublisherInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
         private PublisherInterface $publisher,
@@ -18,16 +16,21 @@ final readonly class Handler
     ) {
     }
 
-    public function __invoke(Command $command): \App\BlogContext\Domain\PublishArticle\DataPersister\Article
+    public function __invoke(Command $command): void
     {
-        // Execute domain operation using the ArticleId from command
-        $publishedArticle = ($this->publisher)($command->articleId);
+        // Transform command data to value objects
+        $articleId = new ArticleId($command->articleId);
+        $publishAt = null !== $command->publishAt ? new \DateTimeImmutable($command->publishAt) : null;
 
-        // Dispatch domain events via EventBus
-        foreach ($publishedArticle->releaseEvents() as $event) {
+        // Execute domain operation
+        $publishData = ($this->publisher)(
+            articleId: $articleId,
+            publishAt: $publishAt,
+        );
+
+        // Dispatch domain events
+        foreach ($publishData->getEvents() as $event) {
             ($this->eventBus)($event);
         }
-
-        return $publishedArticle;
     }
 }

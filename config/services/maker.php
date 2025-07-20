@@ -7,8 +7,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    // This configuration is kept minimal for any manual overrides if needed
-
     $services
         ->defaults()
         ->autowire()

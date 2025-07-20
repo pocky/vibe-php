@@ -23,7 +23,11 @@
       "Bash(cp:*)",
       "Bash(cat:*)",
       "Bash(bin/console list:*)",
-      "Bash(bin/console make:*)"
+      "Bash(bin/console make:*)",
+      "Bash(git add:*)",
+      "Bash(docker:*)",
+      "Bash(chmod:*)",
+      "Bash(jq:*)"
     ],
     "deny": [],
     "hooks": {

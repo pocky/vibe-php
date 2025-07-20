@@ -25,7 +25,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->instanceof(Context::class)->tag('test.behat_context');
 
     $services->load('App\\Tests\\Shared\\Behat\\', __DIR__.'/../tests/Shared/Behat/');
-    $services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
 
     $services->alias(SessionFactoryInterface::class, 'session.factory');
 };

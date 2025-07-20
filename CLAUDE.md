@@ -26,7 +26,7 @@ graph TB
         QS1["/spec:plan<br/>📋 Plan features"]
         QS2["/spec:requirements<br/>🎯 Define requirements"]
         QS3["/spec:design<br/>📐 Design solution"]
-        QS4["/spec:act<br/>⚡ Implement TDD"]
+        QS4["/act<br/>⚡ Implement tasks"]
         QS5["/workflow:qa<br/>✅ Verify quality"]
         QS6["/workflow:status<br/>📊 Check progress"]
     end
@@ -40,10 +40,10 @@ graph TB
     subgraph "📚 Essential Docs"
         D1["🧭 Navigation Guide<br/>@docs/agent/instructions/documentation-navigation.md"]
         D2["🏗️ Architecture<br/>@docs/agent/instructions/architecture.md"]
-        D3["🔧 Patterns<br/>@docs/reference/"]
-        D4["🧪 Testing<br/>@docs/testing/"]
-        D5["💡 Examples<br/>@docs/examples/"]
-        D6["🔍 Pattern Recognition<br/>@docs/reference/pattern-recognition-guide.md"]
+        D3["🔧 Patterns<br/>@docs/architecture/patterns/"]
+        D4["🧪 Testing<br/>@docs/development/testing/"]
+        D5["💡 Examples<br/>@docs/development/examples/"]
+        D6["🔍 Pattern Recognition<br/>@docs/archive/implementation-summaries/pattern-recognition-guide.md"]
     end
     
     subgraph "📦 Business Contexts"
@@ -84,6 +84,11 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 
 ## Instructions
 
+### 🌍 Language Policy
+- **ALL documentation, code comments, and technical artifacts MUST be written in English**
+- User conversations can be in any language, but generated files are ALWAYS in English
+- This includes: PRDs, technical designs, user stories, test scenarios, commit messages, and code
+
 ### 🧭 Navigation & Getting Started
 - **Start here**: Documentation navigation guide in @docs/agent/instructions/documentation-navigation.md
 - **Quick reference**: Check the visual guide above for common tasks
@@ -93,7 +98,7 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 - Follow cognitive preservation principles in @docs/agent/instructions/cognitive-preservation.md
 - Follow Git workflow standards in @docs/agent/instructions/git-workflow.md
 - Follow PR management standards in @docs/agent/instructions/pr-management.md
-- Follow QA tools standards in @docs/agent/instructions/qa-tools.md
+- Follow QA tools standards in @docs/development/tools/qa-tools.md
 
 ### 🛠️ Technical Guidelines
 - Follow Docker best practices in @docs/agent/instructions/docker.md
@@ -103,7 +108,7 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 - Follow API Platform integration patterns in @docs/agent/instructions/api-platform-integration.md
 
 ### 📚 References & Resources
-- Reference implementation patterns in @docs/reference/ for specific patterns
+- Reference implementation patterns in @docs/architecture/patterns/ for specific patterns
 - External documentation references in @docs/reference/external-docs.md
 - Available commands are in @composer.json scripts section
 
@@ -154,56 +159,58 @@ When working with AI agents in this codebase, follow the two-step approach docum
 
 This separation ensures better control, higher quality results, and easier debugging.
 
-### 🚨 CRITICAL: Test-Driven Development is MANDATORY
+### 🚨 CRITICAL: Quality Implementation Standards
 
-**ALL code in this project MUST be built using Test-Driven Development (TDD). No exceptions.**
-- Write failing tests FIRST, then implement code to make them pass
-- Direct implementation without tests is STRICTLY FORBIDDEN
-- See the "Mandatory TDD Protocol" section below for detailed requirements
+**ALL code in this project MUST be built with high quality standards.**
+- Follow `@.claude/commands/act.md` for structured implementation
+- Write comprehensive tests to ensure code reliability
+- Direct implementation without validation is STRICTLY FORBIDDEN
+- See the "Quality Implementation Protocol" section below for detailed requirements
 
-## Mandatory TDD Protocol for All Code Development
+## Quality Implementation Protocol
 
-**For ALL code development, Test-Driven Development is MANDATORY**. No exceptions.
+**For ALL code development, quality implementation is MANDATORY**.
 
-### 1. Strict Red-Green-Refactor Cycle
-- **RED Phase**: Write failing tests FIRST, implementation comes AFTER
-- **GREEN Phase**: Write minimal code to make tests pass
-- **REFACTOR Phase**: Improve code while keeping tests green
+### 1. Structured Implementation Approach
+- **DESIGN Phase**: Plan the implementation structure
+- **IMPLEMENT Phase**: Write clean, well-structured code
+- **VALIDATE Phase**: Add comprehensive validation and error handling
+- **TEST Phase**: Write tests to verify behavior
 
 ### 2. Implementation Flow
 ```bash
-# Red phase - ALWAYS FIRST
-git commit -m "test: add failing test for [feature]"
+# Design phase - Plan the approach
+git commit -m "docs: plan implementation for [feature]"
 
-# Green phase - MINIMAL implementation
-git commit -m "feat: implement [feature] to pass tests"
+# Implementation phase - Clean code
+git commit -m "feat: implement [feature] with validation"
 
-# Refactor phase - improve without changing behavior
-git commit -m "refactor: improve [aspect] while keeping tests green"
+# Test phase - Verify behavior
+git commit -m "test: add tests for [feature]"
 ```
 
 ### 3. Cognitive Preservation Questions
 Before using `exit_plan_mode`, ALWAYS ask:
-- "TDD is mandatory. Should I stop after each phase for your validation?"
-- "What specific testing approach do you prefer for this feature?"
-- "Are there any special testing considerations I should be aware of?"
+- "Quality is mandatory. Should I review the implementation approach with you?"
+- "What specific validation rules should this feature include?"
+- "Are there any special business requirements I should be aware of?"
 
 ### 4. Plan Structure Requirements
 All plans MUST explicitly include:
-- **Phase 1: RED** - Detailed list of failing tests to write
-- **Phase 2: GREEN** - Minimal implementation steps
-- **Phase 3: REFACTOR** - Code improvement steps
+- **Phase 1: DESIGN** - Architecture and structure planning
+- **Phase 2: IMPLEMENT** - Clean implementation with validation
+- **Phase 3: TEST** - Comprehensive test coverage
 - **Validation Points** - Where to pause for developer confirmation
 
-### 5. Never Skip Tests
-- **NEVER write implementation code without failing tests first**
-- **ALL code must be built using TDD - no exceptions**
-- **Direct implementation bypassing TDD is strictly prohibited**
-- NEVER use `exit_plan_mode` without TDD phases in the plan
-- ALWAYS write tests that fail for the right reasons
-- Implementation must be driven by making tests pass
+### 5. Never Skip Quality
+- **NEVER write code without proper validation**
+- **ALL code must include error handling**
+- **Business rules must be properly implemented**
+- NEVER use `exit_plan_mode` without quality checks in the plan
+- ALWAYS ensure code follows project standards
+- Implementation must be clean and maintainable
 
-This ensures developer skill preservation and prevents over-automation.
+This ensures code quality and prevents technical debt.
 
 ## Mandatory Development Workflow
 
@@ -211,10 +218,10 @@ This ensures developer skill preservation and prevents over-automation.
 
 When implementing ANY feature or fixing ANY bug, you MUST:
 
-1. **Follow the Mandatory TDD Protocol** for ALL code development
-   - TDD is the ONLY acceptable approach for building code
-   - Use @.claude/commands/act.md as it enforces proper TDD workflow
-   - Direct implementation without tests is FORBIDDEN
+1. **Follow the Quality Implementation Protocol** for ALL code development
+   - Quality implementation is the ONLY acceptable approach
+   - Use @.claude/commands/act.md for structured workflow
+   - Direct implementation without validation is FORBIDDEN
 
 2. **Run QA continuously during development**:
    ```bash
@@ -272,6 +279,7 @@ This ensures code quality is maintained throughout development, not just checked
 ## Coding Standards and Best Practices
 
 ### PHP Coding Standards
+- Follow PSR-4 autoloading standard (MANDATORY)
 - Follow PSR-12 coding standard
 - Use strict typing: `declare(strict_types=1);` at the beginning of each PHP file
 - Naming conventions:
@@ -281,11 +289,23 @@ This ensures code quality is maintained throughout development, not just checked
 - Classes should be `final` by default
 - Use `private` visibility by default for properties and methods
 
+### PSR-4 Autoloading Compliance
+This project strictly follows PSR-4 autoloading standard:
+- **Namespace prefix**: `App\` maps to `src/` directory
+- **Test namespace**: `App\Tests\` maps to `tests/` directory
+- **File naming**: Class name MUST match filename exactly (case-sensitive)
+- **Directory structure**: Namespace path MUST match directory path exactly
+- **One class per file**: Each PHP file contains exactly one class/interface/trait
+
+Example:
+- Class: `App\BlogContext\Domain\CreateArticle\Creator`
+- File: `src/BlogContext/Domain/CreateArticle/Creator.php`
+
 ### Modern PHP Features
 - Use PHP 8.4+ features: property hooks, asymmetric visibility, readonly classes
 - Use PHP 8.3+ features: typed properties, constructor property promotion, attributes, #[\Override]
 - Prefer immutability when possible (use readonly keyword)
-- See @docs/reference/php-features-best-practices.md for comprehensive guidelines
+- See @docs/architecture/standards/php-features-best-practices.md for comprehensive guidelines
 
 ### Project Structure (DDD/Hexagonal Architecture)
 - Organize code by business contexts following Domain-Driven Design

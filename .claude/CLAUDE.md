@@ -10,9 +10,28 @@ This methodology provides a structured, iterative approach to software developme
 3. **Design** - Define HOW it will be built with technical specifications
 4. **Tasks** - Break down into implementable steps with TDD methodology
 5. **Implementation** - Code development following structured tasks
+6. **Quality Assurance** - Mandatory automated validation and fixes
 
 ### Command-Driven Workflow
 Use focused slash commands for reliable, efficient development:
+
+```mermaid
+graph LR
+    A[spec:plan] --> B[spec:requirements]
+    B --> C[spec:design]
+    C --> D[spec:tasks]
+    D --> E[act]
+    E --> F[agent:orchestrate]
+    F --> G[utils:qa]
+    
+    style A fill:#fff3e0
+    style B fill:#e3f2fd
+    style C fill:#f3e5f5
+    style D fill:#fce4ec
+    style E fill:#e8f5e9
+    style F fill:#e1f5fe
+    style G fill:#ff6666,stroke:#333,stroke-width:4px
+```
 
 1. **Planning Phase**:
    - Run `/spec:plan [project-description]` to break down the project into features.
@@ -25,13 +44,18 @@ Use focused slash commands for reliable, efficient development:
    - After requirements approval, run `/spec:design` to generate technical design
    - This creates design.md with architecture and implementation approach
 
-3. **Tasks Phase**:
-   - After design approval, run `/spec:tasks` to break down into TDD tasks
+4. **Tasks Phase**:
+   - After design approval, run `/act` to break down into TDD tasks
    - This creates tasks.md with structured implementation plan
 
-4. **Implementation Phase**:
+5. **Implementation Phase**:
    - Choose implementation approach (TDD, standard, collaborative, or self-implementation)
    - Follow the structured task breakdown
+
+6. **Quality Assurance Phase** 🚨 **MANDATORY**:
+   - Automatically executed at the end of `/agent:orchestrate`
+   - Runs `/utils:qa fix all` to ensure code quality
+   - No feature is complete without passing QA
 
 ### Key Benefits of Command Approach
 - **Focused Commands**: Each command has a specific, well-defined purpose
@@ -132,6 +156,14 @@ Use focused slash commands for reliable, efficient development:
 - [ ] Acceptance criteria defined
 - [ ] Implementation approach clear
 
+### Quality Assurance Validation 🚨 **MANDATORY**
+- [ ] All unit tests pass (PHPUnit)
+- [ ] All functional tests pass (Behat)
+- [ ] Code style compliant (ECS)
+- [ ] Static analysis passes (PHPStan)
+- [ ] Code modernized (Rector)
+- [ ] Templates formatted (Twig CS Fixer)
+
 ## File Structure
 
 ```
@@ -188,14 +220,15 @@ project/
 - `/spec:requirements [feature-name]` - Detail the requirements for a new feature
 - `/spec:design` - Generate design from existing requirements  
 - `/spec:tasks` - Create implementation tasks from design
-- `/spec:act` - Begin TDD implementation with structured tasks
+- `/act` - Begin TDD implementation with structured tasks
 - `/spec:help` - Get help with spec-driven methodology
 
 #### Domain-Driven Design
-- `/ddd:entity [context] [entity-name]` - Create domain entity with value objects and tests
-- `/ddd:aggregate [context] [aggregate-name]` - Create aggregate root with events
-- `/ddd:gateway [context] [use-case]` - Create application gateway with middleware
-- `/ddd:migration [context] [description]` - Create and manage Doctrine migrations
+- `/code:hexagonal:value-object [context] [name] [template?]` - Create domain value object with validation
+- `/code:hexagonal:entity [context] [entity-name]` - Create domain entity with repository interface
+- `/code:hexagonal:aggregate [context] [aggregate-name]` - Create aggregate root with events
+- `/code:hexagonal:gateway [context] [use-case]` - Create application gateway with middleware
+- `/code:hexagonal:migration [context] [description]` - Create and manage Doctrine migrations
 
 #### API Development
 - `/api:resource [context] [resource-name]` - Create API Platform resource
@@ -234,4 +267,49 @@ When requested, provide deeper analysis including:
 
 ---
 
-This methodology ensures high-quality, well-tested software development through structured phases, clear requirements, and iterative feedback loops. It provides the framework for reliable agentic development while maintaining human oversight and control.
+## Mandatory Quality Assurance
+
+### Automatic QA Execution
+
+The development workflow **ALWAYS** concludes with a mandatory quality assurance phase:
+
+```mermaid
+flowchart LR
+    subgraph "QA Suite Execution Order"
+        Start([QA Start]) --> ECS["🎨 ECS<br/>Code Style Fix"]
+        ECS --> Rector["♻️ Rector<br/>Code Modernization"]
+        Rector --> Twig["📐 Twig CS<br/>Template Fix"]
+        Twig --> PHPUnit["🧪 PHPUnit<br/>Unit Tests"]
+        PHPUnit --> Behat["🥒 Behat<br/>Functional Tests"]
+        Behat --> PHPStan["🔍 PHPStan<br/>Static Analysis"]
+        PHPStan --> Result{All Pass?}
+        Result -->|Yes| Success(["✅ Feature Complete"])
+        Result -->|No| Fail(["❌ Manual Fix Required"])
+        
+        style Start fill:#ffcc99
+        style Success fill:#99ff99
+        style Fail fill:#ff9999
+        style ECS fill:#e1f5fe
+        style Rector fill:#e1f5fe
+        style Twig fill:#e1f5fe
+    end
+```
+
+### QA Integration Points
+
+1. **After Individual Development**: Developers can run `/utils:qa` anytime
+2. **During Orchestration**: Agents should run QA before marking tasks complete
+3. **Final Validation**: `/agent:orchestrate` automatically runs full QA suite
+4. **Pre-PR Requirement**: No PR without passing QA
+
+### Key Principles
+
+- 🚨 **No feature is complete without passing QA**
+- ✅ **Automatic fixes are applied first** (ECS, Rector, Twig)
+- 🧪 **Tests must pass** (PHPUnit, Behat)
+- 🔍 **Static analysis must be clean** (PHPStan)
+- ❌ **Failed QA blocks feature completion**
+
+---
+
+This methodology ensures high-quality, well-tested software development through structured phases, clear requirements, iterative feedback loops, and mandatory quality validation. It provides the framework for reliable agentic development while maintaining human oversight and control.

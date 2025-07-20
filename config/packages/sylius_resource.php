@@ -8,7 +8,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('sylius_resource', [
         'mapping' => [
             'paths' => [
-                '%kernel.project_dir%/src/BlogContext/UI/Web/Admin/Resource',
             ],
         ],
         'resources' => null,

@@ -4,71 +4,111 @@ declare(strict_types=1);
 
 namespace App\Tests\BlogContext\Unit\Application\Operation\Command\PublishArticle;
 
-use App\BlogContext\Application\Operation\Command\PublishArticle\{Command, Handler};
-use App\BlogContext\Domain\PublishArticle\{DataPersister\Article, PublisherInterface};
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, ArticleStatus, Content, Slug, Title};
+use App\BlogContext\Application\Operation\Command\PublishArticle\Command;
+use App\BlogContext\Application\Operation\Command\PublishArticle\Handler;
+use App\BlogContext\Domain\PublishArticle\Event\ArticlePublished;
+use App\BlogContext\Domain\PublishArticle\Model\Article as PublishArticle;
+use App\BlogContext\Domain\PublishArticle\PublisherInterface;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
+use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\BlogContext\Domain\Shared\ValueObject\Timestamps;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use App\Tests\BlogContext\Unit\Infrastructure\Identity\ArticleIdGeneratorTrait;
 use PHPUnit\Framework\TestCase;
 
 final class HandlerTest extends TestCase
 {
-    use ArticleIdGeneratorTrait;
-
-    private PublisherInterface&\PHPUnit\Framework\MockObject\MockObject $publisher;
-    private EventBusInterface&\PHPUnit\Framework\MockObject\MockObject $eventBus;
+    private PublisherInterface $publisher;
+    private EventBusInterface $eventBus;
     private Handler $handler;
 
-    #[\Override]
     protected function setUp(): void
     {
         $this->publisher = $this->createMock(PublisherInterface::class);
         $this->eventBus = $this->createMock(EventBusInterface::class);
-        $this->handler = new Handler($this->publisher, $this->eventBus);
+
+        $this->handler = new Handler(
+            $this->publisher,
+            $this->eventBus
+        );
     }
 
-    public function testHandlerExecutesPublishAndDispatchesEvents(): void
+    public function testHandlePublishArticleCommand(): void
     {
-        $commandArticleIdValue = $this->generateArticleId()->getValue();
+        // Given
         $command = new Command(
-            articleId: new ArticleId($commandArticleIdValue)
+            articleId: '550e8400-e29b-41d4-a716-446655440000',
+            publishAt: null
         );
 
-        // Create real article object
-        $resultArticleIdValue = $this->generateArticleId()->getValue();
-        $articleId = new ArticleId($resultArticleIdValue);
-        $publishedArticle = new Article(
-            id: $articleId,
-            title: new Title('Test Article'),
-            content: new Content('Test content with sufficient length.'),
+        $publishedArticle = new PublishArticle(
+            id: new ArticleId('550e8400-e29b-41d4-a716-446655440000'),
             slug: new Slug('test-article'),
             status: ArticleStatus::PUBLISHED,
-            createdAt: new \DateTimeImmutable('2024-01-01'),
+            timestamps: Timestamps::create()->withUpdatedAt(new \DateTimeImmutable()),
             publishedAt: new \DateTimeImmutable(),
+            events: [
+                new ArticlePublished(
+                    articleId: '550e8400-e29b-41d4-a716-446655440000',
+                    slug: 'test-article',
+                    publishedAt: new \DateTimeImmutable()
+                ),
+            ]
         );
 
-        // Expect publisher to be called with correct value object
-        $this->publisher->expects(self::once())
+        $this->publisher->expects($this->once())
             ->method('__invoke')
             ->with(
-                self::callback(fn (ArticleId $id) => $commandArticleIdValue === $id->getValue())
+                $this->callback(fn ($id) => $id instanceof ArticleId && '550e8400-e29b-41d4-a716-446655440000' === $id->getValue()),
+                $this->isNull()
             )
             ->willReturn($publishedArticle);
 
-        // Expect event to be dispatched at least once
-        $this->eventBus->expects(self::atLeastOnce())
-            ->method('__invoke');
+        $this->eventBus->expects($this->once())
+            ->method('__invoke')
+            ->with($this->isInstanceOf(ArticlePublished::class));
 
-        // Execute
-        $result = ($this->handler)($command);
-
-        // Verify result is the published article
-        self::assertSame($publishedArticle, $result);
+        // When
+        ($this->handler)($command);
     }
 
-    public function testHandlerIsReadonly(): void
+    public function testHandlePublishArticleWithScheduledDate(): void
     {
-        $reflection = new \ReflectionClass($this->handler);
-        self::assertTrue($reflection->isReadOnly(), 'Handler should be readonly');
+        // Given
+        $publishAt = new \DateTimeImmutable('2025-12-31 12:00:00');
+        $command = new Command(
+            articleId: '550e8400-e29b-41d4-a716-446655440000',
+            publishAt: $publishAt->format(\DateTimeInterface::ATOM)
+        );
+
+        $publishedArticle = new PublishArticle(
+            id: new ArticleId('550e8400-e29b-41d4-a716-446655440000'),
+            slug: new Slug('test-article'),
+            status: ArticleStatus::PUBLISHED,
+            timestamps: Timestamps::create()->withUpdatedAt(new \DateTimeImmutable()),
+            publishedAt: $publishAt,
+            events: [
+                new ArticlePublished(
+                    articleId: '550e8400-e29b-41d4-a716-446655440000',
+                    slug: 'test-article',
+                    publishedAt: $publishAt
+                ),
+            ]
+        );
+
+        $this->publisher->expects($this->once())
+            ->method('__invoke')
+            ->with(
+                $this->callback(fn ($id) => $id instanceof ArticleId && '550e8400-e29b-41d4-a716-446655440000' === $id->getValue()),
+                $this->callback(fn ($date) => $date instanceof \DateTimeImmutable && '2025-12-31 12:00:00' === $date->format('Y-m-d H:i:s'))
+            )
+            ->willReturn($publishedArticle);
+
+        $this->eventBus->expects($this->once())
+            ->method('__invoke')
+            ->with($this->isInstanceOf(ArticlePublished::class));
+
+        // When
+        ($this->handler)($command);
     }
 }

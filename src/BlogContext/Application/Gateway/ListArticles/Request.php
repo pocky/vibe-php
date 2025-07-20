@@ -12,28 +12,33 @@ final readonly class Request implements GatewayRequest
         public int $page = 1,
         public int $limit = 20,
         public string|null $status = null,
-        public string|null $search = null,
-        public string|null $articleId = null,
+        public string|null $authorId = null,
+        public string|null $sortBy = null,
+        public string $sortOrder = 'asc',
     ) {
+        if (1 > $this->page) {
+            throw new \InvalidArgumentException('Page must be greater than 0');
+        }
+
+        if (1 > $this->limit || 100 < $this->limit) {
+            throw new \InvalidArgumentException('Limit must be between 1 and 100');
+        }
+
+        if (!in_array($this->sortOrder, ['asc', 'desc'], true)) {
+            throw new \InvalidArgumentException('Sort order must be asc or desc');
+        }
     }
 
     public static function fromData(array $data): self
     {
-        $page = $data['page'] ?? 1;
-        $limit = $data['limit'] ?? 20;
-        $status = $data['status'] ?? null;
-        $search = $data['search'] ?? null;
-        $articleId = $data['articleId'] ?? null;
-
-        if (0 >= $page) {
-            throw new \InvalidArgumentException('Page must be greater than 0');
-        }
-
-        if (1 > $limit || 100 < $limit) {
-            throw new \InvalidArgumentException('Limit must be between 1 and 100');
-        }
-
-        return new self($page, $limit, $status, $search, $articleId);
+        return new self(
+            page: (int) ($data['page'] ?? 1),
+            limit: (int) ($data['limit'] ?? 20),
+            status: $data['status'] ?? null,
+            authorId: $data['authorId'] ?? null,
+            sortBy: $data['sortBy'] ?? null,
+            sortOrder: $data['sortOrder'] ?? 'asc',
+        );
     }
 
     public function data(): array
@@ -42,8 +47,9 @@ final readonly class Request implements GatewayRequest
             'page' => $this->page,
             'limit' => $this->limit,
             'status' => $this->status,
-            'search' => $this->search,
-            'articleId' => $this->articleId,
+            'authorId' => $this->authorId,
+            'sortBy' => $this->sortBy,
+            'sortOrder' => $this->sortOrder,
         ];
     }
 }
