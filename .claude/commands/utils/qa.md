@@ -209,6 +209,6 @@ If you encounter errors:
 1. Use debug mode: `/qa debug [tool] verbose:true`
 2. Check specific tool: `/qa check [tool] verbose:true`
 3. Use `/debug qa` for comprehensive diagnostics
-4. Check error patterns in `@docs/agent/errors.md`
+4. Check error patterns in `@docs/reference/agent/errors.md`
 
 I'll now run the requested checks and provide you with the results.

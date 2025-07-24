@@ -195,8 +195,8 @@ docker compose exec app bin/console doctrine:query:sql "SELECT * FROM ..."
 ### Need More Help?
 
 If the issue persists:
-1. Document the error in `@docs/agent/errors.md`
+1. Document the error in `@docs/reference/agent/errors.md`
 2. Check existing solutions in error log
-3. Try alternative approaches from `@docs/agent/workflows/debug-workflow.md`
+3. Try alternative approaches from `@docs/reference/agent/workflows/debug-workflow.md`
 
 Remember: Every debugging session is a learning opportunity!

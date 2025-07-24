@@ -577,7 +577,7 @@ Remember:
 - Direct command execution = No intermediate Task wrapper
 - Quality implementation = All business logic properly validated
 
-Follow the patterns in @docs/agent/instructions/api-platform-integration.md
+Follow the patterns in @docs/reference/agent/instructions/api-platform-integration.md
 
 IMPORTANT: Execute the implementation directly without creating a plan. The orchestrator manages the overall workflow."]
 {{/if}}

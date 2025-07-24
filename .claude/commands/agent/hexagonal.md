@@ -686,15 +686,15 @@ This ensures truly complete implementation of hexagonal architecture.
 Essential documentation for this agent:
 
 ### Architecture
-- `@docs/agent/instructions/architecture.md` - Core architecture patterns
-- `@docs/architecture/patterns/domain-layer-pattern.md` - Domain modeling guide
-- `@docs/architecture/patterns/gateway-pattern.md` - Gateway implementation
-- `@docs/architecture/patterns/cqrs-pattern.md` - CQRS pattern guide
+- `@docs/reference/agent/instructions/architecture.md` - Core architecture patterns
+- `@docs/reference/architecture/patterns/domain-layer-pattern.md` - Domain modeling guide
+- `@docs/reference/architecture/patterns/gateway-pattern.md` - Gateway implementation
+- `@docs/reference/architecture/patterns/cqrs-pattern.md` - CQRS pattern guide
 
 ### Examples
-- `@docs/development/examples/gateway-generator-usage.md` - Gateway examples
-- `@docs/development/examples/specification-pattern-usage.md` - Specification pattern
+- `@docs/reference/development/examples/gateway-generator-usage.md` - Gateway examples
+- `@docs/reference/development/examples/specification-pattern-usage.md` - Specification pattern
 
 ### Reference
-- `@docs/architecture/standards/php-features-best-practices.md` - PHP best practices
-- `@docs/architecture/standards/psr-standards.md` - PSR compliance
+- `@docs/reference/architecture/standards/php-features-best-practices.md` - PHP best practices
+- `@docs/reference/architecture/standards/psr-standards.md` - PSR compliance

@@ -262,7 +262,7 @@ if (!$this->isValidSkuFormat($this->value)) {
 ```
 
 ## Quality Standards
-- Follow @docs/architecture/patterns/domain-layer-pattern.md
+- Follow @docs/reference/architecture/patterns/domain-layer-pattern.md
 - Use PHP 8.4 features (asymmetric visibility)
 - Immutable by design (no setters)
 - Business validation in constructor

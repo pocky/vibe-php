@@ -133,7 +133,7 @@ class BlogArticle
 - Foreign key fails: Ensure referenced table exists
 
 ## Quality Standards
-- Follow @docs/agent/instructions/doctrine-migrations.md
+- Follow @docs/reference/agent/instructions/doctrine-migrations.md
 - Test migrations in development first
 - Document breaking changes
 - Commit migrations with related code

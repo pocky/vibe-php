@@ -226,7 +226,7 @@ Now that the basic API works, add more specific tests:
 - Handles errors gracefully
 
 ## Quality Standards
-- Follow @docs/agent/instructions/api-platform-integration.md
+- Follow @docs/reference/agent/instructions/api-platform-integration.md
 - One provider/processor per operation
 - Clear HTTP status codes
 - Comprehensive error messages

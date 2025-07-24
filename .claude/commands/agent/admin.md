@@ -463,9 +463,9 @@ Essential documentation for this agent:
 - `@docs/contexts/blog/ui-layer-implementation.md` - UI layer details
 
 ### Testing
-- `@docs/development/testing/behat-sylius-patterns.md` - UI testing patterns
-- `@docs/development/testing/behat-personas-mapping.md` - Persona-based UI tests
+- `@docs/reference/development/testing/behat-sylius-patterns.md` - UI testing patterns
+- `@docs/reference/development/testing/behat-personas-mapping.md` - Persona-based UI tests
 
 ### Reference
 - `@docs/reference/sylius-stack-integration.md` - Sylius Stack setup
-- `@docs/architecture/standards/php-features-best-practices.md` - PHP best practices
+- `@docs/reference/architecture/standards/php-features-best-practices.md` - PHP best practices

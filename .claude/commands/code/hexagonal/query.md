@@ -150,7 +150,7 @@ Well-designed queries provide:
 5. **Maintainability**: Easy to extend and modify
 
 ## Architecture Patterns
-- Follow @docs/architecture/patterns/cqrs-pattern.md
+- Follow @docs/reference/architecture/patterns/cqrs-pattern.md
 - Queries are read-only
 - Return view models, not entities
 - Optimize for read performance

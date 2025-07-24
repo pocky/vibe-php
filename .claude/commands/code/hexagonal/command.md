@@ -196,7 +196,7 @@ Implementing commands properly provides:
 5. **Maintainability**: Easy to modify and extend
 
 ## Architecture Patterns
-- Follow @docs/architecture/patterns/cqrs-pattern.md
+- Follow @docs/reference/architecture/patterns/cqrs-pattern.md
 - Commands return void
 - Handlers orchestrate, domain has logic
 - Events dispatched by handler, not domain

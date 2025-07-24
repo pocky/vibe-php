@@ -397,16 +397,16 @@ docker compose exec app bin/console cache:clear
 Essential documentation for this agent:
 
 ### API Platform
-- `@docs/agent/instructions/api-platform-integration.md` - Integration patterns
+- `@docs/reference/agent/instructions/api-platform-integration.md` - Integration patterns
 - `@docs/reference/external-docs.md` - API Platform official docs
 
 ### Examples
-- `@docs/development/examples/` - API implementation examples
+- `@docs/reference/development/examples/` - API implementation examples
 
 ### Testing
-- `@docs/development/testing/behat-guide.md` - API testing with Behat
-- `@docs/development/testing/behat-sylius-patterns.md` - Advanced API testing patterns
+- `@docs/reference/development/testing/behat-guide.md` - API testing with Behat
+- `@docs/reference/development/testing/behat-sylius-patterns.md` - Advanced API testing patterns
 
 ### Reference
-- `@docs/architecture/standards/php-features-best-practices.md` - PHP best practices
+- `@docs/reference/architecture/standards/php-features-best-practices.md` - PHP best practices
 - `@docs/reference/external-docs.md` - External API documentation
