@@ -179,8 +179,8 @@ project/
 │   │   │   ├── act.md            # TDD implementation
 │   │   │   └── help.md           # Methodology help
 │   │   ├── ddd/              # Domain-Driven Design commands
-│   │   │   ├── entity.md         # Create domain entity
-│   │   │   ├── aggregate.md      # Create aggregate root
+│   │   │   ├── entity.md         # Create Doctrine entity
+│   │   │   ├── aggregate.md      # Create domain aggregate
 │   │   │   ├── gateway.md        # Create application gateway
 │   │   │   └── migration.md      # Create database migration
 │   │   ├── api/              # API development commands

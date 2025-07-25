@@ -8,6 +8,7 @@ use App\BlogContext\Domain\CreateArticle\Model\Article as CreateArticle;
 use App\BlogContext\Domain\Shared\ReadModel\ArticleReadModel;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
+use App\BlogContext\Domain\Shared\ValueObject\AuthorId;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
 use App\BlogContext\Domain\UpdateArticle\Model\Article as UpdateArticle;
 
@@ -90,4 +91,16 @@ interface ArticleRepositoryInterface
         string $sortBy = 'createdAt',
         string $sortOrder = 'DESC'
     ): array;
+
+    /**
+     * Find articles by author ID.
+     *
+     * @return array<array{id: string, title: string, slug: string, status: string, publishedAt: string|null}>
+     */
+    public function findByAuthorId(AuthorId $authorId, int $limit, int $offset): array;
+
+    /**
+     * Count articles by author ID.
+     */
+    public function countByAuthorId(AuthorId $authorId): int;
 }

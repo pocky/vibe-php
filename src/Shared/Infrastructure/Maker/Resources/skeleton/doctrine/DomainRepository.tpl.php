@@ -4,94 +4,77 @@ declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
 
+use App\<?php echo $context; ?>\Domain\Create<?php echo $entity_class_name; ?>\Model\<?php echo $entity_class_name; ?> as Create<?php echo $entity_class_name; ?>;
 use App\<?php echo $context; ?>\Domain\Shared\Repository\<?php echo $entity_class_name; ?>RepositoryInterface;
 use App\<?php echo $context; ?>\Domain\Shared\ValueObject\<?php echo $entity_class_name; ?>Id;
-use <?php echo $entity_full_class_name; ?>;
-use Doctrine\ORM\EntityManagerInterface;
+use App\<?php echo $context; ?>\Infrastructure\Persistence\Doctrine\ORM\Entity\<?php echo $entity_class_name; ?> as Doctrine<?php echo $entity_class_name; ?>;
+use App\<?php echo $context; ?>\Infrastructure\Persistence\Mapper\<?php echo $entity_class_name; ?>QueryMapper;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
 
-final readonly class <?php echo $class_name; ?> implements <?php echo $entity_class_name; ?>RepositoryInterface
+/**
+ * @extends ServiceEntityRepository<Doctrine<?php echo $entity_class_name; ?>>
+ */
+final class <?php echo $class_name; ?> extends ServiceEntityRepository implements <?php echo $entity_class_name; ?>RepositoryInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        ManagerRegistry $registry,
+        private readonly <?php echo $entity_class_name; ?>QueryMapper $queryMapper,
     ) {
+        parent::__construct($registry, Doctrine<?php echo $entity_class_name; ?>::class);
     }
 
-    public function save(object $<?php echo $entity_variable; ?>): void
+    #[\Override]
+    public function add(Create<?php echo $entity_class_name; ?> $<?php echo $entity_variable; ?>): void
     {
-        // Get the <?php echo $entity_variable; ?> ID to find existing entity
-        $<?php echo $entity_variable; ?>Id = $this->extract<?php echo $entity_class_name; ?>Id($<?php echo $entity_variable; ?>);
-        $existingEntity = null;
+        $entity = new Doctrine<?php echo $entity_class_name; ?>(
+            id: Uuid::fromString($<?php echo $entity_variable; ?>->id()->getValue()),
+            // TODO: Add other entity properties based on domain model
+            createdAt: $<?php echo $entity_variable; ?>->createdAt(),
+            updatedAt: $<?php echo $entity_variable; ?>->updatedAt(),
+        );
 
-        if ($<?php echo $entity_variable; ?>Id instanceof <?php echo $entity_class_name; ?>Id) {
-            $existingEntity = $this->entityManager->find(
-                <?php echo $entity_class_name; ?>::class,
-                Uuid::fromString($<?php echo $entity_variable; ?>Id->getValue())
-            );
-        }
-
-        // For now, we'll need a mapper when we have domain models
-        // This is a simplified version
-        if (!$existingEntity instanceof <?php echo $entity_class_name; ?>) {
-            $entity = new <?php echo $entity_class_name; ?>();
-            $this->entityManager->persist($entity);
-        } else {
-            $entity = $existingEntity;
-        }
-
-        // Update entity properties from domain model
-        // TODO: Implement mapper to convert domain model to entity
-
-        $this->entityManager->flush();
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
     }
 
-    /**
-     * Extract <?php echo $entity_class_name; ?>Id from various domain <?php echo $entity_variable; ?> types
-     */
-    private function extract<?php echo $entity_class_name; ?>Id(object $<?php echo $entity_variable; ?>): <?php echo $entity_class_name; ?>Id|null
+    #[\Override]
+    public function findById(<?php echo $entity_class_name; ?>Id $id): Create<?php echo $entity_class_name; ?>|null
     {
-        // Check common property names
-        if (property_exists($<?php echo $entity_variable; ?>, 'id') && $<?php echo $entity_variable; ?>->id instanceof <?php echo $entity_class_name; ?>Id) {
-            return $<?php echo $entity_variable; ?>->id;
-        }
+        $entity = $this->find(Uuid::fromString($id->getValue()));
 
-        // Check for getter methods
-        if (method_exists($<?php echo $entity_variable; ?>, 'get<?php echo $entity_class_name; ?>Id')) {
-            /** @var <?php echo $entity_class_name; ?>Id */
-            return $<?php echo $entity_variable; ?>->get<?php echo $entity_class_name; ?>Id();
-        }
-
-        if (method_exists($<?php echo $entity_variable; ?>, 'getId')) {
-            /** @var <?php echo $entity_class_name; ?>Id */
-            return $<?php echo $entity_variable; ?>->getId();
-        }
-
-        return null;
+        return $entity ? $this->queryMapper->mapToCreateModel($entity) : null;
     }
 
-    public function findById(<?php echo $entity_class_name; ?>Id $id): object|null
+    #[\Override]
+    public function existsById(<?php echo $entity_class_name; ?>Id $id): bool
     {
-        $entity = $this->entityManager->find(<?php echo $entity_class_name; ?>::class, Uuid::fromString($id->toString()));
-
-        if (null === $entity) {
-            return null;
-        }
-
-        // TODO: Use a mapper to convert entity to domain model
-        // For now, returning the entity
-        return $entity;
+        return null !== $this->find(Uuid::fromString($id->getValue()));
     }
 
-    public function remove(object $<?php echo $entity_variable; ?>): void
+    #[\Override]
+    public function findAllPaginated(int $limit, int $offset): array
     {
-        $<?php echo $entity_variable; ?>Id = $this->extract<?php echo $entity_class_name; ?>Id($<?php echo $entity_variable; ?>);
+        /** @var list<Doctrine<?php echo $entity_class_name; ?>> $entities */
+        $entities = $this->createQueryBuilder('a')
+            ->orderBy('a.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
 
-        if ($<?php echo $entity_variable; ?>Id instanceof <?php echo $entity_class_name; ?>Id) {
-            $entity = $this->entityManager->find(<?php echo $entity_class_name; ?>::class, Uuid::fromString($<?php echo $entity_variable; ?>Id->getValue()));
-            if ($entity instanceof <?php echo $entity_class_name; ?>) {
-                $this->entityManager->remove($entity);
-                $this->entityManager->flush();
-            }
-        }
+        /** @var Create<?php echo $entity_class_name; ?>[] */
+        return array_map($this->queryMapper->mapToCreateModel(...), $entities);
+    }
+
+    #[\Override]
+    public function countAll(): int
+    {
+        /** @var int<0, max> */
+        return (int) $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

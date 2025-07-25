@@ -413,25 +413,32 @@ final readonly class CreateArticleProcessor
 ### 5. Gateway Configuration (Complete Setup)
 
 ```php
-// Complete gateway with CQRS integration
-final class CreateArticleGateway extends DefaultGateway
+use App\Shared\Application\Gateway\Attribute\AsGateway;
+
+// Complete gateway with CQRS integration and attribute
+#[AsGateway(
+    context: 'BlogContext',
+    domain: 'Article',
+    operation: 'Create',
+    middlewares: [],
+)]
+final class Gateway extends DefaultGateway
 {
     public function __construct(
-        GatewayInstrumentation $instrumentation,
-        ArticleValidationMiddleware $validation,
-        CreateArticleProcessor $processor,
+        Middleware\Processor $processor,
     ) {
-        $middlewares = [
-            new DefaultLogger($instrumentation),
-            new DefaultErrorHandler($instrumentation, 'BlogContext', 'Article', 'create'),
-            $validation,
+        parent::__construct([
             $processor,
-        ];
-
-        parent::__construct($middlewares);
+        ]);
     }
 }
 ```
+
+Note: The `AsGateway` attribute requires these parameters:
+- `context`: The bounded context name (e.g., 'BlogContext')
+- `domain`: The domain entity (e.g., 'Article', 'Category')
+- `operation`: The operation name (e.g., 'Create', 'Update', 'Delete')
+- `middlewares`: Array of middleware classes (usually empty as middlewares are injected)
 
 ### 6. CQRS Command Definition
 
@@ -778,26 +785,37 @@ services:
 
 ```
 src/BlogContext/Application/Gateway/CreateArticle/
-├── Gateway.php                  # Extends DefaultGateway, configures middleware
+├── Gateway.php                  # Extends DefaultGateway with AsGateway attribute
 ├── Request.php                  # Implements GatewayRequest, validates input
 ├── Response.php                 # Implements GatewayResponse, formats output
 └── Middleware/
-    ├── Validation.php           # Article-specific business validation
     └── Processor.php            # Creates Command, executes Handler, returns Response
 
 src/BlogContext/Application/Operation/Command/CreateArticle/
 ├── Command.php                  # CQRS Command DTO
 ├── Handler.php                  # CQRS Command Handler
-└── Event.php                    # Domain Event (ArticleCreated)
+└── HandlerInterface.php        # Handler contract
 
-src/BlogContext/Domain/Article/
-├── Article.php                  # Aggregate root
-├── ArticleId.php               # Value object
-├── Title.php                   # Value object
-├── Content.php                 # Value object
-├── Slug.php                    # Value object
-└── Event/
-    └── ArticleCreated.php      # Domain event
+src/BlogContext/Domain/CreateArticle/
+├── Creator.php                  # Domain entry point
+├── CreatorInterface.php         # Creator contract
+├── Model/
+│   └── Article.php             # Domain model with events
+├── Event/
+│   └── ArticleCreated.php      # Domain event
+└── Exception/
+    └── ArticleAlreadyExists.php # Domain exception
+
+src/BlogContext/Domain/Shared/
+├── Model/
+│   └── Category.php            # Shared domain model
+├── ValueObject/
+│   ├── ArticleId.php           # Value object
+│   ├── Title.php               # Value object
+│   ├── Content.php             # Value object
+│   └── Slug.php                # Value object
+└── Repository/
+    └── ArticleRepositoryInterface.php
 ```
 
 ## Automatic Code Generation via Makers

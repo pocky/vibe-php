@@ -9,6 +9,7 @@ use App\BlogContext\Domain\Shared\ReadModel\ArticleReadModel;
 use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
 use App\BlogContext\Domain\Shared\ValueObject\ArticleStatus;
+use App\BlogContext\Domain\Shared\ValueObject\AuthorId;
 use App\BlogContext\Domain\Shared\ValueObject\Slug;
 use App\BlogContext\Domain\UpdateArticle\Model\Article as UpdateArticle;
 use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\Article as DoctrineArticle;
@@ -253,5 +254,40 @@ final class ArticleRepository extends ServiceEntityRepository implements Article
             $this->getEntityManager()->remove($entity);
             $this->getEntityManager()->flush();
         }
+    }
+
+    /**
+     * @return array<array{id: string, title: string, slug: string, status: string, publishedAt: string|null}>
+     */
+    #[\Override]
+    public function findByAuthorId(AuthorId $authorId, int $limit, int $offset): array
+    {
+        $entities = $this->createQueryBuilder('a')
+            ->where('a.authorId = :authorId')
+            ->setParameter('authorId', $authorId->getValue())
+            ->orderBy('a.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return array_map(fn (DoctrineArticle $entity): array => [
+            'id' => $entity->id->toString(),
+            'title' => $entity->title,
+            'slug' => $entity->slug,
+            'status' => $entity->status,
+            'publishedAt' => $entity->publishedAt?->format(\DateTimeInterface::ATOM),
+        ], $entities);
+    }
+
+    #[\Override]
+    public function countByAuthorId(AuthorId $authorId): int
+    {
+        return (int) $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.authorId = :authorId')
+            ->setParameter('authorId', $authorId->getValue())
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

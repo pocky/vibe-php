@@ -38,27 +38,47 @@ final class {Name}
 
 ### Aggregate Pattern
 ```php
-namespace App\{Context}Context\Domain\{UseCase}\DataPersister;
+namespace App\{Context}Context\Domain\{UseCase}\Model;
 
-final class {Aggregate}
+final readonly class {Aggregate}
 {
-    private array $events = [];
-
     public function __construct(
-        private readonly {AggregateId} $id,
-        // Other properties
+        public {AggregateId} $id,
+        // Other value objects
+        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $updatedAt,
+        private array $events = []
     ) {}
 
-    public function recordEvent(object $event): void
-    {
-        $this->events[] = $event;
+    public static function create(
+        {AggregateId} $id,
+        // Other parameters
+    ): self {
+        $now = new \DateTimeImmutable();
+        
+        return new self(
+            id: $id,
+            // Other properties
+            createdAt: $now,
+            updatedAt: $now,
+            events: [],
+        );
     }
 
-    public function releaseEvents(): array
+    public function withEvents(array $events): self
     {
-        $events = $this->events;
-        $this->events = [];
-        return $events;
+        return new self(
+            id: $this->id,
+            // Copy other properties
+            createdAt: $this->createdAt,
+            updatedAt: $this->updatedAt,
+            events: $events,
+        );
+    }
+
+    public function getEvents(): array
+    {
+        return $this->events;
     }
 }
 ```
@@ -110,22 +130,29 @@ final class Gateway extends DefaultGateway
 ```php
 namespace App\{Context}Context\Application\Operation\Command\{UseCase};
 
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
-        private Creator $creator,
-        private {Entity}RepositoryInterface $repository,
+        private CreatorInterface $creator,
         private EventBusInterface $eventBus,
     ) {}
 
+    #[\Override]
     public function __invoke(Command $command): void
     {
-        $entity = ($this->creator)(...);
+        // Transform to value objects
+        ${entity}Id = new {Entity}Id($command->{entity}Id);
+        // Other value objects...
         
-        $this->repository->save($entity);
+        // Execute domain operation
+        ${entity}Data = ($this->creator)(
+            ${entity}Id,
+            // Other parameters
+        );
         
-        foreach ($entity->releaseEvents() as $event) {
-            $this->eventBus->dispatch($event);
+        // Dispatch domain events
+        foreach (${entity}Data->getEvents() as $event) {
+            ($this->eventBus)($event);
         }
     }
 }
@@ -160,31 +187,77 @@ final readonly class Handler
 
 ### Repository Implementation Pattern
 ```php
-namespace App\{Context}Context\Infrastructure\Persistence\Doctrine\Repository;
+namespace App\{Context}Context\Infrastructure\Persistence\Doctrine\ORM;
 
-final class {Entity}Repository implements {Entity}RepositoryInterface
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+final class {Entity}Repository extends ServiceEntityRepository implements {Entity}RepositoryInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-    ) {}
-
-    #[\Override]
-    public function save({Entity} $entity): void
-    {
-        $doctrineEntity = $this->mapToDoctrineEntity($entity);
-        $this->entityManager->persist($doctrineEntity);
-        $this->entityManager->flush();
+        ManagerRegistry $registry,
+        private readonly {Entity}QueryMapper $queryMapper,
+    ) {
+        parent::__construct($registry, {Entity}::class);
     }
 
     #[\Override]
-    public function find({EntityId} $id): ?{Entity}
+    public function add(Create{Entity} ${entity}): void
     {
-        $doctrineEntity = $this->entityManager->find(
-            Doctrine{Entity}::class,
-            $id->getValue()
+        $entity = new {Entity}(
+            id: Uuid::fromString(${entity}->id()->getValue()),
+            // Map other properties
+            createdAt: ${entity}->createdAt(),
+            updatedAt: ${entity}->updatedAt(),
         );
+
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
+    }
+
+    #[\Override]
+    public function findById({Entity}Id $id): ?Create{Entity}
+    {
+        $entity = $this->find(Uuid::fromString($id->getValue()));
         
-        return $doctrineEntity ? $this->mapToDomainEntity($doctrineEntity) : null;
+        return $entity ? $this->queryMapper->mapToCreateModel($entity) : null;
+    }
+}
+```
+
+### QueryMapper Pattern
+```php
+namespace App\{Context}Context\Infrastructure\Persistence\Mapper;
+
+use App\{Context}Context\Domain\Shared\Mapper\EntityToDomainMapper;
+
+/**
+ * @implements EntityToDomainMapper<{Entity}, {Entity}ReadModel>
+ */
+final class {Entity}QueryMapper implements EntityToDomainMapper
+{
+    #[\Override]
+    public function map(mixed $entity): {Entity}ReadModel
+    {
+        assert($entity instanceof {Entity});
+
+        return new {Entity}ReadModel(
+            id: new {Entity}Id($entity->id->toRfc4122()),
+            // Map other value objects
+            timestamps: new Timestamps($entity->createdAt, $entity->updatedAt),
+        );
+    }
+
+    public function mapToCreateModel({Entity} $entity): Create{Entity}
+    {
+        ${entity} = Create{Entity}::create(
+            id: new {Entity}Id($entity->id->toRfc4122()),
+            // Map other value objects
+            createdAt: $entity->createdAt,
+        );
+
+        // Clear events since this is coming from persistence
+        return ${entity}->withEvents([]);
     }
 }
 ```
@@ -204,6 +277,29 @@ final class {Entity}EventPublisher
         foreach ($events as $event) {
             $this->eventBus->dispatch($event);
         }
+    }
+}
+```
+
+### ID Generator Pattern
+```php
+// Domain Interface
+namespace App\{Context}Context\Domain\Shared\Generator;
+
+interface {Entity}IdGeneratorInterface
+{
+    public function nextIdentity(): {Entity}Id;
+}
+
+// Infrastructure Implementation
+namespace App\{Context}Context\Infrastructure\Generator;
+
+final readonly class {Entity}IdGenerator implements {Entity}IdGeneratorInterface
+{
+    #[\Override]
+    public function nextIdentity(): {Entity}Id
+    {
+        return new {Entity}Id(Uuid::v7()->toRfc4122());
     }
 }
 ```
@@ -233,20 +329,23 @@ Domain Layer ←─────────┴────┴────┘
 ├── Domain/
 │   ├── {UseCase}/
 │   │   ├── Creator.php
-│   │   ├── DataProvider/
-│   │   ├── DataPersister/
+│   │   ├── CreatorInterface.php
+│   │   ├── Model/           # Domain models with events
 │   │   ├── Event/
 │   │   └── Exception/
 │   └── Shared/
 │       ├── ValueObject/
-│       └── Repository/
+│       ├── Repository/
+│       └── Generator/       # ID generator interfaces
 ├── Infrastructure/
 │   ├── EventPublisher/
-│   ├── Generator/
+│   ├── Generator/           # ID generator implementations
 │   └── Persistence/
-│       └── Doctrine/
-│           ├── Entity/
-│           └── Repository/
+│       ├── Doctrine/
+│       │   └── ORM/
+│       │       ├── Entity/  # Clean names (Author, not BlogAuthor)
+│       │       └── {Entity}Repository.php  # At ORM level
+│       └── Mapper/          # QueryMapper implementations
 └── UI/
     ├── Api/
     │   └── Rest/

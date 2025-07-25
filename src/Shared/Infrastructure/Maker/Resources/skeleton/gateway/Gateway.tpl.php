@@ -12,16 +12,18 @@ use App\Shared\Application\Gateway\Middleware\DefaultLogger;
 use App\Shared\Application\Gateway\Middleware\DefaultValidation;
 
 #[AsGateway(
-    context: '<?php echo $context_snake; ?>',
-    domain: '<?php echo $domain_snake; ?>',
-    operation: '<?php echo $operation_snake; ?>',
-    middlewares: [
-        DefaultLogger::class,
-        DefaultErrorHandler::class,
-        DefaultValidation::class,
-        Processor::class,
-    ],
+    context: '<?php echo $context; ?>',
+    domain: '<?php echo $entity; ?>',
+    operation: '<?php echo $operation; ?>',
+    middlewares: [],
 )]
 final class <?php echo $class_name; ?> extends DefaultGateway
 {
+    public function __construct(
+        Middleware\Processor $processor,
+    ) {
+        parent::__construct([
+            $processor,
+        ]);
+    }
 }

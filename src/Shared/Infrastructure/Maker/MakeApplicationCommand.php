@@ -92,6 +92,18 @@ final class MakeApplicationCommand extends AbstractMaker
             ]
         );
 
+        // Generate HandlerInterface
+        $handlerInterfaceClassDetails = $generator->createClassNameDetails(
+            'HandlerInterface',
+            $commandNamespace
+        );
+
+        $generator->generateClass(
+            $handlerInterfaceClassDetails->getFullName(),
+            __DIR__ . '/Resources/skeleton/command/HandlerInterface.tpl.php',
+            []
+        );
+
         $generator->writeChanges();
 
         $this->writeSuccessMessage($io);

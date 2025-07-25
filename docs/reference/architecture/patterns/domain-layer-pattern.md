@@ -27,8 +27,8 @@ The Domain layer contains pure business logic organized by use cases. Each use c
 src/BlogContext/Domain/
 ├── CreateArticle/              # Write use case
 │   ├── Creator.php             # Entry point with __invoke
-│   ├── DataPersister/          # Models for persistence
-│   │   └── Article.php         # Domain model
+│   ├── Model/                  # Domain models for this use case
+│   │   └── Article.php         # Domain model with events
 │   ├── Event/                  # Domain events
 │   │   └── ArticleCreated.php
 │   └── Exception/              # Business exceptions
@@ -37,8 +37,8 @@ src/BlogContext/Domain/
 │       └── InvalidSlug.php
 ├── PublishArticle/             # Write use case
 │   ├── Publisher.php           # Entry point with __invoke
-│   ├── DataProvider/           # Input models
-│   │   └── ArticleForPublication.php
+│   ├── Model/                  # Domain models for this use case
+│   │   └── Article.php         # Article model for publishing
 │   ├── Event/
 │   │   └── ArticlePublished.php
 │   └── Exception/
@@ -52,6 +52,9 @@ src/BlogContext/Domain/
 │   └── Exception/
 │       └── ArticleNotFound.php
 ├── Shared/                     # Context shared components
+│   ├── Model/                  # Shared domain models
+│   │   ├── Article.php         # Shared article model
+│   │   └── Category.php        # Shared category model
 │   ├── ValueObject/            # Shared value objects
 │   │   ├── ArticleId.php
 │   │   ├── Title.php
@@ -127,69 +130,85 @@ final readonly class Creator
 - Return domain objects, not primitives
 - Handle domain constraints and validations
 
-### DataPersister Pattern
+### Model Pattern
 
-DataPersister contains domain models that represent state changes.
+Each use case has its own Model subdirectory containing domain models specific to that operation. Additionally, shared models can be placed in `Domain/Shared/Model/` for cross-use-case entities.
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\DataPersister;
+namespace App\BlogContext\Domain\CreateArticle\Model;
 
-use App\BlogContext\Domain\CreateArticle\Event\ArticleCreated;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus, Timestamps};
 
-final class Article
+/**
+ * Represents article data during creation.
+ * This is a data transfer object specific to the CreateArticle operation.
+ */
+final readonly class Article
 {
-    private array $domainEvents = [];
-
     public function __construct(
-        private readonly ArticleId $id,
-        private readonly Title $title,
-        private readonly Content $content,
-        private readonly Slug $slug,
-        private readonly ArticleStatus $status,
-        private readonly \DateTimeImmutable $createdAt,
+        public ArticleId $id,
+        public Title $title,
+        public Content $content,
+        public Slug $slug,
+        public ArticleStatus $status,
+        public string $authorId,
+        public Timestamps $timestamps,
+        private array $events = []
     ) {
-        // Emit domain event on creation
-        $this->domainEvents[] = new ArticleCreated(
-            articleId: $this->id,
-            title: $this->title,
-            createdAt: $this->createdAt
+    }
+
+    public static function create(
+        ArticleId $id,
+        Title $title,
+        Content $content,
+        Slug $slug,
+        string $authorId,
+    ): self {
+        return new self(
+            id: $id,
+            title: $title,
+            content: $content,
+            slug: $slug,
+            status: ArticleStatus::DRAFT,
+            authorId: $authorId,
+            timestamps: Timestamps::create(),
+            events: [],
         );
     }
 
-    // Getters
-    public function id(): ArticleId { return $this->id; }
-    public function title(): Title { return $this->title; }
-    public function content(): Content { return $this->content; }
-    public function slug(): Slug { return $this->slug; }
-    public function status(): ArticleStatus { return $this->status; }
-    public function createdAt(): \DateTimeImmutable { return $this->createdAt; }
-
-    // Domain event management
-    public function releaseEvents(): array
+    public function withEvents(array $events): self
     {
-        $events = $this->domainEvents;
-        $this->domainEvents = [];
-        return $events;
+        return new self(
+            id: $this->id,
+            title: $this->title,
+            content: $this->content,
+            slug: $this->slug,
+            status: $this->status,
+            authorId: $this->authorId,
+            timestamps: $this->timestamps,
+            events: $events,
+        );
     }
 
-    public function hasUnreleasedEvents(): bool
+    public function getEvents(): array
     {
-        return !empty($this->domainEvents);
+        return $this->events;
     }
 }
 ```
 
-**DataPersister Rules**:
+**Model Rules**:
+- Use-case specific models in `Domain/{UseCase}/Model/`
+- Shared models in `Domain/Shared/Model/` for cross-cutting entities
 - Immutable by default (readonly properties)
-- Emit domain events in constructor or methods
-- Provide event management methods
+- Events attached via `withEvents()` method, not in constructor
+- Factory method `create()` for construction
 - No business logic in getters
-- Represent a specific state of the aggregate
+- Represent a specific state for the use case
 
 ### DataProvider Pattern
 
@@ -250,6 +269,56 @@ final readonly class ArticleView
 - Include serialization methods for external systems
 - Readonly for data integrity
 - May include computed properties
+
+### Shared Model Pattern
+
+For entities that are used across multiple use cases without modification, shared models can be placed in `Domain/Shared/Model/`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Domain\Shared\Model;
+
+use App\BlogContext\Domain\Shared\ValueObject\{CategoryId, CategoryName, CategorySlug, Description, Order};
+
+final readonly class Category
+{
+    public function __construct(
+        public CategoryId $id,
+        public CategoryName $name,
+        public CategorySlug $slug,
+        public Description $description,
+        public CategoryId|null $parentId,
+        public Order $order,
+        public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $updatedAt,
+    ) {
+    }
+
+    public function isRoot(): bool
+    {
+        return !$this->parentId instanceof CategoryId;
+    }
+
+    public function hasParent(): bool
+    {
+        return $this->parentId instanceof CategoryId;
+    }
+}
+```
+
+**Shared Model Rules**:
+- Use for entities that don't change across use cases
+- Keep them immutable (readonly)
+- Minimal business logic (only queries, no mutations)
+- No events in shared models
+- Used primarily for read operations
+
+**When to Use Shared Models vs Use-Case Models**:
+- **Shared Models**: When the entity structure is stable and used identically across use cases
+- **Use-Case Models**: When the entity needs events, specific validation, or use-case-specific properties
 
 ### Object Creation Patterns
 
@@ -453,46 +522,65 @@ enum ArticleStatus: string
 
 Domain events are emitted by aggregates during business operations and stored until released by the Application layer. This ensures domain purity while enabling event-driven architecture.
 
-### Aggregate Event Management
+### Event Management Pattern
+
+Events are created separately and attached to models via the `withEvents()` method, maintaining immutability:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\DataPersister;
+namespace App\BlogContext\Domain\CreateArticle;
 
 use App\BlogContext\Domain\CreateArticle\Event\ArticleCreated;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+use App\BlogContext\Domain\CreateArticle\Model\Article;
+use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug};
 
-final class Article
+final readonly class Creator implements CreatorInterface
 {
-    private array $domainEvents = [];
-
     public function __construct(
-        public ArticleId $id,
-        public Title $title,
-        // ... other properties
-    ) {
-        // Emit domain event on creation
-        $this->domainEvents[] = new ArticleCreated(
-            articleId: $this->id,
-            title: $this->title,
-            createdAt: new \DateTimeImmutable()
+        private ArticleRepositoryInterface $repository,
+    ) {}
+
+    public function __invoke(
+        ArticleId $articleId,
+        Title $title,
+        Content $content,
+        Slug $slug,
+        string $authorId,
+    ): Article {
+        // 1. Check business rules
+        if ($this->repository->existsWithSlug($slug)) {
+            throw new ArticleAlreadyExists($articleId);
+        }
+        
+        // 2. Create domain model
+        $article = Article::create(
+            id: $articleId,
+            title: $title,
+            content: $content,
+            slug: $slug,
+            authorId: $authorId,
         );
-    }
-
-    // Domain event management
-    public function releaseEvents(): array
-    {
-        $events = $this->domainEvents;
-        $this->domainEvents = [];
-        return $events;
-    }
-
-    public function hasUnreleasedEvents(): bool
-    {
-        return [] !== $this->domainEvents;
+        
+        // 3. Create domain event
+        $event = new ArticleCreated(
+            articleId: $articleId->getValue(),
+            title: $title->getValue(),
+            authorId: $authorId,
+            status: $article->status->value,
+            createdAt: $article->timestamps->createdAt,
+        );
+        
+        // 4. Attach event to model
+        $article = $article->withEvents([$event]);
+        
+        // 5. Persist
+        $this->repository->add($article);
+        
+        // 6. Return model with events
+        return $article;
     }
 }
 ```
@@ -811,9 +899,32 @@ final class TitleTest extends TestCase
 - Application layer retrieves and dispatches Domain events via EventBus
 
 ### With Infrastructure Layer
+
+#### Repository and Entity Naming Conventions
+
+All repositories are placed at the ORM level with consistent naming:
+
+```
+src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/
+├── ArticleRepository.php       # Not in Repository/ subdirectory
+├── AuthorRepository.php        # Not in Repository/ subdirectory
+├── CategoryRepository.php      # Not in Repository/ subdirectory
+└── Entity/
+    ├── Article.php             # Not BlogArticle
+    ├── Author.php              # Not BlogAuthor  
+    └── Category.php            # Not BlogCategory
+```
+
+**Naming Rules:**
+- **Entities**: Use clean names (`Author`, not `BlogAuthor`)
+- **Repositories**: Same level as entities in `ORM/` directory
+- **Consistency**: Follow the same pattern across all bounded contexts
+
+#### Infrastructure Integration
 - Repositories implement Domain interfaces
 - EventBus implementations handle Domain event dispatching
 - Persistence adapters transform Domain models
+- Entity mappers convert between Domain models and Doctrine entities
 
 ### With Gateway Layer
 - Gateways validate input before calling Domain

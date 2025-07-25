@@ -23,7 +23,7 @@ final class MakeDomainAggregate extends AbstractMaker
 
     public static function getCommandDescription(): string
     {
-        return 'Create a new Domain Aggregate with Creator, DataPersister, and Event';
+        return 'Create a new Domain Aggregate with Creator, Model, and Event';
     }
 
     public function configureCommand(Command $command, InputConfiguration $inputConfig): void
@@ -93,15 +93,15 @@ final class MakeDomainAggregate extends AbstractMaker
             ]
         );
 
-        // Generate DataPersister (Aggregate)
-        $dataPersisterClassDetails = $generator->createClassNameDetails(
+        // Generate Model
+        $modelClassDetails = $generator->createClassNameDetails(
             $entityPascal,
-            $domainNamespace . 'DataPersister\\'
+            $domainNamespace . 'Model\\'
         );
 
         $generator->generateClass(
-            $dataPersisterClassDetails->getFullName(),
-            __DIR__ . '/Resources/skeleton/domain/DataPersister.tpl.php',
+            $modelClassDetails->getFullName(),
+            __DIR__ . '/Resources/skeleton/domain/Model.tpl.php',
             [
                 'use_case' => $useCasePascal,
                 'entity' => $entityPascal,

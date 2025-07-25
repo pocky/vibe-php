@@ -267,6 +267,7 @@ if (!$this->isValidSkuFormat($this->value)) {
 - Immutable by design (no setters)
 - Business validation in constructor
 - Translation keys for error messages
+- Consistent `getValue()` method across all value objects
 
 ## 🚨 Quality Benefits
 

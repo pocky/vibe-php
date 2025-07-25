@@ -18,13 +18,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->defaults()
         ->autowire()
         ->autoconfigure()
-        ->bind('$minkParameters', service('behat.mink.parameters'))
     ;
 
     $services->instanceof(SymfonyPageInterface::class)->tag('test.behat_symfony_page');
     $services->instanceof(Context::class)->tag('test.behat_context');
 
-    $services->load('App\\Tests\\Shared\\Behat\\', __DIR__.'/../tests/Shared/Behat/');
+    $services->load('App\\Tests\\Shared\\Behat\\', __DIR__.'/../tests/Shared/Behat/')
+        ->exclude([
+            __DIR__.'/../tests/Shared/Behat/Service/Formatter/StringInflector.php',
+        ]);
 
     $services->alias(SessionFactoryInterface::class, 'session.factory');
 };

@@ -9,9 +9,6 @@ use App\<?php echo $context; ?>\Application\Gateway\<?php echo $operation_pascal
 <?php if ($is_command) { ?>
 use App\<?php echo $context; ?>\Application\Operation\Command\<?php echo $operation_pascal; ?>\Command;
 use App\<?php echo $context; ?>\Application\Operation\Command\<?php echo $operation_pascal; ?>\Handler;
-<?php if ('Create' === $operation_type) { ?>
-use App\<?php echo $context; ?>\Infrastructure\Identity\<?php echo $entity; ?>IdGenerator;
-<?php } ?>
 <?php } elseif ($is_query) { ?>
 use App\<?php echo $context; ?>\Application\Operation\Query\<?php echo $operation_pascal; ?>\Query;
 use App\<?php echo $context; ?>\Application\Operation\Query\<?php echo $operation_pascal; ?>\Handler;
@@ -24,9 +21,6 @@ final readonly class <?php echo $class_name; ?>
     public function __construct(
 <?php if ($is_command || $is_query) { ?>
         private Handler $handler,
-<?php if ('Create' === $operation_type) { ?>
-        private <?php echo $entity; ?>IdGenerator $idGenerator,
-<?php } ?>
 <?php } else { ?>
         // Inject your dependencies here
 <?php } ?>
@@ -38,24 +32,22 @@ final readonly class <?php echo $class_name; ?>
         /** @var Request $request */
 <?php if ('Create' === $operation_type) { ?>
 
-        // Generate new <?php echo $entity_camel; ?> ID
-        $<?php echo $entity_camel; ?>Id = $this->idGenerator->nextIdentity();
-
         // Create command
         $command = new Command(
-            <?php echo $entity_camel; ?>Id: $<?php echo $entity_camel; ?>Id->getValue(),
-            // TODO: Map other fields from request
-            // name: $request->name,
-            // description: $request->description,
+            // TODO: Map fields from request
+            // title: $request->title,
+            // content: $request->content,
+            // status: $request->status ?? 'draft',
         );
 
         // Execute command through handler
         ($this->handler)($command);
 
-        // Return response with generated ID
+        // Return response with generated data
         return new Response(
-            <?php echo $entity_camel; ?>Id: $<?php echo $entity_camel; ?>Id->getValue(),
+            <?php echo $entity_camel; ?>Id: $command-><?php echo $entity_camel; ?>Id ?? '', // Handler should set ID
             // TODO: Add other response fields
+            success: true,
         );
 <?php } elseif ('Update' === $operation_type) { ?>
 
@@ -99,9 +91,12 @@ final readonly class <?php echo $class_name; ?>
         // Execute query through handler
         $result = ($this->handler)($query);
 
-        // Return response with entity data
+        // Return response with view data
         return new Response(
-            <?php echo $entity_camel; ?>: $result,
+            id: $result->id,
+            // TODO: Map other fields from view
+            createdAt: $result->createdAt,
+            updatedAt: $result->updatedAt,
         );
 <?php } elseif ('List' === $operation_type) { ?>
 
@@ -117,10 +112,13 @@ final readonly class <?php echo $class_name; ?>
 
         // Return response with collection data
         return new Response(
-            <?php echo $entity_camel; ?>s: $result['items'] ?? [],
-            total: $result['total'] ?? 0,
-            page: $request->page ?? 1,
-            limit: $request->limit ?? 20,
+            <?php echo $entity_camel; ?>s: array_map(
+                fn ($item) => $item->toArray(),
+                $result->items
+            ),
+            total: $result->total,
+            page: $result->page,
+            limit: $result->limit,
         );
 <?php } else { ?>
 

@@ -137,21 +137,18 @@ Example of generated ID Generator:
 namespace App\BlogContext\Infrastructure\Identity;
 
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
-use App\Shared\Infrastructure\Generator\GeneratorInterface;
+use App\Shared\Infrastructure\Generator\UuidGenerator;
 
 final readonly class ArticleIdGenerator
 {
-    public function __construct(
-        private GeneratorInterface $generator,
-    ) {
-    }
-
     public function nextIdentity(): ArticleId
     {
-        return new ArticleId($this->generator::generate());
+        return new ArticleId(UuidGenerator::generate());
     }
 }
 ```
+
+Note: In the current implementation, generators use the static `generate()` method directly rather than dependency injection. This simplifies usage while maintaining the abstraction through the interface.
 
 ## Domain Usage
 

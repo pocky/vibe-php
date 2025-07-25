@@ -133,27 +133,40 @@ The ID generator provides:
 - Domain-specific logic capability
 - Clean separation of concerns
 
-**Generated class:**
+**Generated interface (Domain):**
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Identity;
+namespace App\BlogContext\Domain\Shared\Generator;
 
 use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
-use App\Shared\Infrastructure\Generator\GeneratorInterface;
 
-final readonly class ArticleIdGenerator
+interface ArticleIdGeneratorInterface
 {
-    public function __construct(
-        private GeneratorInterface $generator,
-    ) {
-    }
+    public function nextIdentity(): ArticleId;
+}
+```
 
+**Generated implementation (Infrastructure):**
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\BlogContext\Infrastructure\Generator;
+
+use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use Symfony\Component\Uid\Uuid;
+
+final readonly class ArticleIdGenerator implements ArticleIdGeneratorInterface
+{
+    #[\Override]
     public function nextIdentity(): ArticleId
     {
-        return new ArticleId($this->generator::generate());
+        return new ArticleId(Uuid::v7()->toRfc4122());
     }
 }
 ```
@@ -165,27 +178,32 @@ final readonly class ArticleIdGenerator
 ```php
 namespace App\BlogContext\Domain\CreateArticle;
 
-use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
 
-final readonly class Creator
+final readonly class Creator implements CreatorInterface
 {
     public function __construct(
-        private ArticleIdGenerator $idGenerator,
+        private ArticleIdGeneratorInterface $idGenerator,
         private ArticleRepositoryInterface $repository,
     ) {
     }
 
-    public function __invoke(/* other params */): Article
+    #[\Override]
+    public function __invoke(/* other params */): Model\Article
     {
         $articleId = $this->idGenerator->nextIdentity();
         
-        $article = new Article(
+        $articleData = Model\Article::create(
             id: $articleId,
             // other parameters...
         );
         
-        $this->repository->save($article);
-        return $article;
+        $event = new Event\ArticleCreated(...);
+        $articleData = $articleData->withEvents([$event]);
+        
+        $this->repository->add($articleData);
+        return $articleData;
     }
 }
 ```
@@ -195,25 +213,33 @@ final readonly class Creator
 ```php
 namespace App\BlogContext\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\BlogContext\Domain\CreateArticle\CreatorInterface;
 
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
-        private ArticleIdGenerator $idGenerator,
-        private Creator $creator,
+        private ArticleIdGeneratorInterface $idGenerator,
+        private CreatorInterface $creator,
+        private EventBusInterface $eventBus,
     ) {
     }
 
+    #[\Override]
     public function __invoke(Command $command): void
     {
         $articleId = $this->idGenerator->nextIdentity();
+        $title = new Title($command->title);
         
-        ($this->creator)(
+        $articleData = ($this->creator)(
             $articleId,
-            new Title($command->title),
+            $title,
             // other value objects...
         );
+        
+        foreach ($articleData->getEvents() as $event) {
+            ($this->eventBus)($event);
+        }
     }
 }
 ```
@@ -223,16 +249,28 @@ final readonly class Handler
 ```php
 public function testGeneratesUniqueIds(): void
 {
-    $generator = $this->createMock(GeneratorInterface::class);
-    $generator->method('generate')
-        ->willReturn('550e8400-e29b-41d4-a716-446655440000');
-    
-    $idGenerator = new ArticleIdGenerator($generator);
+    $idGenerator = $this->createMock(ArticleIdGeneratorInterface::class);
+    $idGenerator->method('nextIdentity')
+        ->willReturnCallback(fn() => new ArticleId(Uuid::v7()->toRfc4122()));
     
     $articleId = $idGenerator->nextIdentity();
     
     $this->assertInstanceOf(ArticleId::class, $articleId);
-    $this->assertEquals('550e8400-e29b-41d4-a716-446655440000', $articleId->toString());
+    $this->assertNotEmpty($articleId->getValue());
+}
+
+// Integration test with real implementation
+public function testRealGeneratorCreatesValidIds(): void
+{
+    $idGenerator = new ArticleIdGenerator();
+    
+    $articleId = $idGenerator->nextIdentity();
+    
+    $this->assertInstanceOf(ArticleId::class, $articleId);
+    $this->assertMatchesRegularExpression(
+        '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+        $articleId->getValue()
+    );
 }
 ```
 

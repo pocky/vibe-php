@@ -5,46 +5,37 @@ declare(strict_types=1);
 namespace <?php echo $namespace; ?>;
 
 use App\<?php echo $context; ?>\Application\Operation\Command\<?php echo $command_name; ?>\Command;
-use App\<?php echo $context; ?>\Domain\Shared\Repository\<?php echo $entity; ?>RepositoryInterface;
+use App\<?php echo $context; ?>\Application\Operation\Command\<?php echo $command_name; ?>\HandlerInterface;
+use App\<?php echo $context; ?>\Domain\<?php echo $command_name; ?>\CreatorInterface;
 use App\<?php echo $context; ?>\Domain\Shared\ValueObject\<?php echo $entity; ?>Id;
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
-use App\Shared\Infrastructure\Generator\GeneratorInterface;
 
-final readonly class <?php echo $class_name . "\n"; ?>
+final readonly class <?php echo $class_name; ?> implements HandlerInterface
 {
     public function __construct(
-        private <?php echo $entity; ?>RepositoryInterface $repository,
+        private CreatorInterface $creator,
         private EventBusInterface $eventBus,
-        private GeneratorInterface $generator,
     ) {
     }
 
     public function __invoke(Command $command): void
     {
-        // TODO: Transform command data to value objects
+        // Convert string values to domain value objects
+        $<?php echo $entity_snake; ?>Id = new <?php echo $entity; ?>Id($command-><?php echo $entity_snake; ?>Id);
+        // TODO: Add other value object conversions
         // Example:
-        // $<?php echo $entity_snake; ?>Id = new <?php echo $entity; ?>Id($this->generator::generate());
         // $title = new Title($command->title);
         // $content = new Content($command->content);
-        
-        // TODO: Implement domain operation
-        // Example for Create:
-        // $<?php echo $entity_snake; ?> = new <?php echo $entity; ?>(
-        //     $<?php echo $entity_snake; ?>Id,
-        //     // ... other value objects
-        // );
-        // $this->repository->save($<?php echo $entity_snake; ?>);
-        
-        // Example for Update:
-        // $<?php echo $entity_snake; ?> = $this->repository->find(new <?php echo $entity; ?>Id($command->id));
-        // $<?php echo $entity_snake; ?>->update(...);
-        // $this->repository->save($<?php echo $entity_snake; ?>);
-        
-        // Dispatch domain events if any
-        // if ($<?php echo $entity_snake; ?>->hasUnreleasedEvents()) {
-        //     foreach ($<?php echo $entity_snake; ?>->releaseEvents() as $event) {
-        //         ($this->eventBus)($event);
-        //     }
-        // }
+
+        // Call domain creator to get model with domain events
+        $<?php echo $entity_snake; ?> = ($this->creator)(
+            <?php echo $entity_snake; ?>Id: $<?php echo $entity_snake; ?>Id,
+            // TODO: Pass other value objects
+        );
+
+        // Dispatch domain events via EventBus (if events exist)
+        foreach ($<?php echo $entity_snake; ?>->getEvents() as $event) {
+            ($this->eventBus)($event);
+        }
     }
 }

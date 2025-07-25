@@ -100,7 +100,7 @@ use App\BlogContext\Domain\CreateArticle\CreatorInterface;
 use App\BlogContext\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 
-final readonly class Handler
+final readonly class Handler implements HandlerInterface
 {
     public function __construct(
         private CreatorInterface $creator,
@@ -113,7 +113,6 @@ final readonly class Handler
         $title = new Title($command->title);
         $content = new Content($command->content);
         $slug = new Slug($command->slug);
-        $status = ArticleStatus::fromString($command->status);
 
         // Call domain creator to get article with domain events
         $article = ($this->creator)(
@@ -121,12 +120,11 @@ final readonly class Handler
             title: $title,
             content: $content,
             slug: $slug,
-            status: $status,
-            createdAt: $command->createdAt,
+            authorId: $command->authorId,
         );
 
-        // Dispatch domain events via EventBus
-        foreach ($article->releaseEvents() as $event) {
+        // Dispatch domain events via EventBus (if events exist)
+        foreach ($article->getEvents() as $event) {
             ($this->eventBus)($event);
         }
     }
@@ -137,8 +135,9 @@ final readonly class Handler
 - Orchestrates business operations only
 - No direct business logic (delegate to Domain)
 - Returns void (pure Command pattern)
-- Uses EventBus for event dispatching
+- Uses EventBus for event dispatching (when events are present)
 - Domain Creator handles business logic and persistence
+- Not all handlers require EventBus (only if the operation emits events)
 
 #### 3. Domain Events
 
@@ -945,7 +944,8 @@ src/BlogContext/Application/Operation/
 ├── Command/                     # Write operations
 │   ├── CreateArticle/
 │   │   ├── Command.php          # DTO
-│   │   └── Handler.php          # Orchestrator with EventBus
+│   │   ├── Handler.php          # Orchestrator with EventBus
+│   │   └── HandlerInterface.php # Handler contract
 │   ├── UpdateArticle/
 │   ├── PublishArticle/
 │   └── ArchiveArticle/
@@ -953,6 +953,7 @@ src/BlogContext/Application/Operation/
     ├── GetArticle/
     │   ├── Query.php            # Parameters
     │   ├── Handler.php          # Data retrieval
+    │   ├── HandlerInterface.php # Handler contract
     │   └── View.php             # Response model
     ├── ListArticles/
     ├── SearchArticles/
@@ -961,8 +962,8 @@ src/BlogContext/Application/Operation/
 src/BlogContext/Domain/CreateArticle/
 ├── Creator.php                  # Business logic
 ├── CreatorInterface.php         # Contract
-├── DataPersister/
-│   └── Article.php             # Aggregate with events
+├── Model/
+│   └── Article.php             # Domain model with events
 ├── Event/
 │   └── ArticleCreated.php      # Domain event
 └── Exception/

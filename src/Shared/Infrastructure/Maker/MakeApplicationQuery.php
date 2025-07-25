@@ -96,6 +96,32 @@ final class MakeApplicationQuery extends AbstractMaker
             ]
         );
 
+        // Generate HandlerInterface
+        $handlerInterfaceClassDetails = $generator->createClassNameDetails(
+            'HandlerInterface',
+            $queryNamespace
+        );
+
+        $generator->generateClass(
+            $handlerInterfaceClassDetails->getFullName(),
+            __DIR__ . '/Resources/skeleton/query/HandlerInterface.tpl.php',
+            []
+        );
+
+        // Generate View class
+        $viewClassDetails = $generator->createClassNameDetails(
+            'View',
+            $queryNamespace
+        );
+
+        $generator->generateClass(
+            $viewClassDetails->getFullName(),
+            __DIR__ . '/Resources/skeleton/query/View.tpl.php',
+            [
+                'is_collection' => $isCollection,
+            ]
+        );
+
         $generator->writeChanges();
 
         $this->writeSuccessMessage($io);
@@ -104,8 +130,8 @@ final class MakeApplicationQuery extends AbstractMaker
             'Next steps:',
             sprintf(' - Define query parameters in <info>%s</info>', $queryClassDetails->getFullName()),
             sprintf(' - Implement the handler logic in <info>%s</info>', $handlerClassDetails->getFullName()),
-            ' - Register the handler as a message handler if using Messenger',
-            ' - Consider creating a View model if you need a different response structure',
+            sprintf(' - Customize the View model in <info>%s</info>', $viewClassDetails->getFullName()),
+            ' - Register the handler in services configuration if needed',
         ]);
     }
 

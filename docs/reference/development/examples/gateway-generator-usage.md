@@ -10,7 +10,7 @@ The `make:application:gateway` command has been significantly enhanced to automa
 
 | Operation Pattern | Type | Generated Dependencies | CQRS Integration |
 |-------------------|------|----------------------|------------------|
-| `Create*` | Command | Handler + IdGenerator | Command/Handler |
+| `Create*` | Command | Handler + IdGeneratorInterface | Command/Handler |
 | `Update*` | Command | Handler only | Command/Handler |
 | `Delete*` | Command | Handler only | Command/Handler |
 | `Get*` | Query | Handler only | Query/Handler |
@@ -37,7 +37,7 @@ use App\BlogContext\Application\Gateway\CreateArticle\Request;
 use App\BlogContext\Application\Gateway\CreateArticle\Response;
 use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
 use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
-use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -45,7 +45,7 @@ final readonly class Processor
 {
     public function __construct(
         private Handler $handler,
-        private ArticleIdGenerator $idGenerator,
+        private ArticleIdGeneratorInterface $idGenerator,
     ) {
     }
 
@@ -76,7 +76,7 @@ final readonly class Processor
 ```
 
 **Key Features**:
-- ✅ Automatic ID generation with `ArticleIdGenerator`
+- ✅ Automatic ID generation with `ArticleIdGeneratorInterface`
 - ✅ Command creation with proper field mapping
 - ✅ Handler execution via `__invoke()` pattern
 - ✅ Response with generated ID
@@ -322,7 +322,7 @@ final readonly class Processor
 # Create user
 bin/console make:application:gateway SecurityContext CreateUser
 
-# Generated with UserIdGenerator injection
+# Generated with UserIdGeneratorInterface injection
 # Generates SecurityContext namespace
 # Uses User entity naming
 ```
@@ -344,7 +344,7 @@ bin/console make:application:gateway CatalogContext ListProducts
 # Update category
 bin/console make:application:gateway BlogContext UpdateCategory
 
-# Generated without IdGenerator (Update operation)
+# Generated without IdGeneratorInterface (Update operation)
 # Uses existing categoryId
 # Command-based operation
 ```
