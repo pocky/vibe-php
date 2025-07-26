@@ -1,379 +1,254 @@
-# Claude Agent System & Integrated Development Guide
+# Expert Agents System
 
 ## Overview
 
-The Agent System provides specialized AI agents for different aspects of software development. Each agent has deep expertise in its domain and guides you to use the appropriate commands for implementation.
+Expert agents are specialized AI assistants that handle complex aspects of software development. They work within the simplified command system to provide deep expertise without adding complexity.
 
-## How Agents and Commands Work Together
+## Core Philosophy
+
+**"Let the experts handle the complexity"** - Each agent is a specialist in their domain, providing guidance and implementation directly without intermediate commands.
+
+## How Agents Work
 
 ```mermaid
-graph TD
-    A[Feature Request] --> B{Complexity?}
-    B -->|Complex| C[Start with Agent]
-    B -->|Simple| D[Use Code Commands]
+graph LR
+    A[User Request] --> B[Call Agent]
+    B --> C[Agent Analyzes]
+    C --> D[Agent Implements]
+    D --> E[Quality Check]
+    E --> F[Done]
     
-    C --> E[Agent Analysis]
-    E --> F[Agent Recommendations]
-    F --> G[Execute Commands]
-    
-    D --> G[Execute Commands]
-    G --> H[Quality Assurance]
-    H --> I[Tests]
-    I --> J[Feature Complete]
+    style B fill:#e1f5fe
+    style D fill:#e8f5e9
+    style E fill:#ff6666
 ```
 
-### Key Principle: Agents Guide, Commands Execute
-
-- **Agents** (`/agent:*`) - Analyze, design, and recommend
-- **Commands** (`/code:*`, `/spec:*`, `/utils:*`) - Generate code and execute tasks
+Agents are autonomous - they analyze, design, and implement without requiring you to run multiple commands.
 
 ## Available Agents
 
-### 🏛️ Hexagonal Agent
-**Command**: `/agent:hexagonal`
-**Specialization**: Domain-Driven Design, Clean Architecture, Hexagonal Architecture
+### 🚀 Primary Development Agents
 
-**Expertise**:
+These agents are called by the orchestrator automatically:
+
+#### domain-expert
+**Specialization**: Domain-Driven Design and architecture
 - Domain modeling with aggregates and value objects
-- Application layer with gateways and use cases
-- Infrastructure adapters and ports
-- CQRS implementation
+- Business logic design
 - Event-driven architecture
+- CQRS pattern implementation
 
-**Guides you to use**:
-- `/code:ddd:entity` - Domain entities
-- `/code:ddd:aggregate` - Aggregates with events
-- `/code:ddd:gateway` - Gateway pattern
-- `/code:ddd:migration` - Database migrations
+#### maker-expert
+**Specialization**: Code generation using DDD Makers
+- Analyzes requirements and selects appropriate makers
+- Executes makers in correct dependency order
+- Generates consistent DDD structure across all layers
+- Coordinates with tdd-expert for implementation
 
-### 🌐 API Agent
-**Command**: `/agent:api`
-**Specialization**: API Platform, REST, OpenAPI
+#### tdd-expert
+**Specialization**: Test-Driven Development implementation
+- Red-Green-Refactor cycle
+- Complete test coverage
+- Clean code practices
+- Implementation of all concrete components
 
-**Expertise**:
-- API resource design
-- State providers and processors
-- RESTful principles
-- Filters and pagination
-- API documentation
+#### api-platform-expert
+**Specialization**: REST API development
+- API Platform resources
+- State providers/processors
+- OpenAPI documentation
+- RESTful best practices
 
-**Guides you to use**:
-- `/code:api:resource` - API Platform resources
-- `/code:api:behat` - API tests
-
-### 🎨 Admin Agent
-**Command**: `/agent:admin`
-**Specialization**: Sylius Admin UI, CRUD interfaces
-
-**Expertise**:
-- Admin resource configuration
-- Grid and form creation
+#### admin-ui-expert
+**Specialization**: Sylius Admin interfaces
+- CRUD interfaces
+- Forms and grids
 - Menu integration
-- UI/UX best practices
-- Translation management
+- User experience
 
-**Guides you to use**:
-- `/code:admin:resource` - Admin CRUD
-- `/code:admin:grid` - Data grids
-- `/code:admin:form` - Form types
-- `/code:admin:menu` - Menu items
-- `/code:admin:behat` - Admin tests
+### 📋 Specification Agents
 
-### 🤝 Orchestrate Agent
-**Command**: `/agent:orchestrate`
-**Specialization**: Multi-agent coordination
+Used during the planning phase:
 
-**When to use**:
-- Complex features requiring multiple domains
-- Full-stack implementations
-- Coordinating between contexts
+- **business-analyst**: Business requirement analysis
+- **ears-expert**: EARS format requirements
+- **story-decomposer**: User story breakdown
+- **test-generator**: Test scenario creation
+- **spec-validator**: Specification validation
+- **domain-expert**: Ubiquitous language
 
-### ℹ️ Help Agent
-**Command**: `/agent:help`
-**Specialization**: Project guidance and troubleshooting
+### 🔍 Quality Agents
 
-## Complete Feature Development Workflows
+Called for code review and optimization:
 
-### Example 1: Full Blog Feature Implementation
+- **code-reviewer**: Architecture compliance
+- **refactoring-expert**: Code improvements
+- **performance-optimizer**: Performance tuning
+- **security-auditor**: Security analysis
+- **architecture-validator**: DDD validation
 
-**Goal**: Implement article management with API and Admin interface
+## Using Agents
 
-#### Step 1: Planning and Design
-```bash
-# Start with planning
-/spec:plan "Blog article management with categories and authors"
+### Through Orchestration (Recommended)
 
-# Define requirements for the feature
-/spec:requirements blog-article-management
-
-# Create technical design
-/spec:design
-```
-
-#### Step 2: Domain Implementation
-```bash
-# Use hexagonal agent for domain design
-/agent:hexagonal "Design article management domain with categories and authors"
-
-# Agent will recommend:
-# 1. Create aggregates
-/code:ddd:aggregate BlogContext Article
-/code:ddd:aggregate BlogContext Category
-/code:ddd:aggregate BlogContext Author
-
-# 2. Create gateways for use cases
-/code:ddd:gateway BlogContext CreateArticle
-/code:ddd:gateway BlogContext UpdateArticle
-/code:ddd:gateway BlogContext PublishArticle
-/code:ddd:gateway BlogContext ListArticles
-
-# 3. Generate migrations
-/code:ddd:migration BlogContext "Create article tables"
-```
-
-#### Step 3: API Implementation
-```bash
-# Use API agent for REST design
-/agent:api "Create REST API for article management"
-
-# Agent will recommend:
-# 1. Generate API resources
-/code:api:resource BlogContext Article
-/code:api:resource BlogContext Category
-
-# 2. Create API tests
-/code:api:behat BlogContext article-api
-/code:api:behat BlogContext category-api
-```
-
-#### Step 4: Admin Interface
-```bash
-# Use admin agent for UI
-/agent:admin "Create admin interface for blog management"
-
-# Agent will recommend:
-# 1. Generate admin resources
-/code:admin:resource BlogContext Article
-/code:admin:resource BlogContext Category
-
-# 2. Add to menu
-/code:admin:menu "Blog/Articles" blog_admin_article_index
-/code:admin:menu "Blog/Categories" blog_admin_category_index
-
-# 3. Create admin tests
-/code:admin:behat BlogContext article-admin
-```
-
-#### Step 5: Implementation and Testing
-```bash
-# Break down into TDD tasks
-/act
-
-# Run quality assurance
-/utils:qa
-
-# Run all tests
-docker compose exec app bin/phpunit
-docker compose exec app vendor/bin/behat
-```
-
-### Example 2: Simple CRUD Feature
-
-**Goal**: Add a Tag entity to the blog
-
-#### Direct Command Approach (No Agent Needed)
-```bash
-# 1. Generate domain entity
-/code:ddd:entity BlogContext Tag
-
-# 2. Create gateway
-/code:ddd:gateway BlogContext ManageTags
-
-# 3. Generate migration
-/code:ddd:migration BlogContext "Add tags table"
-
-# 4. Create API
-/code:api:resource BlogContext Tag
-
-# 5. Create admin
-/code:admin:resource BlogContext Tag
-
-# 6. Run QA
-/utils:qa
-```
-
-### Example 3: Complex Business Logic
-
-**Goal**: Implement article publishing workflow with approval
+The simplest way is to let orchestration handle everything:
 
 ```bash
-# Step 1: Use hexagonal agent for complex business logic
-/agent:hexagonal "Design article publishing workflow with editorial approval"
+# Plan your feature
+/spec:plan "E-commerce platform"
 
-# Step 2: Create detailed requirements
-/spec:requirements article-publishing-workflow
+# Create PRD
+/spec:prd commerce checkout
 
-# Step 3: Design technical solution
-/spec:design
+# Define requirements
+/spec:requirements checkout-process
 
-# Step 4: Break into TDD tasks
-/act
+# Design solution
+/spec:design commerce
+
+# Let agents implement
+/orchestrate checkout-process --context commerce
 ```
 
-## Command Reference
+The orchestrator will:
+1. Analyze your user story
+2. Select needed agents (domain, api, admin)
+3. Coordinate their work
+4. Run quality checks
 
-### Planning & Specification
-- `/spec:plan` - Break down project into features
-- `/spec:requirements` - Define EARS requirements
-- `/spec:design` - Create technical design
-- `/act` - Execute TDD implementation
+### Direct Agent Invocation
 
-### Domain (DDD) Commands
-- `/code:ddd:entity` - Create domain entity
-- `/code:ddd:aggregate` - Create aggregate with events
-- `/code:ddd:gateway` - Create gateway pattern
-- `/code:ddd:migration` - Generate migration
+For specific tasks, call agents directly:
 
-### API Commands
-- `/code:api:resource` - Create API Platform resource
-- `/code:api:behat` - Create API tests
+```bash
+# Domain modeling
+> Use the domain-expert agent to design payment processing
 
-### Admin Commands
-- `/code:admin:resource` - Create admin CRUD
-- `/code:admin:grid` - Create data grid
-- `/code:admin:form` - Create form type
-- `/code:admin:menu` - Add menu item
-- `/code:admin:behat` - Create admin tests
+# TDD implementation
+> Use the tdd-expert agent to implement payment gateway
 
-### Utilities
-- `/utils:qa` - Run quality assurance
-- `/utils:debug` - Debug assistance
-- `/utils:adr` - Create ADR document
-- `/workflow:status` - Check status
+# API development
+> Use the api-platform-expert agent to create payment API
+
+# Admin interface
+> Use the admin-ui-expert agent to create payment admin
+```
+
+## Agent Capabilities
+
+### What Agents Do
+
+✅ **Autonomous Implementation**
+- Analyze requirements
+- Design solutions
+- Generate code
+- Run tests
+- Fix issues
+
+✅ **Quality Assurance**
+- Follow best practices
+- Ensure test coverage
+- Validate architecture
+- Apply patterns correctly
+
+✅ **Direct Execution**
+- No intermediate commands needed
+- Complete implementation cycles
+- Integrated quality checks
+
+### What Agents Don't Do
+
+❌ **They don't replace thinking**
+- You define requirements
+- You make business decisions
+- You approve designs
+
+❌ **They don't work in isolation**
+- Agents coordinate through orchestration
+- They follow project patterns
+- They respect architecture
+
+## Simplified Workflows
+
+### Feature Development
+
+```
+1. Plan → 2. PRD → 3. Requirements → 4. Design → 5. Orchestrate
+```
+
+Agents handle step 5 completely.
+
+### Quick Implementation
+
+For simple features, go directly to orchestration:
+
+```bash
+# If requirements are clear
+/orchestrate user-profile --context user
+```
+
+### Code Quality Review
+
+```bash
+# Ask any quality agent
+> Use the code-reviewer agent to review the payment implementation
+> Use the security-auditor agent to check for vulnerabilities
+```
 
 ## Best Practices
 
-### 1. Choose the Right Starting Point
-- **Complex features**: Start with agents (`/agent:*`)
-- **Simple CRUD**: Use code commands directly (`/code:*`)
-- **Planning needed**: Start with spec commands (`/spec:*`)
-- **Debugging**: Use utils (`/utils:*`)
+### 1. Trust the Experts
+- Let agents handle their specialization
+- Don't micromanage implementation details
+- Focus on requirements and business logic
 
-### 2. Follow the Architecture Order
-```
-Domain First → API Second → Admin Last
-```
+### 2. Use Orchestration
+- It coordinates agents efficiently
+- Ensures proper implementation order
+- Runs quality checks automatically
 
-Always implement in this order:
-1. Domain logic (entities, aggregates, gateways)
-2. API endpoints (resources, processors)
-3. Admin interface (forms, grids)
+### 3. Provide Clear Context
+- Good requirements lead to good implementation
+- Clear user stories help agents understand
+- Proper PRD guides technical decisions
 
-### 3. Test at Each Layer
+## Common Scenarios
+
+### New Feature
 ```bash
-# After domain implementation
-docker compose exec app bin/phpunit tests/[Context]/Unit/
-
-# After API implementation
-docker compose exec app vendor/bin/behat features/api/
-
-# After admin implementation
-docker compose exec app vendor/bin/behat features/admin/
+/orchestrate article-management --context blog
 ```
+Orchestrator handles everything: domain → API → admin → QA
 
-### 4. Use Agents for Guidance
-Agents are best for:
-- Understanding complex requirements
-- Designing architecture
-- Learning best practices
-- Troubleshooting issues
-
-### 5. Use Commands for Execution
-Commands are best for:
-- Generating specific code
-- Running tools
-- Creating documentation
-- Executing workflows
-
-## Common Workflows
-
-### New Feature Workflow
+### Domain Modeling Only
+```bash
+> Use the domain-expert agent to design inventory management
 ```
-/spec:plan → /spec:requirements → /spec:design → /agent:hexagonal → /code:ddd:* → /code:api:* → /code:admin:* → /act → /utils:qa
-```
+Agent creates complete domain model with all components
 
-### Refactoring Workflow
+### API Development
+```bash
+> Use the api-platform-expert agent to expose product catalog API
 ```
-/agent:hexagonal "Review X" → /utils:adr → /code:ddd:* → /act → /utils:qa
-```
+Agent creates resources, providers, processors, and tests
 
-### Bug Fix Workflow
+### Code Review
+```bash
+> Use the code-reviewer agent to review recent changes
 ```
-/utils:debug → /agent:help → [fix code] → /utils:qa
-```
-
-### Documentation Workflow
-```
-/utils:adr → /utils:prd → /utils:user-story
-```
-
-## Orchestration Patterns
-
-### Sequential Pattern
-```
-Hexagonal → API → Admin
-```
-Each agent completes its work before the next begins. Best for linear workflows.
-
-### Parallel Pattern
-```
-        ┌→ API ──┐
-Gateway ┼→ Admin ┼→ Integration
-        └→ Test ──┘
-```
-Multiple agents work simultaneously. Best for independent tasks.
-
-### Collaborative Pattern
-```
-Hexagonal ←→ Test (TDD loop)
-     ↓
-API + Admin (parallel)
-```
-Agents work together with feedback loops. Best for complex features.
-
-## Troubleshooting
-
-### Agent Not Providing Commands
-- Agents guide you to use commands, they don't execute them
-- Copy the recommended commands and run them yourself
-- Check agent documentation for supported commands
-
-### Commands Not Found
-- Ensure correct prefix: `/code:`, `/spec:`, `/utils:`, etc.
-- Check exact command syntax in `.claude/commands/`
-- Commands are case-sensitive
-
-### Integration Issues
-- Ensure consistent naming across contexts
-- Verify gateways exist before creating APIs
-- Check that domain models are complete
+Agent analyzes code quality, patterns, and security
 
 ## Tips for Success
 
-1. **Start with the big picture** - Use agents for complex tasks
-2. **Execute with precision** - Use specific commands
-3. **Test continuously** - Run QA after each step
-4. **Document decisions** - Use ADRs for important choices
-5. **Iterate and improve** - Refine as you go
+1. **Start with good specifications** - Use `/spec:*` commands
+2. **Trust the orchestrator** - It knows which agents to use
+3. **Let agents be autonomous** - They handle complexity
+4. **Focus on business value** - Agents handle technical details
 
-## Getting Started
+## Getting Help
 
-1. **Identify your need**: Determine what you want to build
-2. **Choose your approach**:
-   - Complex? → Start with an agent
-   - Simple? → Use commands directly
-3. **Follow the workflow**: Domain → API → Admin
-4. **Test everything**: Use `/utils:qa` frequently
-5. **Document**: Create ADRs for decisions
+- For methodology: `/help`
+- For specifications: `/spec:help`
+- For quality issues: `/qa`
 
-Remember: **Agents analyze and guide, commands generate and execute!**
+Remember: **Agents are experts - let them do what they do best!**

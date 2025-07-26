@@ -42,20 +42,24 @@ This prevents unnecessary work and focuses effort on what the story actually nee
 graph TB
     subgraph "Orchestration System"
         O[Orchestrator]
-        H[Hexagonal Agent]
-        A[API Agent]
-        AD[Admin Agent]
+        H[Domain Expert]
+        T[TDD Expert]
+        A[API Platform Expert]
+        AD[Admin UI Expert]
         
         O -->|coordinates| H
+        O -->|coordinates| T
         O -->|coordinates| A
         O -->|coordinates| AD
         
-        H -.->|domain models| A
-        H -.->|domain models| AD
+        H -.->|domain models| T
+        T -.->|implementations| A
+        T -.->|implementations| AD
     end
     
     style O fill:#f9f,stroke:#333,stroke-width:4px
     style H fill:#bbf,stroke:#333,stroke-width:2px
+    style T fill:#bfb,stroke:#333,stroke-width:2px
     style A fill:#fbf,stroke:#333,stroke-width:2px
     style AD fill:#ffb,stroke:#333,stroke-width:2px
 ```
@@ -81,7 +85,7 @@ The Docker environment could not be started automatically. The orchestration can
 
 2. Once Docker is running, run the orchestration command again:
    ```bash
-   /agent:orchestrate {{feature-name}} --context {{context}}
+   /orchestrate {{feature-name}} --context {{context}}
    ```
 
 3. If you continue to have issues, check:
@@ -231,70 +235,107 @@ Based on the {{pattern}} pattern and selected agents ({{agents}}), I'll now laun
 {{#if (or (includes agents "hexagonal") needs-hexagonal)}}
 #### Phase 2.1: Domain Foundation (Sequential)
 
-[Use Task to launch domain modeling agent:
-Description: "Design and implement domain architecture for {{feature-name}}"
-Prompt: "You are a Domain-Driven Design expert. Implement the {{feature-name}} feature for the {{context}} context following these principles:
+[Use Task to launch domain expert agent:
+Description: "Design domain architecture for {{feature-name}}"
+Prompt: "You are the domain-expert agent. Design the domain model for the {{feature-name}} feature in the {{context}} context following DDD principles:
 
 1. **Analyze Requirements**: Review the user story to identify ALL components needed
 
 2. **Create COMPLETE Domain Model**:
-   - Create ALL value objects from requirements (not just 2!)
-   - Create the aggregate with all its components
-   - Create ALL domain services/creators
-   - Create ALL domain events
-   - Create repository interfaces
-   - Create ALL gateways for each operation
+   - Design ALL value objects from requirements
+   - Design the aggregate with all its components
+   - Define ALL domain services/creators
+   - Define ALL domain events
+   - Define repository interfaces
+   - Design ALL gateways for each operation
 
-3. **Follow Systematic Process**:
-   - Use /code:hexagonal:* commands for ALL scaffolding
-   - Don't stop after ArticleId and Title - continue with ALL components
-   - Verify each component is created before moving on
-   - If a command fails, create manually and continue
+3. **Domain Modeling Process**:
+   - Focus on business rules and invariants
+   - Ensure ubiquitous language consistency
+   - Define clear aggregate boundaries
+   - Document all business constraints
 
-4. **Implementation Steps**:
-   - FIRST: Create ALL domain structure using scaffolding commands
-   - THEN: Create tasks.md for business logic customization
-   - FINALLY: Implement business logic with proper validation
-   - Never skip scaffolding steps
+4. **Deliverables**:
+   - Complete domain model documentation
+   - Value object specifications
+   - Aggregate design with methods
+   - Event definitions
+   - Gateway interfaces
 
-5. **MANDATORY Complete Implementation**:
-   - The hexagonal agent MUST create ALL components identified
-   - Ensure complete domain implementation
-   - Verify complete domain structure before implementation
-   - Use the execution checklist from the hexagonal agent command
+5. **Prepare for Implementation**:
+   - Document all validation rules
+   - Define test scenarios
+   - Create clear implementation guide
 
-Remember: 
-- /code:* commands = Initial scaffolding ONLY
-- Business logic = Implement with proper validation
-- EVERY line of business code MUST be properly tested
+Remember: Focus on the WHAT, not the HOW. The maker-expert and TDD expert will handle implementation.
 
-IMPORTANT: Execute the implementation directly without creating a plan. The orchestrator manages the overall workflow."]
+IMPORTANT: Create a comprehensive domain design that can be scaffolded and implemented."]
 {{/if}}
 
-#### Phase 2.2: Complete Concrete Implementations
+#### Phase 2.2: Code Generation with Makers
 
-[Use Task to execute TDD implementation:
-Description: "Complete all concrete implementations using TDD methodology"
-Prompt: "Execute the /act command to complete all concrete implementations for the {{feature-name}} feature in the {{context}} context:
+[Use Task to launch maker expert agent:
+Description: "Generate DDD structure using makers"
+Prompt: "You are the maker-expert agent. Generate the complete DDD structure for the {{feature-name}} feature in the {{context}} context:
 
-1. **Review and Complete Implementation**:
-   - Read the existing tasks.md file
-   - Identify any unimplemented tasks
-   - Complete ALL concrete implementations using TDD
-   - Ensure 100% test coverage for business logic
+1. **Analyze Domain Model**:
+   - Review the domain design from domain-expert
+   - Identify all components to generate
+   - Plan generation order
 
-2. **Quality Assurance**:
-   - Run QA checks after each implementation
-   - Fix any issues immediately
-   - Ensure all tests pass
+2. **Execute Makers in Order**:
+   - Generate value objects first (with appropriate templates)
+   - Create domain aggregates
+   - Generate infrastructure entities
+   - Generate commands and queries
+   - Create application gateways
+   - Create UI resources if needed
 
-3. **Implementation Focus**:
+3. **Quality Assurance**:
+   - Run QA checks after generation
+   - Fix any code style issues
+   - Ensure PSR-4 compliance
+
+4. **Prepare for TDD**:
+   - Document what was generated
+   - Identify areas needing custom implementation
+   - Create implementation checklist
+
+Remember: Generate the scaffold, but leave business logic for TDD implementation."]
+
+#### Phase 2.3: Complete Concrete Implementations
+
+[Use Task to launch TDD expert agent:
+Description: "Implement business logic using TDD"
+Prompt: "You are the tdd-expert agent. Implement all business logic for the {{feature-name}} feature in the {{context}} context using strict TDD methodology:
+
+1. **Review Domain Design**:
+   - Study the domain model created by domain-expert
+   - Understand all business rules and constraints
+   - Identify all components to implement
+
+2. **TDD Implementation Process**:
+   - Follow Red-Green-Refactor cycle for EVERY component
+   - Write failing tests first
+   - Implement minimal code to pass
+   - Refactor for quality
+   - Ensure 100% test coverage
+
+3. **Implementation Scope**:
+   - ALL value objects with validation
+   - Complete aggregate implementation
+   - Domain services and creators
    - Repository implementations
-   - Event listeners if needed
    - Infrastructure adapters
-   - Any missing business logic
+   - Gateway implementations
 
-IMPORTANT: Use the /act command directly to ensure proper TDD implementation of all remaining tasks."]
+4. **Quality Standards**:
+   - Run QA checks after each cycle
+   - Maintain clean code principles
+   - Document complex logic
+   - Follow project patterns
+
+IMPORTANT: Every line of business code MUST be test-driven. No implementation without a failing test first."]
 
 {{#if (or (and (or (includes agents "api") needs-api) (not ui-none-detected) (not api-in-different-story)) 
           (and (or (includes agents "admin") needs-admin) (not ui-none-detected) (not admin-in-different-story)))}}
@@ -462,46 +503,43 @@ git merge feature/{{feature-name}}-admin
 ### Standard Sequential Execution
 
 {{#if (or (includes agents "hexagonal") needs-hexagonal)}}
-### 🏗️ Launching Hexagonal Architecture Agent
+### 🏗️ Launching Domain Expert Agent
 
-[Use Task to launch domain modeling agent:
-Description: "Design and implement domain architecture for {{feature-name}}"
-Prompt: "You are a Domain-Driven Design expert. Implement the {{feature-name}} feature for the {{context}} context following these principles:
+[Use Task to launch domain expert agent:
+Description: "Design domain architecture for {{feature-name}}"
+Prompt: "You are the domain-expert agent. Design the domain model for the {{feature-name}} feature in the {{context}} context following DDD principles:
 
 1. **Analyze Requirements**: Review the user story to identify ALL components needed
 
 2. **Create COMPLETE Domain Model**:
-   - Create ALL value objects from requirements (not just 2!)
-   - Create the aggregate with all its components
-   - Create ALL domain services/creators
-   - Create ALL domain events
-   - Create repository interfaces
-   - Create ALL gateways for each operation
+   - Design ALL value objects from requirements
+   - Design the aggregate with all its components
+   - Define ALL domain services/creators
+   - Define ALL domain events
+   - Define repository interfaces
+   - Design ALL gateways for each operation
 
-3. **Follow Systematic Process**:
-   - Use /code:hexagonal:* commands for ALL scaffolding
-   - Don't stop after ArticleId and Title - continue with ALL components
-   - Verify each component is created before moving on
-   - If a command fails, create manually and continue
+3. **Domain Modeling Process**:
+   - Focus on business rules and invariants
+   - Ensure ubiquitous language consistency
+   - Define clear aggregate boundaries
+   - Document all business constraints
 
-4. **Implementation Steps**:
-   - FIRST: Create ALL domain structure using scaffolding commands
-   - THEN: Create tasks.md for business logic customization
-   - FINALLY: Implement business logic with proper validation
-   - Never skip scaffolding steps
+4. **Deliverables**:
+   - Complete domain model documentation
+   - Value object specifications
+   - Aggregate design with methods
+   - Event definitions
+   - Gateway interfaces
 
-5. **MANDATORY Complete Implementation**:
-   - The hexagonal agent MUST create ALL components identified
-   - Ensure complete domain implementation
-   - Verify complete domain structure before implementation
-   - Use the execution checklist from the hexagonal agent command
+5. **Prepare for Implementation**:
+   - Document all validation rules
+   - Define test scenarios
+   - Create clear implementation guide
 
-Remember: 
-- /code:* commands = Initial scaffolding ONLY
-- Business logic = Implement with proper validation
-- EVERY line of business code MUST be properly tested
+Remember: Focus on the WHAT, not the HOW. The TDD expert will handle implementation.
 
-IMPORTANT: Execute the implementation directly without creating a plan. The orchestrator manages the overall workflow."]
+IMPORTANT: Create a comprehensive domain design that the TDD expert can implement."]
 {{/if}}
 
 ### 🔧 Launching TDD Implementation Agent
@@ -538,9 +576,9 @@ IMPORTANT: This step ensures ALL concrete implementations are complete before mo
 {{#if (and (or (includes agents "api") needs-api) (not ui-none-detected) (not api-in-different-story))}}
 ### 🌐 Launching API Development Agent
 
-[Use Task to launch API agent:
+[Use Task to launch API Platform expert agent:
 Description: "Create REST API endpoints for {{feature-name}}"
-Prompt: "You are an API Platform expert. Create REST API endpoints for the {{feature-name}} feature in the {{context}} context:
+Prompt: "You are the api-platform-expert agent. Create REST API endpoints for the {{feature-name}} feature in the {{context}} context:
 
 1. **API Design**:
    - Create API Platform resources in src/{{context}}Context/UI/Api/Rest/Resource/
@@ -585,9 +623,9 @@ IMPORTANT: Execute the implementation directly without creating a plan. The orch
 {{#if (and (or (includes agents "admin") needs-admin) (not ui-none-detected) (not admin-in-different-story))}}
 ### 🖥️ Launching Admin UI Agent
 
-[Use Task to launch admin agent:
+[Use Task to launch Admin UI expert agent:
 Description: "Create admin interface for {{feature-name}}"
-Prompt: "You are a Sylius Admin UI expert. Create admin interfaces for the {{feature-name}} feature in the {{context}} context:
+Prompt: "You are the admin-ui-expert agent. Create admin interfaces for the {{feature-name}} feature in the {{context}} context:
 
 1. **Admin UI Components**:
    - Create CRUD interfaces in src/{{context}}Context/UI/Admin/
@@ -710,8 +748,8 @@ After all agents complete their tasks:
 
 The orchestration MUST complete with a comprehensive quality assurance check using the `/utils:qa` command:
 
-[Use utils:qa command with full suite:
-Command: /utils:qa fix all
+[Use qa command with full suite:
+Command: /qa fix all
 Description: Run complete QA suite with auto-fixes and verification]
 
 **This final QA step will:**
@@ -786,7 +824,7 @@ You can:
    - Check individual agent outputs as they complete
    {{/if}}
 3. Review and approve integration points
-4. Run quality checks at any time with `/utils:qa`
+4. Run quality checks at any time with `/qa`
 5. **Note**: Final QA will run automatically at the end
 
 The agents are now working on your feature!
