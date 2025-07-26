@@ -8,14 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **ALL configuration in this project uses PHP files**, not YAML
 - Configuration directory: `@config/` contains PHP files exclusively
 - **NEVER** look for `.yml` or `.yaml` files in this project
-- Examples:
-  - `config/services.php` (not services.yaml)
-  - `config/packages/*.php` (not *.yaml)
-  - `config/routes.php` (not routes.yaml)
 
 ### Behat Configuration
 - The Behat configuration file is `behat.dist.php` (NOT `behat.yml` or `behat.yaml`)
-- This uses PHP configuration format with the Behat Config objects
 - Suite configurations are imported from `config/behat/suites.php`
 
 ## License
@@ -27,30 +22,11 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 ### 🌍 Language Policy
 - **ALL documentation, code comments, and technical artifacts MUST be written in English**
 - User conversations can be in any language, but generated files are ALWAYS in English
-- This includes: PRDs, technical designs, user stories, test scenarios, commit messages, and code
 
-### 🧭 Navigation & Getting Started
-- **Start here**: Documentation navigation guide in @docs/reference/agent/instructions/documentation-navigation.md
-- **Architecture Reference**: All conventions and patterns in @docs/reference/
-
-### 📖 Core Instructions
-- Follow global instructions in @docs/reference/agent/instructions/global.md
-- Follow cognitive preservation principles in @docs/reference/agent/instructions/cognitive-preservation.md
-- Follow Git workflow standards in @docs/reference/agent/instructions/git-workflow.md
-- Follow PR management standards in @docs/reference/agent/instructions/pr-management.md
-- Follow QA tools standards in @docs/reference/development/tools/qa-tools.md
-
-### 🛠️ Technical Guidelines
-- Follow Docker best practices in @docs/reference/agent/instructions/docker.md
-- Follow Symfony best practices in @docs/reference/agent/instructions/symfony.md
-- Follow architecture patterns in @docs/reference/agent/instructions/architecture.md
-- Follow Doctrine Migrations standards in @docs/reference/agent/instructions/doctrine-migrations.md
-- Follow API Platform integration patterns in @docs/reference/agent/instructions/api-platform-integration.md
-
-### 📚 References & Resources
-- Reference implementation patterns in @docs/reference/architecture/patterns/ for specific patterns
-- External documentation references in @docs/reference/external-docs.md
-- Available commands are in @composer.json scripts section
+### 📚 Essential References
+For all technical guidelines, standards, and patterns, see:
+- **Agent Shared References**: @.claude/agents/shared-references.md
+- **Documentation Navigation**: @docs/reference/agent/instructions/documentation-navigation.md
 
 ## Project Overview
 
@@ -133,58 +109,25 @@ When QA fails:
 3. **VERIFY** all QA passes before continuing
 4. **ONLY THEN** proceed with next task
 
-## Coding Standards and Best Practices
-
-### PHP Coding Standards
-- Follow PSR-4 autoloading standard (MANDATORY)
-- Follow PSR-12 coding standard
-- Use strict typing: `declare(strict_types=1);` at the beginning of each PHP file
-- Naming conventions:
-  - PascalCase for classes and interfaces
-  - camelCase for methods and variables
-  - UPPER_CASE_SNAKE_CASE for constants
-- Classes should be `final` by default
-- Use `private` visibility by default for properties and methods
-
-### Project Structure (DDD/Hexagonal Architecture)
-- Organize code by business contexts following Domain-Driven Design
-- **Never** create Controller/, Entity/, Repository/ directories at the root of src/
-- **Always** organize code within context directories:
-  ```
-  src/
-  ├── BlogContext/
-  │   ├── Application/
-  │   ├── Domain/
-  │   ├── Infrastructure/
-  │   └── UI/
-  └── BillingContext/
-      ├── Application/
-      ├── Domain/
-      ├── Infrastructure/
-      └── UI/
-  ```
-
-### Modern PHP Features
-- Use PHP 8.4+ features: property hooks, asymmetric visibility, readonly classes
-- Use PHP 8.3+ features: typed properties, constructor property promotion, attributes, #[\Override]
-- Prefer immutability when possible (use readonly keyword)
-- See @docs/reference/architecture/standards/php-features-best-practices.md for comprehensive guidelines
-
-## Error Handling
-
-- Follow error handling protocol in @docs/reference/agent/instructions/error-handling.md
-- Maximum 3 attempts for any failing operation
-- Document persistent errors in @docs/reference/agent/errors.md
+## Project Structure (DDD/Hexagonal Architecture)
+```
+src/                    # Business contexts (DDD)
+├── [Context]Context/   # e.g., BlogContext
+│   ├── Application/    # Use cases and gateways
+│   ├── Domain/        # Business logic (pure PHP)
+│   ├── Infrastructure/# External adapters
+│   └── UI/           # User interfaces
+```
 
 ## Testing Structure
-- Tests should be in the `tests/` directory
-- The structure of `tests/` should mirror that of `src/`
-- Use PHPUnit for testing
+- Tests in `tests/` directory mirroring `src/` structure
+- PHPUnit for unit/integration tests
+- Behat for functional/acceptance tests
 
 ## Development Workflows
 
 For detailed methodology and workflows, see `.claude/CLAUDE.md` which contains:
-- Spec-driven development methodology
-- Command-driven workflow with slash commands
-- TDD implementation guidelines
-- Quality assurance requirements
+- Simplified agent-driven development methodology
+- Streamlined command workflow (spec → orchestrate → qa)
+- Expert agents for implementation (TDD, API, Admin UI)
+- Automatic quality assurance

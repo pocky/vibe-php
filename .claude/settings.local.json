@@ -27,7 +27,8 @@
       "Bash(git add:*)",
       "Bash(docker:*)",
       "Bash(chmod:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": [],
     "hooks": {

@@ -1,245 +1,154 @@
-# Claude Commands Integration Guide
+# 🚀 Simplified Command System
 
-## Overview
+This directory contains the streamlined command system for efficient feature development using specialized agents.
 
-This guide explains how the different command types work together in the Vibe PHP project.
+## Core Philosophy
 
-## Command Hierarchy
+**Simplicity through expertise**: Let specialized agents handle complexity while you focus on business requirements.
+
+## Command Structure
 
 ```
 .claude/commands/
-├── agent/          # High-level orchestration agents
-├── code/           # Code generation commands
-├── spec/           # Specification commands
-├── utils/          # Utility commands
-├── workflow/       # Workflow commands
-└── act.md          # TDD execution command
+├── spec/              # Planning & Specifications
+│   ├── plan.md        # Break down projects into features
+│   ├── prd.md         # Create Product Requirements Document
+│   ├── requirements.md # Define WHAT needs to be built (EARS format)
+│   ├── design.md      # Define HOW it will be built
+│   └── help.md        # Specification methodology help
+├── orchestrate.md     # Smart agent coordination for implementation
+├── qa.md              # Quality assurance checks
+├── help.md            # This help system
+└── archive/           # Old commands (for reference only)
+    ├── code/          # Old code generation commands
+    ├── act.md         # Old TDD command
+    ├── agent/         # Old agent commands
+    ├── workflow/      # Old workflow commands
+    ├── utils/         # Old utility commands
+    └── spec/          # Old spec commands (advanced, list, prd, status, tasks)
 ```
 
-## Command Types
-
-### 1. Agent Commands (`/agent:*`)
-
-High-level orchestration agents that coordinate multiple tasks:
-
-- **Purpose**: Guide complex implementations
-- **Usage**: `/agent:hexagonal "Create article management"`
-- **Output**: Comprehensive plans and guidance
-
-**Available Agents:**
-- `/agent:hexagonal` - DDD/Hexagonal architecture specialist
-- `/agent:api` - API development specialist
-- `/agent:admin` - Admin UI specialist
-- `/agent:orchestrate` - Multi-agent coordinator
-- `/agent:help` - Project assistance
-- `/agent:status` - Project status checker
-
-### 2. Code Commands (`/code:*`)
-
-Direct code generation commands:
-
-- **Purpose**: Generate specific code artifacts
-- **Usage**: `/code:ddd:entity Article`
-- **Output**: Generated code files
-
-**Available Generators:**
-
-**DDD Generators:**
-- `/code:ddd:entity` - Create domain entity
-- `/code:ddd:aggregate` - Create aggregate with events
-- `/code:ddd:gateway` - Create gateway pattern
-- `/code:ddd:migration` - Create database migration
-
-**API Generators:**
-- `/code:api:resource` - Create API Platform resource
-- `/code:api:behat` - Create API test scenarios
-
-**Admin Generators:**
-- `/code:admin:resource` - Create admin CRUD
-- `/code:admin:grid` - Create data grid
-- `/code:admin:form` - Create form
-- `/code:admin:menu` - Add menu item
-- `/code:admin:behat` - Create admin tests
-
-### 3. Specification Commands (`/spec:*`)
-
-Planning and design commands:
-
-- `/spec:plan` - Create feature plan
-- `/spec:requirements` - Define requirements
-- `/spec:design` - Technical design
-- `/spec:prd` - Product requirements
-
-### 4. Utility Commands (`/utils:*`)
-
-Helper commands:
-
-- `/utils:qa` - Run quality assurance
-- `/utils:debug` - Debug issues
-- `/utils:adr` - Create ADR document
-- `/utils:user-story` - Create user story
-
-### 5. Workflow Commands (`/workflow:*`)
-
-Process automation:
-
-- `/workflow:status` - Check project status
-- `/workflow:qa` - Run QA workflow
-
-### 6. Act Command (`/act`)
-
-Special TDD execution command that follows tasks.md
-
-## How Agents Use Commands
-
-Agents should **guide** the use of commands, not execute them directly. Here's the correct pattern:
-
-### ❌ Wrong (doesn't work):
-```markdown
-[Trying to use XML tags to invoke other commands doesn't work in command files]
-```
-
-### ✅ Correct (works):
-```markdown
-Now I'll create the entity using the DDD entity generator:
-
-Use command: `/code:ddd:entity Article`
-
-Or manually execute:
-\`\`\`bash
-# Generate entity
-/code:ddd:entity Article
-\`\`\`
-```
-
-## Integration Workflows
-
-### Example 1: Creating a New Feature
-
-1. **Start with an agent:**
-   ```
-   /agent:hexagonal "Create article management feature"
-   ```
-
-2. **Agent guides you to use:**
-   - `/spec:requirements` - Define requirements first
-   - `/spec:design` - Create technical design
-   - `/code:ddd:aggregate` - Generate aggregate
-   - `/code:api:resource` - Create API endpoint
-   - `/act` - Implement with TDD
-
-### Example 2: Adding Admin Interface
-
-1. **Start with admin agent:**
-   ```
-   /agent:admin "Add article management to admin"
-   ```
-
-2. **Agent guides you to use:**
-   - `/code:admin:resource` - Create CRUD resource
-   - `/code:admin:menu` - Add to menu
-   - `/code:admin:behat` - Create tests
-
-## Command Execution Flow
+## Workflow Overview
 
 ```mermaid
-graph TD
-    A[User Request] --> B{Choose Approach}
-    B -->|Complex Task| C[Use Agent]
-    B -->|Simple Task| D[Use Code Command]
+graph LR
+    A{/spec:plan} --> B{/spec:prd}
+    B --> C{/spec:requirements}
+    C --> D{/spec:design}
+    D --> E{/orchestrate}
+    E --> F{Agents Work}
+    F --> G{Auto QA}
     
-    C --> E[Agent Analyzes]
-    E --> F[Agent Recommends Commands]
-    F --> G[Execute Commands]
-    
-    D --> G[Execute Commands]
-    G --> H[Generated Code]
-    H --> I[Run QA]
-    I --> J[Complete]
+    style A fill:#fff3e0
+    style B fill:#ffe0b2
+    style C fill:#e3f2fd
+    style D fill:#f3e5f5
+    style E fill:#e1f5fe
+    style F fill:#e8f5e9
+    style G fill:#ff6666
 ```
 
-## Best Practices
+## Quick Start
 
-1. **Use agents for complex tasks** that require multiple steps
-2. **Use code commands directly** for simple, specific generations
-3. **Always run QA** after code generation: `/utils:qa`
-4. **Follow TDD** with `/act` for implementations
-5. **Document decisions** with `/utils:adr`
-
-## Common Workflows
-
-### DDD Implementation
+### 1. Plan Your Feature
 ```bash
-# 1. Plan the feature
-/spec:plan "Article management"
-
-# 2. Design the architecture
-/agent:hexagonal "Design article domain model"
-
-# 3. Generate code
-/code:ddd:aggregate Article
-/code:ddd:gateway CreateArticle
-
-# 4. Implement with TDD
-/act
-
-# 5. Check quality
-/utils:qa
+/spec:plan "Blog platform with article management"
 ```
 
-### API Development
+### 2. Create Product Requirements Document
 ```bash
-# 1. Design API
-/agent:api "Design article API"
-
-# 2. Generate resources
-/code:api:resource Article
-
-# 3. Create tests
-/code:api:behat Article
-
-# 4. Run tests
-/workflow:qa
+/spec:prd blog article-management
 ```
 
-### Admin Interface
+### 3. Define Detailed Requirements
 ```bash
-# 1. Plan admin features
-/agent:admin "Plan article admin"
-
-# 2. Generate admin code
-/code:admin:resource Article
-
-# 3. Add to menu
-/code:admin:menu Articles
-
-# 4. Test
-/code:admin:behat Article
+/spec:requirements article-management
 ```
 
-## Troubleshooting
+### 4. Design Technical Solution
+```bash
+/spec:design blog
+```
 
-### Commands in agent files don't execute
-- Agents provide guidance, not direct execution
-- Copy the recommended commands and run them
-- Or follow the manual steps provided
+### 5. Implement with Orchestration
+```bash
+/orchestrate article-management --context blog
+```
 
-### Not sure which command to use
-- Start with `/agent:help` for guidance
-- Use `/agent:orchestrate` for complex multi-domain tasks
-- Check this README for command descriptions
+The orchestrator will:
+- Analyze your user story
+- Select only needed agents
+- Coordinate their work
+- Run quality checks
 
-### Command not found
-- Ensure you're using the correct prefix (`/agent:`, `/code:`, etc.)
-- Check the exact command name in the respective directories
-- Commands are case-sensitive
+## Available Expert Agents
 
-## Summary
+The orchestrator coordinates these specialized agents automatically:
 
-- **Agents** = Orchestrators and guides
-- **Code commands** = Direct generators
-- **Spec commands** = Planning tools
-- **Utils** = Helpers and tools
-- **Act** = TDD execution
+- **domain-expert** - Domain modeling and DDD
+- **maker-expert** - Code generation using DDD makers
+- **tdd-expert** - Test-driven implementation
+- **api-platform-expert** - REST API development
+- **admin-ui-expert** - Admin interface creation
+- **code-reviewer** - Code quality review
+- **security-auditor** - Security checks
+- **performance-optimizer** - Performance tuning
+- **architecture-validator** - Architecture compliance
 
-Always start with an agent for complex tasks, and let it guide you to the appropriate commands!
+## Key Commands
+
+### `/spec:*` - Specification Commands
+- `plan` - Break down project into manageable features
+- `prd` - Create Product Requirements Document with business vision
+- `requirements` - Define detailed WHAT needs to be built using EARS format
+- `design` - Define HOW it will be built technically
+- `help` - Get help with the specification methodology
+
+### `/orchestrate` - Smart Implementation
+Coordinates multiple agents based on your user story needs.
+
+### `/qa` - Quality Assurance
+- `/qa` - Run all checks
+- `/qa fix` - Auto-fix issues
+- `/qa fix all` - Complete fix and verify
+
+## Why This System?
+
+1. **Simpler** - Only 3 command groups to remember
+2. **Smarter** - Agents have built-in expertise
+3. **Faster** - Automatic coordination and QA
+4. **Better** - Consistent, high-quality results
+
+## Migration Notes
+
+### What Changed?
+- `/code:*` commands → Now handled by agents
+- `/act` → Now handled by `tdd-expert` agent
+- `/agent:orchestrate` → Now `/orchestrate`
+- `/utils:qa` → Now `/qa`
+
+### Complete Workflow
+The full specification workflow is now:
+1. `/spec:plan` - Project breakdown
+2. `/spec:prd` - Business requirements
+3. `/spec:requirements` - Detailed EARS
+4. `/spec:design` - Technical design
+5. `/orchestrate` - Implementation
+
+### Where Are Old Commands?
+Archived in `archive/` directory for reference, but you shouldn't need them.
+
+## Tips
+
+- Trust the orchestrator's agent selection
+- Let agents handle patterns and boilerplate
+- Focus on your business requirements
+- Run `/qa` anytime for quality checks
+
+## Getting Help
+
+- General help: `/help`
+- Specifications: `/spec:help`
+- Agents info: See `.claude/agents/README.md`
+
+Remember: **Let the experts handle the complexity!**

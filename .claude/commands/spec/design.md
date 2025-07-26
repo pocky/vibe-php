@@ -1,128 +1,439 @@
 ---
-description: Generate technical design from existing EARS requirements
-allowed-tools: Read(*), Write(*), Edit(*), MultiEdit(*), Glob(*), Grep(*), TodoWrite
+description: Create technical architecture and design from approved requirements
+args:
+  - name: context-name
+    description: Name of the bounded context (e.g., blog, security, payment)
+    required: true
 ---
 
-# Technical Design Generation
+I'll create a comprehensive technical design for the {{context-name}} context based on the approved requirements.
 
-You are creating a comprehensive technical design based on existing EARS requirements following the Spec-Driven Agentic Development methodology.
+## 🏗️ Technical Design Flow
 
-## Your Task
-Generate technical design from existing requirements in the current feature directory.
+```mermaid
+graph TD
+    subgraph "Analysis"
+        REQ[📋 Analyze Requirements]
+        ARCH[🏛️ Architecture Patterns]
+        REQ --> ARCH
+    end
+    
+    subgraph "Design"
+        DOM[🎯 Domain Model]
+        APP[⚙️ Application Layer]
+        INFRA[🔧 Infrastructure]
+        API[🔌 API Design]
+        
+        ARCH --> DOM
+        DOM --> APP
+        APP --> INFRA
+        APP --> API
+    end
+    
+    subgraph "Technical Specs"
+        COMP[📦 Components]
+        DATA[🗄️ Data Model]
+        INT[🔗 Integrations]
+        PERF[⚡ Performance]
+        
+        INFRA --> COMP
+        INFRA --> DATA
+        API --> INT
+        API --> PERF
+    end
+    
+    subgraph "Documentation"
+        TECH[📄 Technical Plan]
+        IMPL[📝 Implementation Guide]
+        RISK[⚠️ Risk Assessment]
+        
+        COMP --> TECH
+        DATA --> TECH
+        INT --> TECH
+        PERF --> TECH
+        TECH --> IMPL
+        TECH --> RISK
+    end
+    
+    style REQ fill:#fff3e0
+    style DOM fill:#e1f5fe
+    style TECH fill:#e8f5e9
+    style RISK fill:#ffebee
+```
 
-## Process
-1. **Read methodology**: Reference @.claude/CLAUDE.md for guidance
-2. **Locate requirements**: Find and read the requirements.md file in current context
-3. **Tech stack selection**: Present options and gather user preferences
-4. **Generate design**: Create comprehensive design/technical-design.md addressing all requirements
-5. **Seek approval**: Request explicit user approval before proceeding
+[Use TodoWrite to create the following tasks:
+- 📋 Analyze PRD and requirements for {{context-name}} (plan-1, in_progress, high)
+- 🏛️ Design architecture following DDD principles (plan-2, pending, high)
+- 🎯 Create domain model with aggregates and value objects (plan-3, pending, high)
+- 🔌 Design API endpoints and contracts (plan-4, pending, high)
+- 🗄️ Design database schema and migrations (plan-5, pending, medium)
+- ⚠️ Identify risks and mitigation strategies (plan-6, pending, medium)]
 
-## Tech Stack (Project Specific)
-This project uses a predefined tech stack:
+## Prerequisites Check
 
-### Core Stack
-- **PHP 8.4+** with latest features (enums, readonly classes, property hooks)
-- **Symfony 7.3** framework with MicroKernelTrait
-- **Domain-Driven Design** with Hexagonal Architecture
-- **CQRS Pattern** with separate Command/Query buses
-- **Docker** for containerization
+First, let me verify the requirements are approved:
 
-### Key Components
-- **Doctrine ORM** for persistence with migrations
-- **API Platform** for REST/GraphQL APIs
-- **PHPUnit 12** for unit testing
-- **Behat** for functional/acceptance testing
-- **Quality Tools**: PHPStan (max level), ECS, Rector, Twig CS Fixer
+[Use Read to load: docs/contexts/{{context-name}}/requirements/prd.md]
 
-### Architecture Patterns
-- **Bounded Contexts** for domain separation
-- **Gateway Pattern** for application entry points
-- **Value Objects** for domain concepts
-- **Repository Pattern** with business-focused methods
-- **Event-Driven** communication between contexts
+## Technical Design Approach
 
-## Design Document Structure
-Create design/technical-design.md with these sections:
+Following our unified methodology and architectural principles:
 
-### Technical Overview
-- Architecture approach and rationale
-- Technology stack justification
-- Key design decisions
+### Core Patterns
+- **Domain-Driven Design (DDD)**: Bounded contexts with clear boundaries
+- **Hexagonal Architecture**: Separate domain from infrastructure
+- **CQRS Pattern**: Command/Query separation for scalability
+- **Event-Driven**: Domain events for loose coupling
+- **Gateway Pattern**: Standardized entry points with middleware
 
-### System Architecture  
-- DDD layer structure (Domain, Application, Infrastructure, UI)
-- Bounded context boundaries and interactions
-- Gateway middleware pipeline architecture
-- Event flow between aggregates and contexts
-- Service dependencies and injection patterns
+### Design Principles
+- **Single Responsibility**: Each component has one reason to change
+- **Interface Segregation**: Depend on abstractions, not concretions
+- **Dependency Inversion**: High-level modules don't depend on low-level
+- **Open/Closed**: Open for extension, closed for modification
 
-### Data Design
-- Doctrine entity mapping and relationships
-- Value object design and validation rules
-- Aggregate boundaries and invariants
-- Repository interfaces and query methods
-- Migration strategy using Doctrine Migrations
+## Technical Design Document Structure
 
-### API Design
-- API Platform resource definitions
-- State providers/processors for CQRS integration
-- Gateway request/response contracts
-- OpenAPI documentation approach
-- Security voters and access control
+```markdown
+# Technical Design - {{context-name}}
 
-### Security Considerations
-- Authentication mechanisms
-- Data protection and encryption
-- Input validation and sanitization
-- Access control and permissions
+## 1. Architecture Overview
 
-### Performance & Scalability
-- Performance targets and bottlenecks
-- Caching strategies
+### 1.1 System Context
+- Bounded context boundaries
+- External system integrations
+- Communication patterns
+
+### 1.2 Architecture Decisions
+- Pattern choices and rationale
+- Technology stack selection
+- Trade-off analysis
+
+## 2. Domain Model Design
+
+### 2.1 Aggregates
+- Aggregate boundaries
+- Invariant rules
+- Transaction boundaries
+
+### 2.2 Entities and Value Objects
+- Entity identification
+- Value object definitions
+- Domain services
+
+### 2.3 Domain Events
+- Event definitions
+- Event flow diagrams
+- Side effects mapping
+
+## 3. Application Layer Design
+
+### 3.1 Commands and Handlers
+- Command definitions
+- Business logic orchestration
+- Transaction management
+
+### 3.2 Queries and Handlers
+- Query definitions
+- Read model design
+- Performance optimizations
+
+### 3.3 Gateways
+- Gateway definitions
+- Middleware pipeline
+- Request/Response contracts
+
+## 4. Infrastructure Design
+
+### 4.1 Persistence
+- Repository implementations
+- Database schema
+- Migration strategy
+
+### 4.2 External Services
+- Integration patterns
+- API clients
+- Message queuing
+
+### 4.3 Security
+- Authentication implementation
+- Authorization rules
+- Data encryption
+
+## 5. API Design
+
+### 5.1 REST API
+- Endpoint definitions
+- Request/Response schemas
+- Error handling
+
+### 5.2 Event Contracts
+- Event schemas
+- Publishing patterns
+- Subscription handling
+
+## 6. Data Model
+
+### 6.1 Database Schema
+- Table definitions
+- Relationships
+- Indexes and constraints
+
+### 6.2 Data Flow
+- CRUD operations
+- Data transformations
+- Caching strategy
+
+## 7. Performance Design
+
+### 7.1 Scalability
+- Horizontal scaling approach
+- Load balancing
 - Database optimization
-- Scaling considerations
 
-### Implementation Approach
-- TDD with PHPUnit for domain logic
-- Behat scenarios for API and functional tests
-- Use of Symfony Makers for code generation
-- Gateway implementation with middleware
-- QA tool integration (composer qa)
+### 7.2 Caching
+- Cache layers
+- Invalidation strategy
+- Cache warming
 
-## Design Quality Gates
-Ensure design:
-- [ ] Addresses every EARS requirement
-- [ ] Follows DDD/Hexagonal Architecture principles
-- [ ] Defines bounded contexts and aggregates
-- [ ] Specifies value objects and domain events
-- [ ] Uses CQRS for command/query separation
-- [ ] Includes Gateway pattern for entry points
-- [ ] Leverages PHP 8.4 features appropriately
-- [ ] Defines Doctrine entities and migrations
-- [ ] Covers error handling with domain exceptions
-- [ ] Includes comprehensive test strategy
+## 8. Security Design
 
-## Key Guidelines
-- Map each EARS requirement to specific technical solutions
-- Address all WHEN/THEN conditions with technical approaches
-- Include comprehensive error handling strategies
-- Consider scalability and maintainability
-- Specify clear interfaces between components
-- Include testing strategy for design validation
+### 8.1 Authentication
+- Token management
+- Session handling
+- Multi-factor auth
 
-## Approval Gate
-After creating design/technical-design.md, ask:
-"Technical design complete. The design addresses all requirements using **PHP 8.4/Symfony 7.3** with **DDD/Hexagonal Architecture** and **CQRS pattern**. Ready to proceed to task breakdown with `/spec:tasks`, or would you like to review and modify the design first?"
+### 8.2 Authorization
+- Role-based access
+- Resource permissions
+- API security
+
+## 9. Testing Strategy
+
+### 9.1 Unit Testing
+- Domain logic tests
+- Mocking strategies
+- Coverage targets
+
+### 9.2 Integration Testing
+- API testing
+- Database testing
+- External service mocks
+
+## 10. Deployment Architecture
+
+### 10.1 Infrastructure
+- Container strategy
+- Environment configuration
+- Monitoring setup
+
+### 10.2 CI/CD Pipeline
+- Build process
+- Test automation
+- Deployment stages
+
+## 11. Risk Assessment
+
+### 11.1 Technical Risks
+- Performance bottlenecks
+- Security vulnerabilities
+- Integration failures
+
+### 11.2 Mitigation Strategies
+- Preventive measures
+- Contingency plans
+- Monitoring alerts
+```
+
+## Component Mapping
+
+For each requirement from the PRD, I'll map to technical components:
+
+```yaml
+Requirement: REQ-XXX
+Components:
+  Domain:
+    - Aggregate: [Name]
+    - Value Objects: [List]
+    - Events: [List]
+  Application:
+    - Commands: [List]
+    - Queries: [List]
+    - Gateways: [List]
+  Infrastructure:
+    - Repositories: [List]
+    - Services: [List]
+  API:
+    - Endpoints: [List]
+    - Events: [List]
+```
+
+## Technology Stack Recommendations
+
+Based on the project's current stack:
+- **PHP 8.4**: Latest features for modern development
+- **Symfony 7.3**: Robust framework with DDD support
+- **Doctrine ORM**: Flexible persistence layer
+- **API Platform**: REST/GraphQL API generation
+- **PostgreSQL/MySQL**: Reliable relational database
+- **Redis**: Caching and session storage
+- **RabbitMQ/Kafka**: Event streaming (if needed)
+
+## Implementation Patterns
+
+### Domain Layer
+```php
+// Value Object Example
+final class CategoryName
+{
+    public function __construct(
+        private(set) string $value
+    ) {
+        $this->validate();
+    }
+    
+    private function validate(): void
+    {
+        if (mb_strlen($this->value) < 2 || mb_strlen($this->value) > 100) {
+            throw new \InvalidArgumentException('Category name must be between 2 and 100 characters');
+        }
+    }
+}
+```
+
+### Application Layer
+```php
+// Command Handler Example
+final readonly class CreateCategoryHandler
+{
+    public function __construct(
+        private CategoryRepositoryInterface $repository,
+        private EventBusInterface $eventBus,
+    ) {}
+    
+    public function __invoke(CreateCategoryCommand $command): void
+    {
+        $category = Category::create(
+            CategoryId::generate(),
+            CategoryName::fromString($command->name),
+            CategorySlug::fromString($command->slug)
+        );
+        
+        $this->repository->save($category);
+        $this->eventBus->dispatch(...$category->releaseEvents());
+    }
+}
+```
+
+### Gateway Pattern
+```php
+// Gateway Example
+final class CreateCategoryGateway extends DefaultGateway
+{
+    public function __construct(
+        private readonly CreateCategoryHandler $handler,
+        // ... other dependencies
+    ) {
+        parent::__construct(
+            new DefaultLogger(),
+            new DefaultErrorHandler(),
+            new CreateCategoryValidation(),
+            new CreateCategoryProcessor($this->handler)
+        );
+    }
+}
+```
+
+## User Story Validation
+
+Before finalizing the technical design, validate the user story structure:
+
+### Foundation Story Checklist
+For each iteration/feature set, verify:
+- [ ] **The FIRST user story is marked as "Foundation"**
+- [ ] Foundation story includes all necessary setup for subsequent stories:
+  - [ ] Core domain entities and value objects
+  - [ ] Basic CRUD operations (Create, Read, Update minimum)
+  - [ ] Essential business rules and validations
+  - [ ] Repository interfaces and implementations
+  - [ ] Initial database schema/migrations
+- [ ] All other stories have clear dependencies on the foundation story
+- [ ] No circular dependencies between stories
+
+### Story Sequencing Validation
+- [ ] Stories are ordered by dependency (foundation → features → enhancements)
+- [ ] Each story can be implemented independently once its dependencies are met
+- [ ] Test scenarios don't assume features from later stories
+
+## User Story Technical Updates
+
+For each user story, I'll add:
+
+```markdown
+## Technical Implementation Details
+
+### Story Type & Dependencies
+- **Type**: Foundation / Feature / Enhancement
+- **Depends On**: US-XXX (foundation story), US-YYY
+- **Enables**: US-XXX, US-YYY (stories that depend on this)
+
+### Components Required
+- Domain: [List of domain objects]
+- Application: [Commands/Queries/Gateways]
+- Infrastructure: [Repositories/Services]
+- UI: [Controllers/Resources]
+
+### API Endpoints
+- Method: [GET/POST/PUT/DELETE]
+- Path: /api/[resource]
+- Request: [Schema]
+- Response: [Schema]
+
+### Database Changes
+- Tables: [List affected tables]
+- Migrations: [Required migrations]
+
+### Performance Considerations
+- Expected load: [Requests/second]
+- Response time: [Target milliseconds]
+- Caching: [Strategy]
+```
+
+## Approval Gate Questions
+
+After completing the technical design:
+
+1. **Does the architecture address all functional requirements?**
+2. **Are the performance requirements achievable with this design?**
+3. **Have all security concerns been addressed?**
+4. **Is the design maintainable and scalable?**
+5. **Are there any unmitigated high-risk items?**
+6. **Does the design follow established patterns and principles?**
 
 ## Next Steps
-- User reviews design and approves/requests changes
-- Once approved, user can run `/spec:tasks` to proceed to implementation planning
-- Design serves as blueprint for structured development
 
-## Ready to Generate Design
+1. I'll analyze the approved requirements
+2. Design the technical architecture
+3. Update user stories with technical details
+4. Create the comprehensive technical plan
+5. Prepare risk assessment and mitigation strategies
 
-I'll now create the technical design based on the existing requirements.
+Once approved, we'll proceed to implementation with `/orchestrate`.
 
-I'll now begin creating the technical design based on the existing requirements.
+[Use LS to check: docs/contexts/{{context-name}}/requirements]
 
-Now generate the technical design based on existing requirements.
+## File Organization
+
+I'll create the following files in the proper directories:
+
+[Use Write to create: docs/contexts/{{context-name}}/design/technical-design.md with the technical architecture and design]
+
+[Use Write to create: docs/contexts/{{context-name}}/design/risk-assessment.md with risk analysis and mitigation strategies]
+
+[Use Write to create: docs/contexts/{{context-name}}/implementation/implementation-guide.md with step-by-step implementation instructions]
+
+## Ready to Create Technical Design
+
+I'll now create a comprehensive technical design for the {{context-name}} context following DDD principles and our architectural patterns.
+
+I'll now begin creating the technical design based on the approved requirements.
