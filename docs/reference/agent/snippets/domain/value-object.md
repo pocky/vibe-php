@@ -1,82 +1,26 @@
-# Value Object Template
+# Value Object Snippets
 
-## Basic Value Object (String-based)
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Domain\Shared\ValueObject;
-
-final class [ValueObject]
-{
-    public function __construct(
-        private(set) string $value,
-    ) {
-        $this->validate();
-    }
-
-    private function validate(): void
-    {
-        // Add validation logic here
-        if ('' === $this->value) {
-            throw new \InvalidArgumentException('[ValueObject] cannot be empty');
-        }
-        
-        // Example: Length validation
-        $length = mb_strlen($this->value);
-        if ($length < 2 || $length > 100) {
-            throw new \InvalidArgumentException('[ValueObject] must be between 2 and 100 characters');
-        }
-        
-        // Example: Format validation
-        if (!preg_match('/^[a-zA-Z0-9\-]+$/', $this->value)) {
-            throw new \InvalidArgumentException('[ValueObject] can only contain letters, numbers and hyphens');
-        }
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-
-    public function equals(self $other): bool
-    {
-        return $this->value === $other->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-}
-```
-
-## ID Value Object (UUID-based)
+## Basic String Value Object with Property Hooks
 
 ```php
-<?php
+use App\[Context]Context\Domain\Shared\Exception\ValidationException;
 
-declare(strict_types=1);
-
-namespace App\[Context]Context\Domain\Shared\ValueObject;
-
-use Symfony\Component\Uid\Uuid;
-
-final class [Entity]Id
+final class [ValueObject] implements \Stringable
 {
-    public function __construct(
-        private(set) string $value,
-    ) {
-        if (!Uuid::isValid($value)) {
-            throw new \InvalidArgumentException('Invalid [Entity] ID format');
+    public function __construct(private string $value {
+        set {
+            $trimmed = trim($value);
+            
+            if ('' === $trimmed) {
+                throw ValidationException::withTranslationKey('validation.[value_object].empty');
+            }
+            
+            // TODO: Add other validation
+            
+            $this->value = $trimmed;
         }
-    }
-
-    public static function generate(): self
+    })
     {
-        return new self(Uuid::v7()->toRfc4122());
     }
 
     public static function fromString(string $value): self
@@ -101,33 +45,89 @@ final class [Entity]Id
 }
 ```
 
-## Email Value Object
+## UUID ID Value Object with Property Hooks
 
 ```php
-<?php
+use App\[Context]Context\Domain\Shared\Exception\ValidationException;
+use Symfony\Component\Uid\Uuid;
 
-declare(strict_types=1);
-
-namespace App\[Context]Context\Domain\Shared\ValueObject;
-
-final class Email
+final class [Entity]Id implements \Stringable
 {
-    public function __construct(
-        private(set) string $value,
-    ) {
-        $this->validate();
+    public function __construct(private string $value {
+        set {
+            if ('' === $value) {
+                throw ValidationException::withTranslationKey('validation.[entity]_id.empty');
+            }
+
+            if (!Uuid::isValid($value)) {
+                throw ValidationException::withTranslationKey('validation.[entity]_id.invalid_uuid', [
+                    'value' => $value,
+                ]);
+            }
+
+            $this->value = strtolower($value);
+        }
+    })
+    {
     }
 
-    private function validate(): void
+    public static function fromString(string $value): self
     {
-        if (!filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException('Invalid email format');
+        return new self($value);
+    }
+
+    public static function generate(): self
+    {
+        return new self((string) Uuid::v7());
+    }
+
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+}
+```
+
+## Email Value Object with Property Hooks
+
+```php
+use App\[Context]Context\Domain\Shared\Exception\ValidationException;
+
+final class Email implements \Stringable
+{
+    public function __construct(private string $value {
+        set {
+            $normalized = trim(strtolower($value));
+            
+            if ('' === $normalized) {
+                throw ValidationException::withTranslationKey('validation.email.empty');
+            }
+            
+            if (!filter_var($normalized, FILTER_VALIDATE_EMAIL)) {
+                throw ValidationException::withTranslationKey('validation.email.invalid', [
+                    'value' => $value,
+                ]);
+            }
+            
+            $this->value = $normalized;
         }
-        
-        $domain = substr($this->value, strrpos($this->value, '@') + 1);
-        if (!checkdnsrr($domain, 'MX')) {
-            throw new \InvalidArgumentException('Email domain does not exist');
-        }
+    })
+    {
+    }
+
+    public static function fromString(string $value): self
+    {
+        return new self($value);
     }
 
     public function getValue(): string
@@ -140,14 +140,9 @@ final class Email
         return substr($this->value, strrpos($this->value, '@') + 1);
     }
 
-    public function getLocalPart(): string
-    {
-        return substr($this->value, 0, strrpos($this->value, '@'));
-    }
-
     public function equals(self $other): bool
     {
-        return strtolower($this->value) === strtolower($other->value);
+        return $this->value === $other->value;
     }
 
     public function __toString(): string
@@ -160,29 +155,16 @@ final class Email
 ## Money Value Object
 
 ```php
-<?php
+use App\[Context]Context\Domain\Shared\Exception\ValidationException;
 
-declare(strict_types=1);
-
-namespace App\[Context]Context\Domain\Shared\ValueObject;
-
-final class Money
+final class Money implements \Stringable
 {
     public function __construct(
-        private(set) int $amount, // Store in cents to avoid float precision issues
-        private(set) string $currency,
+        private(set) int $amount, // cents
+        private(set) string $currency
     ) {
-        $this->validate();
-    }
-
-    private function validate(): void
-    {
         if ($this->amount < 0) {
-            throw new \InvalidArgumentException('Money amount cannot be negative');
-        }
-        
-        if (!in_array($this->currency, ['USD', 'EUR', 'GBP'], true)) {
-            throw new \InvalidArgumentException('Unsupported currency');
+            throw ValidationException::withTranslationKey('validation.money.negative_amount');
         }
     }
 
@@ -196,11 +178,6 @@ final class Money
         return $this->amount;
     }
 
-    public function getAmountAsFloat(): float
-    {
-        return $this->amount / 100;
-    }
-
     public function getCurrency(): string
     {
         return $this->currency;
@@ -209,163 +186,58 @@ final class Money
     public function add(self $other): self
     {
         if ($this->currency !== $other->currency) {
-            throw new \InvalidArgumentException('Cannot add money with different currencies');
+            throw ValidationException::withTranslationKey('validation.money.currency_mismatch');
         }
-        
         return new self($this->amount + $other->amount, $this->currency);
     }
 
-    public function subtract(self $other): self
-    {
-        if ($this->currency !== $other->currency) {
-            throw new \InvalidArgumentException('Cannot subtract money with different currencies');
-        }
-        
-        if ($this->amount < $other->amount) {
-            throw new \InvalidArgumentException('Cannot subtract: insufficient amount');
-        }
-        
-        return new self($this->amount - $other->amount, $this->currency);
-    }
-
-    public function equals(self $other): bool
-    {
-        return $this->amount === $other->amount && $this->currency === $other->currency;
-    }
-
     public function format(): string
     {
-        $symbols = ['USD' => '$', 'EUR' => '€', 'GBP' => '£'];
-        $symbol = $symbols[$this->currency] ?? $this->currency;
-        
-        return sprintf('%s%.2f', $symbol, $this->getAmountAsFloat());
+        return sprintf('%.2f %s', $this->amount / 100, $this->currency);
+    }
+
+    public function __toString(): string
+    {
+        return $this->format();
     }
 }
 ```
 
-## Composite Value Object
+## Test Template
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Domain\Shared\ValueObject;
-
-final class Address
-{
-    public function __construct(
-        private(set) string $street,
-        private(set) string $city,
-        private(set) string $postalCode,
-        private(set) string $country,
-    ) {
-        $this->validate();
-    }
-
-    private function validate(): void
-    {
-        if ('' === $this->street || '' === $this->city || '' === $this->postalCode || '' === $this->country) {
-            throw new \InvalidArgumentException('All address fields are required');
-        }
-        
-        if (!preg_match('/^[A-Z]{2}$/', $this->country)) {
-            throw new \InvalidArgumentException('Country must be a 2-letter ISO code');
-        }
-    }
-
-    public function getStreet(): string
-    {
-        return $this->street;
-    }
-
-    public function getCity(): string
-    {
-        return $this->city;
-    }
-
-    public function getPostalCode(): string
-    {
-        return $this->postalCode;
-    }
-
-    public function getCountry(): string
-    {
-        return $this->country;
-    }
-
-    public function equals(self $other): bool
-    {
-        return $this->street === $other->street
-            && $this->city === $other->city
-            && $this->postalCode === $other->postalCode
-            && $this->country === $other->country;
-    }
-
-    public function format(): string
-    {
-        return sprintf(
-            "%s\n%s %s\n%s",
-            $this->street,
-            $this->postalCode,
-            $this->city,
-            $this->country
-        );
-    }
-}
-```
-
-## PHPUnit Test Template
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Tests\[Context]Context\Unit\Domain\Shared\ValueObject;
-
-use App\[Context]Context\Domain\Shared\ValueObject\[ValueObject];
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\{Test, DataProvider};
 
 final class [ValueObject]Test extends TestCase
 {
-    public function testCreateValid[ValueObject](): void
+    #[Test]
+    public function valid_value_object_creation_stores_value(): void
     {
-        $value = 'valid-value';
-        $valueObject = new [ValueObject]($value);
-        
-        $this->assertEquals($value, $valueObject->getValue());
-        $this->assertEquals($value, (string) $valueObject);
+        $vo = new [ValueObject]('value');
+        $this->assertEquals('value', $vo->getValue());
     }
 
-    public function testEquality(): void
+    #[Test]
+    public function equals_returns_true_for_same_values(): void
     {
-        $valueObject1 = new [ValueObject]('value');
-        $valueObject2 = new [ValueObject]('value');
-        $valueObject3 = new [ValueObject]('different');
-        
-        $this->assertTrue($valueObject1->equals($valueObject2));
-        $this->assertFalse($valueObject1->equals($valueObject3));
+        $vo1 = new [ValueObject]('value');
+        $vo2 = new [ValueObject]('value');
+        $this->assertTrue($vo1->equals($vo2));
     }
 
-    /**
-     * @dataProvider invalidValueProvider
-     */
-    public function testInvalidValue(string $value, string $expectedMessage): void
+    #[Test]
+    #[DataProvider('invalidValueProvider')]
+    public function invalid_value_throws_exception(string $value, string $translationKey): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage($expectedMessage);
-        
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage($translationKey);
         new [ValueObject]($value);
     }
 
     public static function invalidValueProvider(): array
     {
         return [
-            'empty' => ['', '[ValueObject] cannot be empty'],
-            'too short' => ['a', '[ValueObject] must be between 2 and 100 characters'],
-            'too long' => [str_repeat('a', 101), '[ValueObject] must be between 2 and 100 characters'],
-            'invalid format' => ['invalid@format!', '[ValueObject] can only contain letters, numbers and hyphens'],
+            'empty' => ['', 'validation.[value_object].empty'],
         ];
     }
 }

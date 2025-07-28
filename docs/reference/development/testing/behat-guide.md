@@ -37,7 +37,7 @@ The `mformono/behat-pack` package has been installed and includes:
 │           ├── managing_articles.feature     # Article management UI
 │           └── editorial_dashboard.feature   # Editorial review UI
 └── tests/                 # Contexts organized by DDD
-    ├── BlogContext/       # Blog-specific tests
+    ├── Blog/       # Blog-specific tests
     │   └── Behat/
     │       ├── Context/
     │       │   ├── Api/   # API test contexts
@@ -253,7 +253,7 @@ Contexts can use either annotations (PHP < 8) or attributes (PHP 8+, recommended
 
 declare(strict_types=1);
 
-namespace App\Tests\BlogContext\Behat\Context\Api;
+namespace App\Tests\Blog\Behat\Context\Api;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
@@ -587,7 +587,7 @@ docker compose exec app vendor/bin/behat --dry-run
 - **Page Object Model**: Use page objects for all UI interactions
 - **Domain-Driven Structure**: Test contexts follow Domain-Driven Design
 - **Bounded Contexts**: Each context has its own test namespace:
-  - `tests/BlogContext/Behat/` for blog-specific tests
+  - `tests/Blog/Behat/` for blog-specific tests
   - `tests/SecurityContext/Behat/` for security tests (when created)
 - **Shared Utilities**: Common patterns in `tests/Shared/Behat/`
 - **Layer Separation**: API and UI tests separated within each context

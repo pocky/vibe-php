@@ -45,7 +45,7 @@ Tests are organized following Domain-Driven Design principles. See [DDD Test Org
 
 ```
 tests/
-├── BlogContext/           # Tests for Blog bounded context
+├── Blog/           # Tests for Blog bounded context
 │   ├── Behat/            # Behat functional tests
 │   │   ├── Context/      # Step definitions
 │   │   │   ├── Api/      # API test contexts
@@ -93,13 +93,13 @@ features/                  # Behat specifications
 vim features/blog/my-feature.feature
 
 # 2. Implement the PHPUnit unit tests (TDD)
-vim tests/BlogContext/Unit/Domain/MyFeatureTest.php
+vim tests/Blog/Unit/Domain/MyFeatureTest.php
 
 # 3. Implement the production code
-vim src/BlogContext/Domain/MyFeature.php
+vim src/Blog/Domain/MyFeature.php
 
 # 4. Implement the Behat steps
-vim tests/BlogContext/Behat/Context/Api/BlogArticleApiContext.php
+vim tests/Blog/Behat/Context/Api/BlogArticleApiContext.php
 
 # 5. Verify that everything passes
 docker compose exec app composer qa
@@ -150,7 +150,7 @@ docker compose exec app vendor/bin/behat
 ### Specific Tests
 ```bash
 # PHPUnit - A specific file
-docker compose exec app bin/phpunit tests/BlogContext/Unit/Domain/ArticleTest.php
+docker compose exec app bin/phpunit tests/Blog/Unit/Domain/ArticleTest.php
 
 # Behat - A specific feature
 docker compose exec app vendor/bin/behat features/blog/article-api.feature

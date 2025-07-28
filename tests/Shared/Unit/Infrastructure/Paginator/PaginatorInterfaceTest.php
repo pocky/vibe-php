@@ -11,75 +11,75 @@ final class PaginatorInterfaceTest extends TestCase
 {
     public function testPaginatorInterfaceIsInterface(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
 
-        $this->assertTrue($reflection->isInterface());
+        $this->assertTrue($reflectionClass->isInterface());
     }
 
     public function testPaginatorInterfaceHasRequiredMethods(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
 
-        $this->assertTrue($reflection->hasMethod('getItems'));
-        $this->assertTrue($reflection->hasMethod('getTotalItems'));
-        $this->assertTrue($reflection->hasMethod('getCurrentPage'));
-        $this->assertTrue($reflection->hasMethod('getItemsPerPage'));
-        $this->assertTrue($reflection->hasMethod('hasNextPage'));
+        $this->assertTrue($reflectionClass->hasMethod('getItems'));
+        $this->assertTrue($reflectionClass->hasMethod('getTotalItems'));
+        $this->assertTrue($reflectionClass->hasMethod('getCurrentPage'));
+        $this->assertTrue($reflectionClass->hasMethod('getItemsPerPage'));
+        $this->assertTrue($reflectionClass->hasMethod('hasNextPage'));
     }
 
     public function testGetCurrentPageMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
-        $method = $reflection->getMethod('getCurrentPage');
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionMethod = $reflectionClass->getMethod('getCurrentPage');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertCount(0, $method->getParameters());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('int', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertCount(0, $reflectionMethod->getParameters());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('int', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testGetItemsPerPageMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
-        $method = $reflection->getMethod('getItemsPerPage');
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionMethod = $reflectionClass->getMethod('getItemsPerPage');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertCount(0, $method->getParameters());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('int', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertCount(0, $reflectionMethod->getParameters());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('int', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testGetItemsMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
-        $method = $reflection->getMethod('getItems');
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionMethod = $reflectionClass->getMethod('getItems');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertCount(0, $method->getParameters());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('array', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertCount(0, $reflectionMethod->getParameters());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('array', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testGetTotalItemsMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
-        $method = $reflection->getMethod('getTotalItems');
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionMethod = $reflectionClass->getMethod('getTotalItems');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertCount(0, $method->getParameters());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('int', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertCount(0, $reflectionMethod->getParameters());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('int', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testHasNextPageMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(PaginatorInterface::class);
-        $method = $reflection->getMethod('hasNextPage');
+        $reflectionClass = new \ReflectionClass(PaginatorInterface::class);
+        $reflectionMethod = $reflectionClass->getMethod('hasNextPage');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertCount(0, $method->getParameters());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('bool', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertCount(0, $reflectionMethod->getParameters());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('bool', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testInterfaceCanBeImplemented(): void
@@ -112,7 +112,7 @@ final class PaginatorInterfaceTest extends TestCase
         };
 
         $this->assertInstanceOf(PaginatorInterface::class, $implementation);
-        $this->assertEquals(['item1', 'item2'], $implementation->getItems());
+        $this->assertSame(['item1', 'item2'], $implementation->getItems());
         $this->assertSame(42, $implementation->getTotalItems());
         $this->assertSame(1, $implementation->getCurrentPage());
         $this->assertSame(10, $implementation->getItemsPerPage());

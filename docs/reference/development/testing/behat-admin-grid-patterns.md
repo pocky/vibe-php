@@ -312,7 +312,7 @@ protected function getDefinedElements(): array
 
 **Domain-Driven Contexts**: Organize by business domain
 ```
-tests/BlogContext/Behat/Context/Ui/Admin/
+tests/Blog/Behat/Context/Ui/Admin/
 ├── ManagingArticlesContext.php      # Article operations
 ├── EditorialDashboardContext.php    # Editorial workflow
 ├── ManagingCategoriesContext.php    # Category management
@@ -503,7 +503,7 @@ Scenario: Delete article
 ### Service Registration
 ```php
 // config/services_test.php
-$services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
+$services->load('App\\Tests\\Blog\\Behat\\', __DIR__.'/../tests/Blog/Behat/');
 ```
 
 ### Behat Suite Configuration

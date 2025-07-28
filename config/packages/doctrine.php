@@ -10,6 +10,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'url' => '%env(resolve:DATABASE_URL)%',
             'profiling_collect_backtrace' => '%kernel.debug%',
             'use_savepoints' => true,
+            'types' => [
+            ],
 
             # IMPORTANT: You MUST configure your server version,
             # either here or in the DATABASE_URL env var (see .env file)
@@ -29,12 +31,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'auto_mapping' => false,
             ],
             'mappings' => [
-                'BlogContext' => [
+                'Blog' => [
                     'is_bundle' => false,
                     'type' => 'attribute',
-                    'dir' => '%kernel.project_dir%/src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/Entity',
-                    'prefix' => 'App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity',
-                    'alias' => 'BlogContext',
+                    'dir' => '%kernel.project_dir%/src/Blog/Infrastructure/Persistence/Doctrine/ORM/Entity',
+                    'prefix' => 'App\Blog\Infrastructure\Persistence\Doctrine\ORM\Entity',
+                    'alias' => 'Blog',
                 ],
             ],
         ],

@@ -31,7 +31,7 @@
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(for:*)",
       "Bash(do head -n 5 \"$file\")",
-      "Bash(done)"
+      "WebFetch(domain:www.php.net)"
     ],
     "deny": [],
     "hooks": {

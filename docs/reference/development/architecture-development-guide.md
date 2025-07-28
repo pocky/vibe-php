@@ -100,11 +100,11 @@ graph TD
 
 ```php
 <?php
-// src/BlogContext/Domain/Shared/ValueObject/ArticleId.php
+// src/Blog/Domain/Shared/ValueObject/ArticleId.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 use Symfony\Component\Uid\Uuid;
 
@@ -139,13 +139,13 @@ final class ArticleId
 
 ```php
 <?php
-// tests/BlogContext/Unit/Domain/Shared/ValueObject/ArticleIdTest.php
+// tests/Blog/Unit/Domain/Shared/ValueObject/ArticleIdTest.php
 
 declare(strict_types=1);
 
-namespace App\Tests\BlogContext\Unit\Domain\Shared\ValueObject;
+namespace App\Tests\Blog\Unit\Domain\Shared\ValueObject;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 use PHPUnit\Framework\TestCase;
 
 final class ArticleIdTest extends TestCase
@@ -205,14 +205,14 @@ classDiagram
 
 ```php
 <?php
-// src/BlogContext/Domain/CreateArticle/DataPersister/Article.php
+// src/Blog/Domain/CreateArticle/DataPersister/Article.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\DataPersister;
+namespace App\Blog\Domain\CreateArticle\DataPersister;
 
-use App\BlogContext\Domain\CreateArticle\Event\ArticleCreated;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, ArticleStatus};
+use App\Blog\Domain\CreateArticle\Event\ArticleCreated;
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, ArticleStatus};
 
 final class Article
 {
@@ -258,13 +258,13 @@ Events capture what happened in the domain.
 
 ```php
 <?php
-// src/BlogContext/Domain/CreateArticle/Event/ArticleCreated.php
+// src/Blog/Domain/CreateArticle/Event/ArticleCreated.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Event;
+namespace App\Blog\Domain\CreateArticle\Event;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title};
 
 final readonly class ArticleCreated
 {
@@ -319,15 +319,15 @@ sequenceDiagram
 
 ```php
 <?php
-// src/BlogContext/Domain/CreateArticle/Creator.php
+// src/Blog/Domain/CreateArticle/Creator.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle;
+namespace App\Blog\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
+use App\Blog\Domain\CreateArticle\DataPersister\Article;
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
 
 final readonly class Creator implements CreatorInterface
 {
@@ -382,13 +382,13 @@ graph LR
 
 ```php
 <?php
-// src/BlogContext/Application/Operation/Command/CreateArticle/Command.php
+// src/Blog/Application/Operation/Command/CreateArticle/Command.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 
 final readonly class Command
 {
@@ -405,14 +405,14 @@ final readonly class Command
 
 ```php
 <?php
-// src/BlogContext/Application/Operation/Command/CreateArticle/Handler.php
+// src/Blog/Application/Operation/Command/CreateArticle/Handler.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\CreatorInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleStatus};
+use App\Blog\Domain\CreateArticle\CreatorInterface;
+use App\Blog\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleStatus};
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 
 final readonly class Handler
@@ -452,11 +452,11 @@ final readonly class Handler
 
 ```php
 <?php
-// src/BlogContext/Application/Operation/Query/GetArticle/Query.php
+// src/Blog/Application/Operation/Query/GetArticle/Query.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Query\GetArticle;
+namespace App\Blog\Application\Operation\Query\GetArticle;
 
 final readonly class Query
 {
@@ -523,15 +523,15 @@ classDiagram
 
 ```php
 <?php
-// src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php
+// src/Blog/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
+namespace App\Blog\Infrastructure\Persistence\Doctrine\ORM;
 
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\CreateArticle\DataPersister\Article;
+use App\Blog\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ArticleRepository implements ArticleRepositoryInterface
@@ -567,11 +567,11 @@ Doctrine entities are separate from domain entities.
 
 ```php
 <?php
-// src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/Entity/BlogArticle.php
+// src/Blog/Infrastructure/Persistence/Doctrine/ORM/Entity/BlogArticle.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity;
+namespace App\Blog\Infrastructure\Persistence\Doctrine\ORM\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -653,11 +653,11 @@ graph LR
 
 ```php
 <?php
-// src/BlogContext/UI/Api/Rest/Resource/ArticleResource.php
+// src/Blog/UI/Api/Rest/Resource/ArticleResource.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\UI\Api\Rest\Resource;
+namespace App\Blog\UI\Api\Rest\Resource;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -692,16 +692,16 @@ final class ArticleResource
 
 ```php
 <?php
-// src/BlogContext/UI/Api/Rest/Processor/CreateArticleProcessor.php
+// src/Blog/UI/Api/Rest/Processor/CreateArticleProcessor.php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\UI\Api\Rest\Processor;
+namespace App\Blog\UI\Api\Rest\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\BlogContext\Application\Gateway\CreateArticle\Gateway;
-use App\BlogContext\Application\Gateway\CreateArticle\Request;
+use App\Blog\Application\Gateway\CreateArticle\Gateway;
+use App\Blog\Application\Gateway\CreateArticle\Request;
 
 final readonly class CreateArticleProcessor implements ProcessorInterface
 {
@@ -761,21 +761,21 @@ UI/Web/Admin/
 # config/services.yaml
 services:
     # Repositories
-    App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface:
-        class: App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\ArticleRepository
+    App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface:
+        class: App\Blog\Infrastructure\Persistence\Doctrine\ORM\ArticleRepository
 
     # Creators
-    App\BlogContext\Domain\CreateArticle\CreatorInterface:
-        class: App\BlogContext\Domain\CreateArticle\Creator
+    App\Blog\Domain\CreateArticle\CreatorInterface:
+        class: App\Blog\Domain\CreateArticle\Creator
 
     # Gateways
-    App\BlogContext\Application\Gateway\:
-        resource: '../src/BlogContext/Application/Gateway/'
+    App\Blog\Application\Gateway\:
+        resource: '../src/Blog/Application/Gateway/'
         tags: ['controller.service_arguments']
 
     # API Processors/Providers
-    App\BlogContext\UI\Api\Rest\:
-        resource: '../src/BlogContext/UI/Api/Rest/'
+    App\Blog\UI\Api\Rest\:
+        resource: '../src/Blog/UI/Api/Rest/'
         tags: ['api_platform.state_processor', 'api_platform.state_provider']
 ```
 
@@ -791,7 +791,7 @@ framework:
                     - doctrine_transaction
 
         routing:
-            'App\BlogContext\Domain\*\Event\*': event.bus
+            'App\Blog\Domain\*\Event\*': event.bus
 ```
 
 ### 5.3 Integration Tests
@@ -851,7 +851,7 @@ sequenceDiagram
 
 1. **Test First (TDD)**:
 ```php
-// tests/BlogContext/Unit/Domain/PublishArticle/PublisherTest.php
+// tests/Blog/Unit/Domain/PublishArticle/PublisherTest.php
 public function testPublishDraftArticle(): void
 {
     // Given
@@ -870,7 +870,7 @@ public function testPublishDraftArticle(): void
 
 2. **Implement the Publisher**:
 ```php
-// src/BlogContext/Domain/PublishArticle/Publisher.php
+// src/Blog/Domain/PublishArticle/Publisher.php
 final readonly class Publisher implements PublisherInterface
 {
     public function __construct(
@@ -897,7 +897,7 @@ final readonly class Publisher implements PublisherInterface
 
 1. **Command**:
 ```php
-// src/BlogContext/Application/Operation/Command/PublishArticle/Command.php
+// src/Blog/Application/Operation/Command/PublishArticle/Command.php
 final readonly class Command
 {
     public function __construct(
@@ -908,7 +908,7 @@ final readonly class Command
 
 2. **Handler**:
 ```php
-// src/BlogContext/Application/Operation/Command/PublishArticle/Handler.php
+// src/Blog/Application/Operation/Command/PublishArticle/Handler.php
 final readonly class Handler
 {
     public function __construct(
@@ -930,7 +930,7 @@ final readonly class Handler
 
 3. **Gateway**:
 ```php
-// src/BlogContext/Application/Gateway/PublishArticle/Gateway.php
+// src/Blog/Application/Gateway/PublishArticle/Gateway.php
 final class Gateway extends DefaultGateway
 {
     public function __construct(
@@ -940,7 +940,7 @@ final class Gateway extends DefaultGateway
     ) {
         parent::__construct([
             new DefaultLogger($instrumentation),
-            new DefaultErrorHandler($instrumentation, 'BlogContext', 'Article', 'publish'),
+            new DefaultErrorHandler($instrumentation, 'Blog', 'Article', 'publish'),
             $validation,
             $processor,
         ]);
@@ -953,7 +953,7 @@ final class Gateway extends DefaultGateway
 1. **Update the Repository** if necessary
 2. **Add an Event Listener** for side effects:
 ```php
-// src/BlogContext/Infrastructure/EventListener/ArticlePublishedListener.php
+// src/Blog/Infrastructure/EventListener/ArticlePublishedListener.php
 final readonly class ArticlePublishedListener
 {
     public function __invoke(ArticlePublished $event): void
@@ -978,7 +978,7 @@ new Patch(
 
 2. **Processor**:
 ```php
-// src/BlogContext/UI/Api/Rest/Processor/PublishArticleProcessor.php
+// src/Blog/UI/Api/Rest/Processor/PublishArticleProcessor.php
 final readonly class PublishArticleProcessor implements ProcessorInterface
 {
     public function __construct(

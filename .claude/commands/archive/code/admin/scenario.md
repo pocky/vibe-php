@@ -65,7 +65,7 @@ graph LR
 
 ```bash
 # This command adds ONE scenario to existing feature file
-/code/admin/scenario BlogContext CreateArticle form-display
+/code/admin/scenario Blog CreateArticle form-display
 ```
 
 **Generated scenario:**
@@ -107,7 +107,7 @@ Improve styling, accessibility, UX while keeping test green.
 Only after current scenario is GREEN:
 
 ```bash
-/code/admin/scenario BlogContext CreateArticle form-submit
+/code/admin/scenario Blog CreateArticle form-submit
 ```
 
 ## Scenario Templates
@@ -192,7 +192,7 @@ After adding a scenario:
 
 ```bash
 # 1. Add ONE scenario
-/code/admin/scenario BlogContext CreateArticle form-display
+/code/admin/scenario Blog CreateArticle form-display
 
 # 2. Run test - identify missing UI components
 docker compose exec app vendor/bin/behat features/blog/admin-article-management.feature
@@ -262,14 +262,14 @@ Uses Sylius Admin UI components:
 
 **Setup (once):**
 ```bash
-/code/admin/behat BlogContext article-management  # Creates feature structure
-/code/admin/form BlogContext Article              # Creates form class
-/code/admin/grid BlogContext Article              # Creates grid config
+/code/admin/behat Blog article-management  # Creates feature structure
+/code/admin/form Blog Article              # Creates form class
+/code/admin/grid Blog Article              # Creates grid config
 ```
 
 **Test Cycle (repeat):**
 ```bash
-/code/admin/scenario BlogContext CreateArticle form-display  # Add ONE scenario
+/code/admin/scenario Blog CreateArticle form-display  # Add ONE scenario
 # Implement UI functionality to make test pass
 ```
 

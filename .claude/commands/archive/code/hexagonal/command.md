@@ -206,7 +206,7 @@ Implementing commands properly provides:
 
 ```bash
 # 1. Create command structure
-/code:hexagonal:command BlogContext PublishArticle
+/code:hexagonal:command Blog PublishArticle
 
 # This will:
 # - Generate command and handler structure

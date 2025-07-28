@@ -28,11 +28,15 @@ tests/
     └── Unit/
         ├── Domain/
         │   ├── ValueObject/
+        │   ├── Identifier/
         │   ├── Entity/
         │   └── Service/
         └── Application/
-            ├── Command/
-            └── Query/
+            ├── Gateway/
+            │   └── Create[Context]/
+            └── Operation/
+                └── Command/
+                └── Query/
 ```
 
 ### Behat Tests (Functional/Acceptance Tests)

@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -45,20 +47,58 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class <?php echo $class_name . "\n"; ?>
 {
+    public ?string $id = null;
+    
+    // TODO: Add resource properties with validation
+    // Example:
+    // #[Assert\NotBlank(groups: ['create'])]
+    // #[Assert\Length(min: 3, max: 200)]
+    // public ?string $title = null;
+    
+    // #[Assert\NotBlank(groups: ['create'])]
+    // public ?string $content = null;
+    
+    public ?\DateTimeImmutable $createdAt = null;
+    public ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct(
-        public ?string $id = null,
-        
-        // TODO: Add resource properties with validation
+        ?string $id = null,
+        // TODO: Add constructor parameters
         // Example:
-        // #[Assert\NotBlank(groups: ['create'])]
-        // #[Assert\Length(min: 3, max: 200)]
-        // public ?string $title = null,
-        
-        // #[Assert\NotBlank(groups: ['create'])]
-        // public ?string $content = null,
-        
-        public ?\DateTimeImmutable $createdAt = null,
-        public ?\DateTimeImmutable $updatedAt = null,
+        // ?string $title = null,
+        // ?string $content = null,
+        \DateTimeInterface|string|null $createdAt = null,
+        \DateTimeInterface|string|null $updatedAt = null,
     ) {
+        $this->id = $id;
+        // TODO: Assign other properties
+        // Example:
+        // $this->title = $title;
+        // $this->content = $content;
+
+        // Handle DateTime conversion from strings
+        if (is_string($createdAt)) {
+            try {
+                $this->createdAt = new \DateTimeImmutable($createdAt);
+            } catch (\Exception) {
+                $this->createdAt = null;
+            }
+        } else {
+            $this->createdAt = $createdAt instanceof \DateTimeImmutable
+                ? $createdAt
+                : ($createdAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($createdAt) : null);
+        }
+
+        if (is_string($updatedAt)) {
+            try {
+                $this->updatedAt = new \DateTimeImmutable($updatedAt);
+            } catch (\Exception) {
+                $this->updatedAt = null;
+            }
+        } else {
+            $this->updatedAt = $updatedAt instanceof \DateTimeImmutable
+                ? $updatedAt
+                : ($updatedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($updatedAt) : null);
+        }
     }
 }

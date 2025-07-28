@@ -13,9 +13,9 @@ final class UuidGeneratorTest extends TestCase
 {
     public function testImplementsGeneratorInterface(): void
     {
-        $reflection = new \ReflectionClass(UuidGenerator::class);
+        $reflectionClass = new \ReflectionClass(UuidGenerator::class);
 
-        $this->assertTrue($reflection->implementsInterface(GeneratorInterface::class));
+        $this->assertTrue($reflectionClass->implementsInterface(GeneratorInterface::class));
     }
 
     public function testGenerateReturnsString(): void
@@ -48,7 +48,7 @@ final class UuidGeneratorTest extends TestCase
     public function testGenerateReturnsUuidV7(): void
     {
         $uuid = UuidGenerator::generate();
-        $parsedUuid = Uuid::fromString($uuid);
+        Uuid::fromString($uuid);
 
         // UUID v7 has version '7' in the 13th character (after removing dashes)
         $uuidWithoutDashes = str_replace('-', '', $uuid);
@@ -109,24 +109,24 @@ final class UuidGeneratorTest extends TestCase
 
     public function testGenerateIsStaticMethod(): void
     {
-        $reflection = new \ReflectionClass(UuidGenerator::class);
-        $method = $reflection->getMethod('generate');
+        $reflectionClass = new \ReflectionClass(UuidGenerator::class);
+        $reflectionMethod = $reflectionClass->getMethod('generate');
 
-        $this->assertTrue($method->isStatic());
-        $this->assertTrue($method->isPublic());
+        $this->assertTrue($reflectionMethod->isStatic());
+        $this->assertTrue($reflectionMethod->isPublic());
     }
 
     public function testGenerateReturnsTimestampBasedUuid(): void
     {
-        $beforeGeneration = time();
+        time();
         $uuid = UuidGenerator::generate();
-        $afterGeneration = time();
+        time();
 
         $parsedUuid = Uuid::fromString($uuid);
 
         // UUID v7 contains timestamp information
         // We can't directly access timestamp from Symfony UID, but we can verify it's recent
-        $this->assertTrue($parsedUuid instanceof Uuid);
+        $this->assertInstanceOf(Uuid::class, $parsedUuid);
 
         // The UUID should be generated between our timestamps
         // This is a basic sanity check that it's timestamp-based
@@ -136,9 +136,9 @@ final class UuidGeneratorTest extends TestCase
 
     public function testClassIsFinal(): void
     {
-        $reflection = new \ReflectionClass(UuidGenerator::class);
+        $reflectionClass = new \ReflectionClass(UuidGenerator::class);
 
-        $this->assertTrue($reflection->isFinal());
+        $this->assertTrue($reflectionClass->isFinal());
     }
 
     public function testUuidCanBeConvertedBackToSymfonyUuid(): void
@@ -159,6 +159,6 @@ final class UuidGeneratorTest extends TestCase
         $variantNibble = hexdec($uuidWithoutDashes[16]);
 
         // Variant should be 10xx (8, 9, A, or B in hex)
-        $this->assertTrue(in_array($variantNibble, [8, 9, 0xA, 0xB]));
+        $this->assertContains($variantNibble, [8, 9, 0xA, 0xB]);
     }
 }

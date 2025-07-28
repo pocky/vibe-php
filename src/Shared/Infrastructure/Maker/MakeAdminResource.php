@@ -35,7 +35,7 @@ final class MakeAdminResource extends AbstractMaker
         return 'Create a complete Sylius Admin resource with Grid, Form, Providers and Processors';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -44,7 +44,7 @@ final class MakeAdminResource extends AbstractMaker
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $entity = $input->getArgument('entity');
@@ -55,10 +55,12 @@ final class MakeAdminResource extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         $entityPascal = Str::asCamelCase($entity);
         $entityPascal = ucfirst($entityPascal);
+
         $entitySnake = Str::asSnakeCase($entity);
         $entityCamel = lcfirst($entityPascal);
 
@@ -71,13 +73,13 @@ final class MakeAdminResource extends AbstractMaker
         $adminNamespace = sprintf('%s\\UI\\Web\\Admin\\', $context);
 
         // Generate Resource class
-        $resourceClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             $entityPascal . 'Resource',
             $adminNamespace . 'Resource\\'
         );
 
         $generator->generateClass(
-            $resourceClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/admin/Resource.tpl.php',
             [
                 'entity' => $entityPascal,
@@ -211,19 +213,19 @@ final class MakeAdminResource extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
             sprintf(' - Customize the form in <info>%s</info>', $formClassDetails->getFullName()),
             sprintf(' - Add fields to the grid in <info>%s</info>', $gridClassDetails->getFullName()),
-            sprintf(' - Update resource properties in <info>%s</info>', $resourceClassDetails->getFullName()),
+            sprintf(' - Update resource properties in <info>%s</info>', $classNameDetails->getFullName()),
             ' - Create corresponding Gateway operations if needed',
             ' - Add translations for labels and messages',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

@@ -13,8 +13,10 @@ final class AsyncEventBus implements EventBusInterface
     use HandleTrait;
 
     public function __construct(
-        private readonly MessageBusInterface $eventBus,
+        /** @phpstan-ignore-next-line */
+        private readonly MessageBusInterface $bus,
     ) {
+        $this->messageBus = $bus;
     }
 
     /**
@@ -23,6 +25,6 @@ final class AsyncEventBus implements EventBusInterface
     #[\Override]
     public function __invoke($event): mixed
     {
-        return $this->eventBus->dispatch($event);
+        return $this->messageBus->dispatch($event);
     }
 }

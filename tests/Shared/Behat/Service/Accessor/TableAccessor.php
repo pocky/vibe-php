@@ -10,22 +10,22 @@ use Webmozart\Assert\Assert;
 final class TableAccessor implements TableAccessorInterface
 {
     #[\Override]
-    public function getRowWithFields(NodeElement $table, array $fields): NodeElement
+    public function getRowWithFields(NodeElement $nodeElement, array $fields): NodeElement
     {
         try {
-            return $this->getRowsWithFields($table, $fields)[0];
-        } catch (\InvalidArgumentException $exception) {
-            throw new \InvalidArgumentException('Could not find row with given fields', 0, $exception);
+            return $this->getRowsWithFields($nodeElement, $fields)[0];
+        } catch (\InvalidArgumentException $invalidArgumentException) {
+            throw new \InvalidArgumentException('Could not find row with given fields', 0, $invalidArgumentException);
         }
     }
 
     #[\Override]
-    public function getRowsWithFields(NodeElement $table, array $fields): array
+    public function getRowsWithFields(NodeElement $nodeElement, array $fields): array
     {
         try {
-            return $this->findRowsWithFields($table, $fields);
-        } catch (\InvalidArgumentException $exception) {
-            throw new \InvalidArgumentException('Could not find any row with given fields', 0, $exception);
+            return $this->findRowsWithFields($nodeElement, $fields);
+        } catch (\InvalidArgumentException $invalidArgumentException) {
+            throw new \InvalidArgumentException('Could not find any row with given fields', 0, $invalidArgumentException);
         }
     }
 
@@ -43,11 +43,11 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     #[\Override]
-    public function getIndexedColumn(NodeElement $table, $fieldName): array
+    public function getIndexedColumn(NodeElement $nodeElement, $fieldName): array
     {
-        $columnIndex = $this->getColumnIndex($table, $fieldName);
+        $columnIndex = $this->getColumnIndex($nodeElement, $fieldName);
 
-        $rows = $table->findAll('css', 'tbody > tr');
+        $rows = $nodeElement->findAll('css', 'tbody > tr');
         Assert::notEmpty($rows, 'There are no rows!');
 
         $columnFields = [];
@@ -61,26 +61,25 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     #[\Override]
-    public function getSortableHeaders(NodeElement $table): array
+    public function getSortableHeaders(NodeElement $nodeElement): array
     {
-        $sortableHeaders = $table->findAll('css', 'th.sortable');
+        $sortableHeaders = $nodeElement->findAll('css', 'th.sortable');
         Assert::notEmpty($sortableHeaders, 'There are no sortable headers.');
 
         $sortableArray = [];
-        /** @var NodeElement $sortable */
-        foreach ($sortableHeaders as $sortable) {
-            $fieldName = $this->getColumnFieldName($sortable);
+        foreach ($sortableHeaders as $sortableHeader) {
+            $fieldName = $this->getColumnFieldName($sortableHeader);
 
-            $sortableArray[$fieldName] = $sortable;
+            $sortableArray[$fieldName] = $sortableHeader;
         }
 
         return $sortableArray;
     }
 
     #[\Override]
-    public function countTableBodyRows(NodeElement $table): int
+    public function countTableBodyRows(NodeElement $nodeElement): int
     {
-        return count($table->findAll('css', 'tbody > tr'));
+        return count($nodeElement->findAll('css', 'tbody > tr'));
     }
 
     /**
@@ -88,17 +87,17 @@ final class TableAccessor implements TableAccessorInterface
      *
      * @throws \InvalidArgumentException If rows were not found
      */
-    private function findRowsWithFields(NodeElement $table, array $fields)
+    private function findRowsWithFields(NodeElement $nodeElement, array $fields): array
     {
-        $rows = $table->findAll('css', 'tr');
+        $rows = $nodeElement->findAll('css', 'tr');
 
         Assert::notEmpty($rows, 'There are no rows!');
 
-        $fields = $this->replaceColumnNamesWithColumnIndexes($table, $fields);
+        $fields = $this->replaceColumnNamesWithColumnIndexes($nodeElement, $fields);
 
         $matchedRows = [];
         /** @var NodeElement[] $rows */
-        $rows = $table->findAll('css', 'tr');
+        $rows = $nodeElement->findAll('css', 'tr');
         foreach ($rows as $row) {
             /** @var NodeElement[] $columns */
             $columns = $row->findAll('css', 'td, th');
@@ -138,11 +137,11 @@ final class TableAccessor implements TableAccessorInterface
      *
      * @throws \Exception
      */
-    private function replaceColumnNamesWithColumnIndexes(NodeElement $table, array $fields): array
+    private function replaceColumnNamesWithColumnIndexes(NodeElement $nodeElement, array $fields): array
     {
         $replacedFields = [];
         foreach ($fields as $columnName => $expectedValue) {
-            $columnIndex = $this->getColumnIndex($table, $columnName);
+            $columnIndex = $this->getColumnIndex($nodeElement, $columnName);
 
             $replacedFields[$columnIndex] = $expectedValue;
         }
@@ -153,9 +152,9 @@ final class TableAccessor implements TableAccessorInterface
     /**
      * @throws \InvalidArgumentException
      */
-    private function getColumnIndex(NodeElement $table, string $fieldName): int
+    private function getColumnIndex(NodeElement $nodeElement, string $fieldName): int
     {
-        $rows = $table->findAll('css', 'tr');
+        $rows = $nodeElement->findAll('css', 'tr');
         Assert::notEmpty($rows, 'There are no rows!');
 
         /** @var NodeElement $headerRow */
@@ -178,8 +177,8 @@ final class TableAccessor implements TableAccessorInterface
         return false !== stripos(trim($sourceText), $searchedValue);
     }
 
-    private function getColumnFieldName(NodeElement $column): string
+    private function getColumnFieldName(NodeElement $nodeElement): string
     {
-        return preg_replace('/.*sylius-table-column-([^ ]+).*$/', '\1', (string) $column->getAttribute('class'));
+        return preg_replace('/.*sylius-table-column-([^ ]+).*$/', '\1', (string) $nodeElement->getAttribute('class'));
     }
 }

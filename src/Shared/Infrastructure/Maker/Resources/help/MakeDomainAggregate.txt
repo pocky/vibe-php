@@ -1,25 +1,22 @@
 The <info>%command.name%</info> command generates a complete domain aggregate
 structure following DDD patterns.
 
-<info>php %command.full_name% BlogContext CreateArticle Article</info>
+<info>php %command.full_name% Blog CreateArticle Article</info>
 
 This creates:
-  * <comment>src/BlogContext/Domain/CreateArticle/Creator.php</comment>
-    Domain entry point with business logic
+  * <comment>src/Blog/Domain/Article/ArticleCreator.php</comment>
+    Domain service for creating articles
 
-  * <comment>src/BlogContext/Domain/CreateArticle/CreatorInterface.php</comment>
-    Interface defining the contract
-
-  * <comment>src/BlogContext/Domain/CreateArticle/DataPersister/Article.php</comment>
+  * <comment>src/Blog/Domain/Article/Shared/Model/Article.php</comment>
     Domain model/aggregate root
 
-  * <comment>src/BlogContext/Domain/CreateArticle/Event/ArticleCreated.php</comment>
+  * <comment>src/Blog/Domain/Article/Shared/Event/ArticleCreated.php</comment>
     Domain event emitted after creation
 
-  * <comment>src/BlogContext/Domain/CreateArticle/Exception/ArticleAlreadyExists.php</comment>
+  * <comment>src/Blog/Domain/Article/Shared/Exception/ArticleAlreadyExists.php</comment>
     Domain-specific exception
 
-The Creator features:
+The Domain Service features:
   * Single responsibility (one use case)
   * __invoke() method for simplicity
   * Pure domain logic, no infrastructure
@@ -46,11 +43,12 @@ The Exception features:
   * Translation key support
   * Contextual information
 
-Common use cases:
-  * CreateArticle, UpdateArticle
-  * PublishArticle, ArchiveArticle
-  * SubmitForReview, ApproveArticle
-  * AddComment, ModerateComment
+Common domain services generated:
+  * CreateArticle → ArticleCreator
+  * UpdateArticle → ArticleUpdater
+  * DeleteArticle → ArticleDeleter
+  * PublishArticle → ArticlePublisher
+  * GetArticle → ArticleGetter
 
 Next steps:
   1. Define aggregate properties

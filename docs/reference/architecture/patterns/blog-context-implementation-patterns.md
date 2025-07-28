@@ -1,10 +1,10 @@
-# BlogContext Implementation Patterns
+# Blog Implementation Patterns
 
-This document captures the actual implementation patterns observed in the BlogContext, serving as a reference for implementing Category management and other future features.
+This document captures the actual implementation patterns observed in the Blog, serving as a reference for implementing Category management and other future features.
 
 ## Overview
 
-The BlogContext demonstrates the complete implementation of DDD/Hexagonal architecture with the following key patterns:
+The Blog demonstrates the complete implementation of DDD/Hexagonal architecture with the following key patterns:
 
 ## Domain Layer Patterns
 
@@ -14,43 +14,107 @@ Each use case has its own directory with specific components:
 
 ```
 Domain/
-├── CreateArticle/
-│   ├── Creator.php             # Entry point implementing CreatorInterface
-│   ├── CreatorInterface.php    # Interface for the use case
-│   ├── Model/
-│   │   └── Article.php        # Use case specific model (not shared)
-│   ├── Event/
-│   │   └── ArticleCreated.php # Domain event
+├── Article/                    # Unified aggregate (NEW PATTERN)
+│   ├── Article.php            # Rich domain model with all business logic
+│   ├── Event/                 # All article events
+│   │   ├── ArticleCreated.php
+│   │   ├── ArticlePublished.php
+│   │   ├── ArticleUpdated.php
+│   │   └── ArticleDeleted.php
+│   ├── Exception/             # All article exceptions
+│   │   ├── ArticleAlreadyPublished.php
+│   │   └── ArticleNotDraft.php
+│   ├── Repository/
+│   │   └── ArticleRepositoryInterface.php
+│   └── Specification/         # Query specifications
+│       ├── ArticleSpecification.php
+│       ├── PublishedArticleSpecification.php
+│       └── ArticleByAuthorSpecification.php
+├── CreateArticle/             # Service for creation
+│   ├── Creator.php            # Uses Article aggregate
+│   ├── CreatorInterface.php
 │   └── Exception/
-│       └── ArticleAlreadyExists.php # Use case specific exception
+│       └── ArticleAlreadyExists.php
+├── UpdateArticle/             # Service for updates
+│   ├── Updater.php            # Uses Article aggregate
+│   ├── UpdaterInterface.php
+│   └── Exception/
+│       └── SlugAlreadyExists.php
+├── PublishArticle/            # Service for publishing
+│   ├── Publisher.php          # Uses Article aggregate
+│   └── PublisherInterface.php
+└── DeleteArticle/             # Service for deletion
+    ├── Deleter.php            # Uses Article aggregate
+    └── DeleterInterface.php
 ```
 
 ### 2. Domain Models
 
-**Key Insight**: Each use case has its own Model subdirectory with a use-case-specific model. Additionally, shared models exist in `Domain/Shared/Model/` for entities used across multiple use cases.
+**NEW PATTERN**: We now use a unified aggregate approach where a single rich domain model (Article) contains all business logic. Services (Creator, Updater, etc.) use this unified aggregate instead of having separate models per use case.
 
 ```php
-// Domain/CreateArticle/Model/Article.php - Use case specific model
-final readonly class Article
+// Domain/Article/Article.php - Unified rich aggregate
+final class Article
 {
+    private array $events = [];
+    
     public function __construct(
-        public ArticleId $id,
-        public Title $title,
-        public Content $content,
-        public Slug $slug,
-        public ArticleStatus $status,
-        public string $authorId,
-        public Timestamps $timestamps,
-        private array $events = []
-    ) {
+        private readonly ArticleId $id,
+        private Title $title,
+        private Content $content,
+        private Slug $slug,
+        private ArticleStatus $status,
+        private readonly AuthorId $authorId,
+        \DateTimeImmutable|null $createdAt = null,
+        \DateTimeImmutable|null $updatedAt = null
+    ) {}
+    
+    public static function create(
+        ArticleId $id,
+        Title $title,
+        Content $content,
+        Slug $slug,
+        AuthorId $authorId
+    ): self {
+        $article = new self($id, $title, $content, $slug, ArticleStatus::DRAFT, $authorId);
+        $article->recordEvent(new ArticleCreated(...));
+        return $article;
     }
     
-    public static function create(...): self { }
-    public function withEvents(array $events): self { }
-    public function getEvents(): array { }
+    public function publish(): void
+    {
+        if (ArticleStatus::PUBLISHED === $this->status) {
+            throw new ArticleAlreadyPublished($this->id);
+        }
+        
+        $this->status = ArticleStatus::PUBLISHED;
+        $this->recordEvent(new ArticlePublished(...));
+    }
+    
+    public function update(Title $title, Content $content, Slug $slug): void
+    {
+        // Business logic for updates
+    }
+    
+    public function delete(): void
+    {
+        // Business logic for deletion
+    }
+    
+    private function recordEvent(object $event): void
+    {
+        $this->events[] = $event;
+    }
+    
+    public function releaseEvents(): array
+    {
+        $events = $this->events;
+        $this->events = [];
+        return $events;
+    }
 }
 
-// Domain/Shared/Model/Category.php - Shared model
+// Domain/Shared/Model/Category.php - Shared model (unchanged)
 final readonly class Category
 {
     public function __construct(
@@ -70,7 +134,9 @@ final readonly class Category
 }
 ```
 
-### 3. Entry Points (Creator Pattern)
+### 3. Entry Points (Service Pattern)
+
+**NEW PATTERN**: Services now use the unified Article aggregate instead of creating their own models.
 
 ```php
 final readonly class Creator implements CreatorInterface
@@ -84,42 +150,54 @@ final readonly class Creator implements CreatorInterface
         Title $title,
         Content $content,
         Slug $slug,
-        string $authorId,
-    ): Model\Article {
+        AuthorId $authorId,
+    ): Article {
         // 1. Check business rules
-        if ($this->repository->existsWithSlug($slug)) {
+        if (null !== $this->repository->findBySlug($slug)) {
             throw new ArticleAlreadyExists($articleId);
         }
         
-        // 2. Create domain model
-        $articleData = Model\Article::create(...);
+        // 2. Create using aggregate factory method
+        $article = Article::create($articleId, $title, $content, $slug, $authorId);
         
-        // 3. Create domain event
-        $event = new Event\ArticleCreated(...);
+        // 3. Persist (events are inside the aggregate)
+        $this->repository->save($article);
         
-        // 4. Attach event to model
-        $articleData = $articleData->withEvents([$event]);
-        
-        // 5. Persist
-        $this->repository->add($articleData);
-        
-        // 6. Return model with events
-        return $articleData;
+        // 4. Return the aggregate
+        return $article;
     }
 }
 ```
 
 ### 4. Value Objects
 
-All value objects use PHP 8.4 asymmetric visibility:
+**NEW PATTERN**: Value objects now use PHP 8.4 property hooks for validation:
 
 ```php
-final class ArticleId implements \Stringable
+final class Title implements \Stringable
 {
     public function __construct(
-        private(set) string $value,  // Can only be set in constructor
-    ) {
-        $this->validate();
+        private string $value {
+            set
+    {
+        $trimmed = trim($value);
+        
+        if ('' === $trimmed) {
+            throw ValidationException::withTranslationKey('validation.title.empty');
+        }
+        
+        if (self::MIN_LENGTH > mb_strlen($trimmed)) {
+            throw ValidationException::withTranslationKey('validation.title.too_short', [
+                'min_length' => self::MIN_LENGTH,
+                'actual_length' => mb_strlen($trimmed),
+            ]);
+        }
+        
+        $this->value = $trimmed;
+    }
+        }
+    )
+    {
     }
     
     public function getValue(): string
@@ -154,7 +232,7 @@ enum ArticleStatus: string
 Events are simple readonly classes:
 
 ```php
-namespace App\BlogContext\Domain\CreateArticle\Event;
+namespace App\Blog\Domain\CreateArticle\Event;
 
 final readonly class ArticleCreated
 {
@@ -185,6 +263,8 @@ Operation/
 
 ### 2. Command Handler Pattern
 
+**NEW PATTERN**: Handlers now retrieve and dispatch events from the aggregate:
+
 ```php
 final readonly class Handler implements HandlerInterface
 {
@@ -198,12 +278,13 @@ final readonly class Handler implements HandlerInterface
         // 1. Transform to value objects
         $articleId = new ArticleId($command->articleId);
         $title = new Title($command->title);
+        $authorId = new AuthorId($command->authorId);
         
-        // 2. Call domain operation
-        $articleData = ($this->creator)(...);
+        // 2. Call domain operation (returns aggregate)
+        $article = ($this->creator)($articleId, $title, ...);
         
-        // 3. Dispatch events
-        foreach ($articleData->getEvents() as $event) {
+        // 3. Dispatch events from aggregate
+        foreach ($article->releaseEvents() as $event) {
             ($this->eventBus)($event);
         }
     }
@@ -216,7 +297,7 @@ Gateways extend DefaultGateway and use attributes:
 
 ```php
 #[AsGateway(
-    context: 'BlogContext',
+    context: 'Blog',
     domain: 'Article',
     operation: 'Create',
     middlewares: [],
@@ -321,48 +402,58 @@ final readonly class SlugGenerator implements SlugGeneratorInterface
 
 ## Key Patterns Implementation Summary
 
-Based on the current BlogContext implementation:
+Based on the current Blog implementation:
 
-1. **Domain Structure**:
-   - Create separate directories for each use case (CreateCategory, UpdateCategory, etc.)
-   - Use case-specific models in `Model/` subdirectory for operations with events
-   - Shared models in `Domain/Shared/Model/` for cross-use-case entities
-   - Use QueryMapper to convert between domain models and entities
+1. **Domain Structure (NEW)**:
+   - Create unified aggregate directory (e.g., `Domain/Article/`)
+   - Rich domain model with all business logic (create, update, publish, delete methods)
+   - Services (Creator, Updater, etc.) use the unified aggregate
+   - Events and specifications in aggregate subdirectories
+   - NO separate models per use case anymore
 
-2. **Value Objects**:
-   - Use asymmetric visibility (`private(set)`)
-   - Create CategoryId, CategoryName, CategorySlug, Description
+2. **Value Objects (NEW)**:
+   - Use PHP 8.4 property hooks for validation
+   - Cannot use `readonly` with property hooks (use `final class` instead)
+   - Create ArticleId, Title, Content, Slug value objects
    - Use consistent `getValue()` and `equals()` methods
-   - Use enums for fixed value sets (e.g., Status)
+   - Use enums for fixed value sets (e.g., ArticleStatus)
 
-3. **Repository Pattern**:
-   - Define interfaces in Domain/Shared/Repository
-   - Include methods like `existsWithSlug()`, `findById()`, `hasArticles()`
+3. **Repository Pattern (UPDATED)**:
+   - Define interface in aggregate directory: `Domain/Article/Repository/`
+   - Methods work with unified aggregate: `save(Article $article)`, `findBySlug(Slug $slug)`
    - Implement in Infrastructure layer with Doctrine
-   - Return domain models, not entities
+   - Return rich aggregates, not anemic models
 
-4. **Infrastructure Naming Conventions**:
+4. **Event Pattern (NEW)**:
+   - Events stored inside aggregate with `recordEvent()` method
+   - Released via `releaseEvents()` method
+   - Application layer retrieves and dispatches events after domain operations
+   - Simple readonly classes for events
+   - Events recorded during business operations (create, publish, etc.)
+
+5. **Specification Pattern (NEW)**:
+   - Define specifications for complex queries
+   - Interface in aggregate directory
+   - Implementations for specific query needs
+   - Repository uses specifications for filtering
+
+6. **Infrastructure Naming Conventions**:
    - Entities use clean names: `Author.php` (not `BlogAuthor.php`)
    - Repositories at ORM level: `ORM/AuthorRepository.php` (not `ORM/Repository/`)
    - QueryMappers in Mapper directory: `Mapper/AuthorQueryMapper.php`
    - Consistent structure across all bounded contexts
 
-5. **Event Pattern**:
-   - Events created separately and attached via `withEvents()` method
-   - Application layer retrieves events via `getEvents()` and dispatches
-   - Simple readonly classes for events
-   - No automatic event emission in constructors
-
-5. **Gateway Pattern**:
+7. **Gateway Pattern**:
    - Extend DefaultGateway
    - Use AsGateway attribute with `context`, `domain`, `operation`, `middlewares` params
    - Processor injected via constructor
    - Middlewares array passed to parent constructor
 
-6. **Handler Pattern**:
+8. **Handler Pattern (UPDATED)**:
    - All handlers implement HandlerInterface
-   - Commands return void, Queries return View objects
+   - Commands return void, work with aggregates that have events
+   - Handlers call `releaseEvents()` on aggregates and dispatch them
    - EventBus only injected when handler needs to dispatch events
    - Clear separation between Command and Query operations
 
-This implementation demonstrates clean separation of concerns and maintainable architecture patterns that should be followed for new features.
+This implementation demonstrates modern DDD with rich aggregates, PHP 8.4 features, and clean separation of concerns that should be followed for new features.

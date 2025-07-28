@@ -17,7 +17,7 @@ $profile = (new Profile('default'))
             ->withOutputVerbosity(OutputFactory::VERBOSITY_VERBOSE)
     )
 
-    # Extensions
+    // Extensions
     ->withExtension(new Extension(FriendsOfBehat\MinkDebugExtension\ServiceContainer\MinkDebugExtension::class, [
         'directory' => 'etc/build',
         'clean_start' => true,
@@ -31,7 +31,7 @@ $profile = (new Profile('default'))
         'default_session' => 'symfony',
         'javascript_session' => 'panther',
         'sessions' => [
-            # Sessions
+            // Sessions
             'panther' => [
                 'panther' => [
                     'options' => [

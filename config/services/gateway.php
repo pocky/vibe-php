@@ -8,6 +8,46 @@ use App\Shared\Application\Gateway\Attribute\AsGateway;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
+if (!function_exists('buildDefaultErrorHandlerMiddleware')) {
+    function buildDefaultErrorHandlerMiddleware(
+        ServicesConfigurator $services,
+        string $serviceName,
+        string $instrumentationServiceName,
+        string $contextName,
+        string $domainName,
+        string $operationName
+    ): string {
+        $services
+            ->set($serviceName)
+            ->class(DefaultErrorHandler::class)
+            ->args([
+                service($instrumentationServiceName),
+                $contextName,
+                $domainName,
+                $operationName,
+            ])
+        ;
+
+        return $serviceName;
+    }
+}
+
+if (!function_exists('buildDefaultLoggerMiddleware')) {
+    function buildDefaultLoggerMiddleware(
+        ServicesConfigurator $services,
+        string $serviceName,
+        string $instrumentationServiceName
+    ): string {
+        $services
+            ->set($serviceName)
+            ->class(DefaultLogger::class)
+            ->args([service($instrumentationServiceName)])
+        ;
+
+        return $serviceName;
+    }
+}
+
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
@@ -67,39 +107,3 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         }
     }
 };
-
-function buildDefaultErrorHandlerMiddleware(
-    ServicesConfigurator $services,
-    string $serviceName,
-    string $instrumentationServiceName,
-    string $contextName,
-    string $domainName,
-    string $operationName
-): string {
-    $services
-        ->set($serviceName)
-        ->class(DefaultErrorHandler::class)
-        ->args([
-            service($instrumentationServiceName),
-            $contextName,
-            $domainName,
-            $operationName,
-        ])
-    ;
-
-    return $serviceName;
-}
-
-function buildDefaultLoggerMiddleware(
-    ServicesConfigurator $services,
-    string $serviceName,
-    string $instrumentationServiceName
-): string {
-    $services
-        ->set($serviceName)
-        ->class(DefaultLogger::class)
-        ->args([service($instrumentationServiceName)])
-    ;
-
-    return $serviceName;
-}

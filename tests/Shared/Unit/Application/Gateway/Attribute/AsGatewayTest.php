@@ -36,22 +36,22 @@ final class AsGatewayTest extends TestCase
 
     public function testIsReadonlyClass(): void
     {
-        $reflection = new \ReflectionClass(AsGateway::class);
+        $reflectionClass = new \ReflectionClass(AsGateway::class);
 
-        $this->assertTrue($reflection->isReadonly());
+        $this->assertTrue($reflectionClass->isReadonly());
     }
 
     public function testPropertiesArePublicAndReadonly(): void
     {
-        $reflection = new \ReflectionClass(AsGateway::class);
+        $reflectionClass = new \ReflectionClass(AsGateway::class);
 
-        $contextProperty = $reflection->getProperty('context');
-        $domainProperty = $reflection->getProperty('domain');
-        $operationProperty = $reflection->getProperty('operation');
-        $middlewaresProperty = $reflection->getProperty('middlewares');
+        $reflectionProperty = $reflectionClass->getProperty('context');
+        $domainProperty = $reflectionClass->getProperty('domain');
+        $operationProperty = $reflectionClass->getProperty('operation');
+        $middlewaresProperty = $reflectionClass->getProperty('middlewares');
 
-        $this->assertTrue($contextProperty->isPublic());
-        $this->assertTrue($contextProperty->isReadonly());
+        $this->assertTrue($reflectionProperty->isPublic());
+        $this->assertTrue($reflectionProperty->isReadonly());
 
         $this->assertTrue($domainProperty->isPublic());
         $this->assertTrue($domainProperty->isReadonly());
@@ -81,12 +81,12 @@ final class AsGatewayTest extends TestCase
             // Empty test class for attribute testing
         };
 
-        $reflection = new \ReflectionClass($testClass);
+        new \ReflectionClass($testClass);
 
         // This test validates that AsGateway could be used as an attribute
         // by checking its attribute configuration
-        $asGatewayReflection = new \ReflectionClass(AsGateway::class);
-        $attributeInstances = $asGatewayReflection->getAttributes(\Attribute::class);
+        $reflectionClass = new \ReflectionClass(AsGateway::class);
+        $attributeInstances = $reflectionClass->getAttributes(\Attribute::class);
 
         $this->assertCount(1, $attributeInstances);
 

@@ -387,18 +387,18 @@ These commands create EMPTY scaffolding - just the structure, NO business logic.
 For implementing Article Admin with REAL Behat UI TDD:
 
 ### Phase 1: Scaffolding
-1. `/code/admin:resource BlogContext Article` → creates empty admin structure
-2. `/code/admin:grid BlogContext Article` → creates grid configuration
-3. `/code/admin:behat BlogContext ArticleAdmin` → creates feature file structure
+1. `/code/admin:resource Blog Article` → creates empty admin structure
+2. `/code/admin:grid Blog Article` → creates grid configuration
+3. `/code/admin:behat Blog ArticleAdmin` → creates feature file structure
 
 ### Phase 2: Incremental TDD (ONE scenario at a time)
-4. `/code/admin/scenario BlogContext CreateArticle form-display` → RED ❌
+4. `/code/admin/scenario Blog CreateArticle form-display` → RED ❌
 5. Implement article form rendering → GREEN ✅
-6. `/code/admin/scenario BlogContext CreateArticle form-submit` → RED ❌
+6. `/code/admin/scenario Blog CreateArticle form-submit` → RED ❌
 7. Add form submission handling → GREEN ✅
-8. `/code/admin/scenario BlogContext ListArticles grid-display` → RED ❌
+8. `/code/admin/scenario Blog ListArticles grid-display` → RED ❌
 9. Implement article grid → GREEN ✅
-10. `/code/admin/scenario BlogContext ListArticles grid-filtering` → RED ❌
+10. `/code/admin/scenario Blog ListArticles grid-filtering` → RED ❌
 11. Add search functionality → GREEN ✅
 12. Continue ONE scenario at a time for ALL UI features...
 

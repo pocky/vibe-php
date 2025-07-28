@@ -14,9 +14,9 @@ final class SyncCommandBus implements CommandBusInterface
 
     public function __construct(
         /** @phpstan-ignore-next-line */
-        private readonly MessageBusInterface $commandBus,
+        private readonly MessageBusInterface $bus,
     ) {
-        $this->messageBus = $commandBus;
+        $this->messageBus = $bus;
     }
 
     /**

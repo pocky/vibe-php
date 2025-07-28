@@ -18,14 +18,31 @@ This directory contains the streamlined command system for efficient feature dev
 │   └── help.md        # Specification methodology help
 ├── orchestrate.md     # Smart agent coordination for implementation
 ├── qa.md              # Quality assurance checks
+├── agent/             # Agent management
+│   ├── create.md      # Create new specialized agents
+│   ├── optimize.md    # Optimize agent prompts
+│   ├── optimize-command.md # Optimize command files
+│   └── review.md      # Review code using agents
+├── bdd/               # Behavior-Driven Development
+│   ├── feature.md     # Create BDD feature files
+│   ├── context.md     # Generate Behat contexts
+│   ├── setup.md       # Setup Behat test structure
+│   └── workflow.md    # BDD workflow guide
+├── docker/            # Docker management
+│   ├── audit.md       # Audit Docker configuration
+│   ├── optimize.md    # Optimize containers
+│   └── setup.md       # Setup Docker services
+├── api/               # API development
+│   ├── resource.md    # Create API resources
+│   ├── security.md    # API security audit
+│   └── test.md        # API testing
+├── symfony/           # Symfony-specific tools
+│   └── twig/          # Twig templates
+│       ├── symfony-form-style.md
+│       ├── tw-component.md
+│       └── ux-interactive.md
 ├── help.md            # This help system
 └── archive/           # Old commands (for reference only)
-    ├── code/          # Old code generation commands
-    ├── act.md         # Old TDD command
-    ├── agent/         # Old agent commands
-    ├── workflow/      # Old workflow commands
-    ├── utils/         # Old utility commands
-    └── spec/          # Old spec commands (advanced, list, prd, status, tasks)
 ```
 
 ## Workflow Overview
@@ -111,6 +128,33 @@ Coordinates multiple agents based on your user story needs.
 - `/qa` - Run all checks
 - `/qa fix` - Auto-fix issues
 - `/qa fix all` - Complete fix and verify
+
+### `/agent:*` - Agent Management
+- `create` - Create new specialized agents
+- `optimize` - Optimize agent prompts for efficiency
+- `optimize-command` - Optimize command files
+- `review` - Code review using expert agents
+
+### `/bdd:*` - Behavior-Driven Development
+- `feature` - Create Gherkin feature files
+- `context` - Generate Behat test contexts
+- `setup` - Setup Behat test structure
+- `workflow` - Guide for BDD workflow
+
+### `/docker:*` - Docker Management
+- `audit` - Comprehensive Docker security and performance audit
+- `optimize` - Optimize for build/size/security/performance
+- `setup` - Setup production-ready Docker services
+
+### `/api:*` - API Development
+- `resource` - Create API Platform resources
+- `security` - Security audit for APIs
+- `test` - Generate API tests
+
+### `/symfony:twig:*` - Twig Templates
+- `symfony-form-style` - Symfony form themes
+- `tw-component` - Twig Components
+- `ux-interactive` - Symfony UX interactive components
 
 ## Why This System?
 

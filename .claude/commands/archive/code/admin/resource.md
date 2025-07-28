@@ -210,7 +210,7 @@ Feature: Managing categories in admin panel
 
 ```bash
 # 1. Create admin resource with TDD approach
-/code:admin:resource BlogContext Category
+/code:admin:resource Blog Category
 
 # This will:
 # - Write Behat tests first (RED)
@@ -220,13 +220,13 @@ Feature: Managing categories in admin panel
 # - Refactor while keeping tests green
 
 # 2. Add specific features incrementally
-/code:hexagonal:test BlogContext CategoryAdmin hierarchical-view
+/code:hexagonal:test Blog CategoryAdmin hierarchical-view
 # Implement tree view for categories
 
-/code:hexagonal:test BlogContext CategoryAdmin drag-drop-ordering
+/code:hexagonal:test Blog CategoryAdmin drag-drop-ordering
 # Add drag & drop reordering
 
-/code:hexagonal:test BlogContext CategoryAdmin image-upload
+/code:hexagonal:test Blog CategoryAdmin image-upload
 # Implement category image upload
 
 # 3. Each new requirement starts with a failing test

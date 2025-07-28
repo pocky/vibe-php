@@ -35,9 +35,12 @@ graph LR
 
 #### Example: Domain Object Test
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 final class ArticleTest extends TestCase
 {
-    public function testCreateArticleWithValidData(): void
+    #[Test]
+    public function create_article_with_valid_data_succeeds(): void
     {
         // Arrange
         $id = new ArticleId('550e8400-e29b-41d4-a716-446655440000');
@@ -153,7 +156,10 @@ final class Article
 
 #### Arrange-Act-Assert Pattern
 ```php
-public function testSomeBehavior(): void
+use PHPUnit\Framework\Attributes\Test;
+
+#[Test]
+public function some_behavior_works_as_expected(): void
 {
     // Arrange - Set up test data and dependencies
     $dependency = $this->createMock(SomeInterface::class);
@@ -169,11 +175,20 @@ public function testSomeBehavior(): void
 
 #### Test Naming Convention
 ```php
-// Pattern: test[MethodName][Scenario][ExpectedBehavior]
-public function testCreateArticle_WithValidData_ReturnsArticleInstance(): void
-public function testCreateArticle_WithInvalidTitle_ThrowsException(): void
-public function testPublishArticle_WhenDraft_ChangesStatusToPublished(): void
-public function testPublishArticle_WhenAlreadyPublished_ThrowsDomainException(): void
+use PHPUnit\Framework\Attributes\Test;
+
+// Pattern: descriptive snake_case method names
+#[Test]
+public function create_article_with_valid_data_returns_article_instance(): void
+
+#[Test]
+public function create_article_with_invalid_title_throws_exception(): void
+
+#[Test]
+public function publish_article_when_draft_changes_status_to_published(): void
+
+#[Test]
+public function publish_article_when_already_published_throws_domain_exception(): void
 ```
 
 ### Architecture-Specific TDD
@@ -181,9 +196,12 @@ public function testPublishArticle_WhenAlreadyPublished_ThrowsDomainException():
 #### Domain Layer Testing
 ```php
 // Test domain objects in isolation
+use PHPUnit\Framework\Attributes\Test;
+
 final class ArticleTest extends TestCase
 {
-    public function testArticleCreation(): void
+    #[Test]
+    public function article_creation_with_valid_data_succeeds(): void
     {
         // No mocks needed - pure domain logic
         $article = new Article(
@@ -201,9 +219,12 @@ final class ArticleTest extends TestCase
 #### Application Layer Testing
 ```php
 // Test use cases with mocked dependencies
+use PHPUnit\Framework\Attributes\Test;
+
 final class CreateArticleHandlerTest extends TestCase
 {
-    public function testHandleCreateArticleCommand(): void
+    #[Test]
+    public function handle_create_article_command_saves_article(): void
     {
         // Arrange
         $repository = $this->createMock(ArticleRepositoryInterface::class);
@@ -233,11 +254,14 @@ final class CreateArticleHandlerTest extends TestCase
 #### Infrastructure Layer Testing
 ```php
 // Integration tests with real dependencies
+use PHPUnit\Framework\Attributes\Test;
+
 final class DoctrineArticleRepositoryTest extends TestCase
 {
     use RefreshDatabaseTrait;
     
-    public function testSaveAndRetrieveArticle(): void
+    #[Test]
+    public function save_and_retrieve_article_persists_data(): void
     {
         // Arrange
         $repository = self::getContainer()->get(ArticleRepositoryInterface::class);
@@ -273,21 +297,21 @@ final class DoctrineArticleRepositoryTest extends TestCase
 ### 2. Test-First Development
 ```bash
 # Create test directory structure mirroring src/
-mkdir -p tests/BlogContext/Unit/Domain/CreateArticle/
-mkdir -p tests/BlogContext/Integration/Infrastructure/
+mkdir -p tests/Blog/Unit/Domain/CreateArticle/
+mkdir -p tests/Blog/Integration/Infrastructure/
 
 # Write first failing test
-touch tests/BlogContext/Unit/Domain/CreateArticle/ArticleTest.php
+touch tests/Blog/Unit/Domain/CreateArticle/ArticleTest.php
 ```
 
 ### 3. TDD Cycle Execution
 ```bash
 # 1. RED: Write failing test
-vendor/bin/phpunit tests/BlogContext/Unit/Domain/CreateArticle/ArticleTest.php
+vendor/bin/phpunit tests/Blog/Unit/Domain/CreateArticle/ArticleTest.php
 # Expect: Test fails (class doesn't exist)
 
 # 2. GREEN: Create minimal implementation
-touch src/BlogContext/Domain/CreateArticle/Article.php
+touch src/Blog/Domain/CreateArticle/Article.php
 # Write minimal code to pass test
 
 # 3. REFACTOR: Improve code structure
@@ -388,7 +412,8 @@ final class ArticleTestBuilder
 }
 
 // Usage in tests
-public function testArticleCreation(): void
+#[Test]
+public function article_creation_with_custom_values_succeeds(): void
 {
     $article = ArticleTestBuilder::create()
         ->withTitle('Custom Title')
@@ -461,7 +486,8 @@ private function assertDomainEventEmitted(Article $article, string $eventClass):
 ### ❌ Testing Implementation Details
 ```php
 // Bad: Testing private methods
-public function testPrivateCalculation(): void
+#[Test]
+public function private_calculation_returns_expected_value(): void
 {
     $reflection = new \ReflectionClass(Calculator::class);
     $method = $reflection->getMethod('privateCalculate');
@@ -488,7 +514,8 @@ class SomeService
 ### ❌ Overly Complex Tests
 ```php
 // Bad: Testing too many behaviors at once
-public function testComplexScenario(): void
+#[Test]
+public function complex_scenario_with_multiple_behaviors(): void
 {
     // 50 lines of setup
     // Multiple assertions
@@ -499,7 +526,10 @@ public function testComplexScenario(): void
 ### ✅ Good TDD Practices
 ```php
 // Good: Test behavior, not implementation
-public function testCalculateTotal_WithMultipleItems_ReturnsSumOfPrices(): void
+use PHPUnit\Framework\Attributes\Test;
+
+#[Test]
+public function calculate_total_with_multiple_items_returns_sum_of_prices(): void
 {
     $calculator = new PriceCalculator();
     $items = [

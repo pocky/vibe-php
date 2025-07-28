@@ -63,7 +63,7 @@ graph LR
 
 ```bash
 # This command adds ONE scenario to existing feature file
-/code/api/scenario BlogContext CreateArticle success
+/code/api/scenario Blog CreateArticle success
 ```
 
 **Generated scenario:**
@@ -109,7 +109,7 @@ Improve code quality while keeping the test green.
 Only after the current scenario is GREEN, add the next one:
 
 ```bash
-/code/api/scenario BlogContext CreateArticle validation-error
+/code/api/scenario Blog CreateArticle validation-error
 ```
 
 ## Scenario Templates
@@ -175,7 +175,7 @@ After adding a scenario:
 
 ```bash
 # 1. Add ONE scenario
-/code/api/scenario BlogContext CreateArticle success
+/code/api/scenario Blog CreateArticle success
 
 # 2. Run test - identify missing functionality
 docker compose exec app vendor/bin/behat features/blog/article-api.feature
@@ -231,12 +231,12 @@ Implementation steps:
 
 **Setup (once):**
 ```bash
-/code/api/behat BlogContext article-management  # Creates feature file structure
+/code/api/behat Blog article-management  # Creates feature file structure
 ```
 
 **Test Cycle (repeat):**
 ```bash
-/code/api/scenario BlogContext CreateArticle success  # Add ONE scenario
+/code/api/scenario Blog CreateArticle success  # Add ONE scenario
 # Implement functionality to make test pass
 ```
 
@@ -251,6 +251,6 @@ Implementation steps:
 ## Next Steps
 
 After implementing all scenarios for one operation:
-- Move to next operation: `/code/api/scenario BlogContext UpdateArticle success`
-- Add UI tests: `/code/admin/scenario BlogContext ArticleForm success`
+- Move to next operation: `/code/api/scenario Blog UpdateArticle success`
+- Add UI tests: `/code/admin/scenario Blog ArticleForm success`
 - Integration testing: Ensure all scenarios pass together

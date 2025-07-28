@@ -12,20 +12,20 @@ use App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation;
 final readonly class DefaultErrorHandler
 {
     public function __construct(
-        private GatewayInstrumentation $instrumentation,
+        private GatewayInstrumentation $gatewayInstrumentation,
         private string $context,
         private string $entity,
         private string $operationType,
     ) {
     }
 
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest, callable $next): GatewayResponse
     {
         try {
             /** @var GatewayResponse */
-            return ($next)($request);
+            return ($next)($gatewayRequest);
         } catch (\Exception $exception) {
-            $this->instrumentation->error($request, $exception->getMessage());
+            $this->gatewayInstrumentation->error($gatewayRequest, $exception->getMessage());
 
             throw new GatewayException(sprintf('Error during %s process for %s %s', $this->operationType, $this->context, $this->entity), $exception);
         }

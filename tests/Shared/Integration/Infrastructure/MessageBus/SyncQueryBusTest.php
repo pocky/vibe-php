@@ -19,7 +19,7 @@ final class SyncQueryBusTest extends TestCase
         $query = new \stdClass();
         $expectedResult = 'query-result';
 
-        $handler = (fn () => $expectedResult);
+        $handler = (fn (): string => $expectedResult);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -27,8 +27,8 @@ final class SyncQueryBusTest extends TestCase
             ])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
-        $result = $queryBus($query);
+        $syncQueryBus = new SyncQueryBus($messageBus);
+        $result = $syncQueryBus($query);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -39,7 +39,7 @@ final class SyncQueryBusTest extends TestCase
         $envelope = new Envelope($query);
         $expectedResult = 'query-result';
 
-        $handler = (fn () => $expectedResult);
+        $handler = (fn (): string => $expectedResult);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -47,8 +47,8 @@ final class SyncQueryBusTest extends TestCase
             ])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
-        $result = $queryBus($envelope);
+        $syncQueryBus = new SyncQueryBus($messageBus);
+        $result = $syncQueryBus($envelope);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -56,10 +56,10 @@ final class SyncQueryBusTest extends TestCase
     public function testInvokeThrowsExceptionWhenHandlerFails(): void
     {
         $query = new \stdClass();
-        $expectedException = new \RuntimeException('Handler failed');
+        $runtimeException = new \RuntimeException('Handler failed');
 
-        $handler = function () use ($expectedException) {
-            throw $expectedException;
+        $handler = function () use ($runtimeException): never {
+            throw $runtimeException;
         };
 
         $messageBus = new MessageBus([
@@ -68,10 +68,10 @@ final class SyncQueryBusTest extends TestCase
             ])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
+        $syncQueryBus = new SyncQueryBus($messageBus);
 
         $this->expectException(HandlerFailedException::class);
-        $queryBus($query);
+        $syncQueryBus($query);
     }
 
     public function testInvokeWithNoHandler(): void
@@ -82,10 +82,10 @@ final class SyncQueryBusTest extends TestCase
             new HandleMessageMiddleware(new HandlersLocator([])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
+        $syncQueryBus = new SyncQueryBus($messageBus);
 
         $this->expectException(\Symfony\Component\Messenger\Exception\NoHandlerForMessageException::class);
-        $queryBus($query);
+        $syncQueryBus($query);
     }
 
     public function testInvokeWithMultipleHandlers(): void
@@ -94,9 +94,9 @@ final class SyncQueryBusTest extends TestCase
         $expectedResult1 = 'result-1';
         $expectedResult2 = 'result-2';
 
-        $handler1 = (fn () => $expectedResult1);
+        $handler1 = (fn (): string => $expectedResult1);
 
-        $handler2 = (fn () => $expectedResult2);
+        $handler2 = (fn (): string => $expectedResult2);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -104,8 +104,8 @@ final class SyncQueryBusTest extends TestCase
             ])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
-        $result = $queryBus($query);
+        $syncQueryBus = new SyncQueryBus($messageBus);
+        $result = $syncQueryBus($query);
 
         $this->assertSame($expectedResult1, $result);
     }
@@ -121,7 +121,7 @@ final class SyncQueryBusTest extends TestCase
             ],
         ];
 
-        $handler = (fn () => $viewData);
+        $handler = (fn (): array => $viewData);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -129,8 +129,8 @@ final class SyncQueryBusTest extends TestCase
             ])),
         ]);
 
-        $queryBus = new SyncQueryBus($messageBus);
-        $result = $queryBus($query);
+        $syncQueryBus = new SyncQueryBus($messageBus);
+        $result = $syncQueryBus($query);
 
         $this->assertSame($viewData, $result);
     }

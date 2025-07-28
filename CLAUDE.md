@@ -25,7 +25,7 @@ This project is licensed under the European Union Public Licence v1.2 (EUPL-1.2)
 
 ### 📚 Essential References
 For all technical guidelines, standards, and patterns, see:
-- **Agent Shared References**: @.claude/agents/shared-references.md
+- **Agent Shared References**: @.claude/docs/shared-references.md
 - **Documentation Navigation**: @docs/reference/agent/instructions/documentation-navigation.md
 
 ## Project Overview
@@ -40,17 +40,60 @@ PHP 8.4+ application with Domain-Driven Design structure running in Docker.
 
 ### Directory Structure
 ```
-src/                    # Business contexts (DDD)
-├── BlogContext/        # Blog bounded context  
-│   ├── Application/    # Use cases and gateways
-│   ├── Domain/        # Business logic
-│   ├── Infrastructure/# External adapters
-│   └── UI/           # User interfaces
-└── Kernel.php        # Application kernel
+src/                         # Business contexts (DDD)
+├── Blog/                   # Blog bounded context (simplified naming)
+│   ├── Application/        # Use cases and gateways
+│   │   ├── Gateway/        # Gateway pattern implementation
+│   │   │   └── {Entity}/   # Grouped by entity
+│   │   │       └── {Operation}/  # e.g., CreateArticle
+│   │   │           ├── Gateway.php
+│   │   │           ├── Request.php
+│   │   │           ├── Response.php
+│   │   │           └── Middleware/
+│   │   │               └── Processor.php
+│   │   ├── Operation/      # CQRS operations
+│   │   │   ├── Command/    # Write operations
+│   │   │   │   └── {Entity}/{Command}/
+│   │   │   └── Query/      # Read operations
+│   │   │       └── {Entity}/{Query}/
+│   │   └── Shared/         # Application shared elements
+│   │       ├── Generator/  # ID generator interfaces
+│   │       └── ReadModel/  # Read models for queries
+│   ├── Domain/             # Business logic
+│   │   ├── Article/        # Article aggregate
+│   │   │   ├── ArticleCreator.php  # Domain service
+│   │   │   ├── ArticleUpdater.php  # Domain service
+│   │   │   └── Shared/     # Shared article elements
+│   │   │       ├── Model/
+│   │   │       ├── Repository/     # Repository interfaces (Read/Write separation)
+│   │   │       ├── Identifier/
+│   │   │       ├── ValueObject/
+│   │   │       ├── Event/
+│   │   │       └── Exception/
+│   │   └── Shared/         # Cross-entity shared
+│   │       ├── ValueObject/
+│   │       ├── Service/
+│   │       └── Exception/
+│   ├── Infrastructure/     # External adapters
+│   │   ├── Identity/       # ID generators
+│   │   ├── Persistence/    # Data persistence
+│   │   │   └── Doctrine/
+│   │   │       └── ORM/
+│   │   │           ├── Entity/         # Doctrine entities
+│   │   │           ├── *WriteRepository.php # Write repository implementations
+│   │   │           └── *ReadRepository.php  # Read repository implementations
+│   │   ├── Service/        # Service implementations
+│   │   └── Shared/
+│   │       └── Mapper/     # Infrastructure mappers (for read models)
+│   └── UI/                # User interfaces
+│       ├── API/           # REST API controllers
+│       ├── Admin/         # Admin panel controllers
+│       └── Front/         # Frontend controllers
+└── Kernel.php             # Application kernel
 
-etc/docker/           # Docker configurations
-├── entrypoints/      # Container entrypoints
-└── php/conf.d/       # PHP configurations
+etc/docker/                 # Docker configurations
+├── entrypoints/           # Container entrypoints
+└── php/conf.d/            # PHP configurations
 ```
 
 ## Development Environment
@@ -59,15 +102,32 @@ etc/docker/           # Docker configurations
 - **Xdebug**: Disabled by default, enable with `XDEBUG_MODE=debug`
 - **Web Profiler**: Available in dev environment with toolbar enabled
 - **Profiler**: Collects performance data and debug information
+- **PHPUnit**: Configured with BypassFinals extension for mocking final classes
 
 ## Current Status
 
-- ✅ **Testing**: PHPUnit 12.2 configured and integrated
+- ✅ **Testing**: PHPUnit 12.2 with BypassFinals extension
 - ✅ **Code Quality**: ECS, PHPStan, Rector, Twig CS Fixer integrated
 - ✅ **Development Tools**: Web Profiler, Debug Bundle available
 - ✅ **Database**: Doctrine ORM with migrations strategy
 - ✅ **Architecture**: DDD with CQRS and Gateway patterns
+- ✅ **Repository Pattern**: Read/Write separation with fluent interfaces
 - ℹ️ **Dependencies**: Uses custom mformono packages
+
+## Repository Pattern
+
+The project uses a sophisticated repository pattern with Read/Write separation:
+
+### Write Repositories
+- Extend `DoctrineRepository` (not `ServiceEntityRepository`)
+- Methods: `add()`, `update()`, `remove()`, `get()`, `findById()`
+- No more `save()` method - use explicit `add()` or `update()`
+- Handle domain aggregates
+
+### Read Repositories
+- Return ReadModel instances (DTOs)
+- Fluent interface for queries: `->withNameLike()->withLatestFirst()->paginate()`
+- Optimized for query performance
 
 ## 🚨 CRITICAL: Quality Implementation Standards
 
@@ -111,18 +171,101 @@ When QA fails:
 
 ## Project Structure (DDD/Hexagonal Architecture)
 ```
-src/                    # Business contexts (DDD)
-├── [Context]Context/   # e.g., BlogContext
-│   ├── Application/    # Use cases and gateways
-│   ├── Domain/        # Business logic (pure PHP)
-│   ├── Infrastructure/# External adapters
-│   └── UI/           # User interfaces
+src/                         # Business contexts (DDD)
+├── [Context]/               # Bounded contexts (e.g., Blog, User, Payment, Subscription)
+│   ├── Application/         # Use cases and gateways
+│   │   ├── Gateway/        # Gateway pattern implementation
+│   │   │   └── {Entity}/   # Grouped by entity
+│   │   │       └── {Operation}/
+│   │   │           ├── Gateway.php
+│   │   │           ├── Request.php
+│   │   │           ├── Response.php
+│   │   │           └── Middleware/
+│   │   │               └── Processor.php
+│   │   ├── Operation/      # CQRS implementation
+│   │   │   ├── Command/    # Write operations
+│   │   │   │   └── {Entity}/{Command}/
+│   │   │   │       ├── Command.php
+│   │   │   │       └── Handler.php
+│   │   │   └── Query/      # Read operations
+│   │   │       └── {Entity}/{Query}/
+│   │   │           ├── Query.php
+│   │   │           ├── Handler.php
+│   │   │           └── View.php
+│   │   └── Shared/         # Application layer shared
+│   │       ├── Generator/  # ID generator interfaces
+│   │       ├── ReadModel/  # Read models for queries
+│   │       └── Exception/  # Application exceptions
+│   ├── Domain/             # Business logic (pure PHP)
+│   │   ├── {Entity}/       # Entity-centric organization
+│   │   │   ├── {Entity}Creator.php     # Domain service
+│   │   │   ├── {Entity}Updater.php     # Domain service
+│   │   │   ├── {Entity}Deleter.php     # Domain service
+│   │   │   ├── {Entity}Getter.php      # Domain service
+│   │   │   └── Shared/     # Shared within entity
+│   │   │       ├── Model/              # Domain model
+│   │   │       ├── Repository/         # Repository interfaces (Read/Write separation)
+│   │   │       │   ├── {Entity}WriteRepositoryInterface.php
+│   │   │       │   └── {Entity}ReadRepositoryInterface.php
+│   │   │       ├── Identifier/         # Entity identifiers
+│   │   │       ├── ValueObject/        # Entity value objects
+│   │   │       ├── Event/              # Domain events
+│   │   │       ├── Exception/          # Domain exceptions
+│   │   │       └── Specification/      # Business rules
+│   │   └── Shared/         # Shared across entities
+│   │       ├── ValueObject/            # Shared value objects
+│   │       ├── Service/                # Domain service interfaces
+│   │       └── Exception/              # Shared exceptions
+│   ├── Infrastructure/     # External adapters
+│   │   ├── Identity/       # ID generators
+│   │   ├── Persistence/    # Data persistence
+│   │   │   └── Doctrine/
+│   │   │       └── ORM/
+│   │   │           ├── Entity/         # Doctrine entities
+│   │   │           ├── {Entity}WriteRepository.php # Write operations (extends DoctrineRepository)
+│   │   │           └── {Entity}ReadRepository.php  # Read operations (extends DoctrineRepository)
+│   │   ├── Service/        # Service implementations
+│   │   └── Shared/
+│   │       └── Mapper/     # Infrastructure mappers (Entity -> ReadModel)
+│   └── UI/                # User interfaces
+│       ├── API/           # REST API
+│       │   └── Rest/      # RESTful controllers
+│       ├── Admin/         # Admin panel
+│       ├── Front/         # Frontend controllers
+│       └── CLI/           # Console commands
 ```
 
 ## Testing Structure
-- Tests in `tests/` directory mirroring `src/` structure
+```
+tests/                       # Tests mirror source structure
+├── [Context]/              # Bounded contexts (e.g., Blog, User, Payment, Subscription)
+│   ├── Unit/               # Unit tests
+│   │   ├── Domain/
+│   │   │   ├── {Entity}/   # Entity-centric tests
+│   │   │   │   ├── {Entity}CreatorTest.php
+│   │   │   │   ├── {Entity}UpdaterTest.php
+│   │   │   │   └── Shared/ # Model, VO, Event tests
+│   │   │   └── Shared/     # Cross-entity tests
+│   │   ├── Application/
+│   │   │   ├── Gateway/{Entity}/{Operation}/
+│   │   │   └── Operation/
+│   │   │       ├── Command/{Entity}/{Command}/
+│   │   │       └── Query/{Entity}/{Query}/
+│   │   └── Infrastructure/
+│   │       └── Persistence/
+│   │           └── Mapper/     # Test query mappers
+│   ├── Integration/        # Integration tests
+│   │   └── Infrastructure/
+│   │       └── Persistence/
+│   │           ├── {Entity}WriteRepositoryTest.php # Test write operations
+│   │           └── {Entity}ReadRepositoryTest.php  # Test read operations & fluent interface
+│   ├── Functional/         # Functional tests
+│   └── Behat/             # BDD acceptance tests
+└── Shared/                # Test utilities
+```
 - PHPUnit for unit/integration tests
 - Behat for functional/acceptance tests
+- Tests follow same entity-centric organization as source code
 
 ## Development Workflows
 

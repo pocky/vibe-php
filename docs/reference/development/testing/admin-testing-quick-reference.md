@@ -6,8 +6,8 @@
 
 1. **Create the Interface**
 ```php
-// tests/BlogContext/Behat/Page/Admin/MyEntity/IndexPageInterface.php
-interface IndexPageInterface extends \App\Tests\BlogContext\Behat\Page\Admin\Crud\IndexPageInterface
+// tests/Blog/Behat/Page/Admin/MyEntity/IndexPageInterface.php
+interface IndexPageInterface extends \App\Tests\Blog\Behat\Page\Admin\Crud\IndexPageInterface
 {
     public function hasEntityWithName(string $name): bool;
     public function createNewEntity(): void;
@@ -17,8 +17,8 @@ interface IndexPageInterface extends \App\Tests\BlogContext\Behat\Page\Admin\Cru
 
 2. **Implement the Page Object**
 ```php
-// tests/BlogContext/Behat/Page/Admin/MyEntity/IndexPage.php
-final class IndexPage extends \App\Tests\BlogContext\Behat\Page\Admin\Crud\IndexPage implements IndexPageInterface
+// tests/Blog/Behat/Page/Admin/MyEntity/IndexPage.php
+final class IndexPage extends \App\Tests\Blog\Behat\Page\Admin\Crud\IndexPage implements IndexPageInterface
 {
     public function getUrl(array $urlParameters = []): string
     {
@@ -42,7 +42,7 @@ final class IndexPage extends \App\Tests\BlogContext\Behat\Page\Admin\Crud\Index
 
 3. **Create the Context**
 ```php
-// tests/BlogContext/Behat/Context/Ui/Admin/ManagingMyEntitiesContext.php
+// tests/Blog/Behat/Context/Ui/Admin/ManagingMyEntitiesContext.php
 class ManagingMyEntitiesContext implements Context
 {
     private IndexPageInterface $indexPage;
@@ -282,7 +282,7 @@ protected function getDefinedElements(): array
 docker compose exec app composer dump-autoload
 
 # Verify class exists and namespace is correct
-docker compose exec app php -r "var_dump(class_exists('App\\Tests\\BlogContext\\Behat\\Page\\Admin\\MyEntity\\IndexPage'));"
+docker compose exec app php -r "var_dump(class_exists('App\\Tests\\Blog\\Behat\\Page\\Admin\\MyEntity\\IndexPage'));"
 ```
 
 **Element Not Found**
@@ -301,7 +301,7 @@ public function debugPageContent(): void
 docker compose exec app vendor/bin/behat -dl
 
 # Generate missing steps
-docker compose exec app vendor/bin/behat --snippets-for="App\Tests\BlogContext\Behat\Context\Ui\Admin\MyContext"
+docker compose exec app vendor/bin/behat --snippets-for="App\Tests\Blog\Behat\Context\Ui\Admin\MyContext"
 ```
 
 ## Performance Tips

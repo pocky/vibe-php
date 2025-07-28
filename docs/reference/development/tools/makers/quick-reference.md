@@ -4,44 +4,44 @@
 
 ### Infrastructure Layer
 ```bash
-# Create entity with repository and ID generator
-bin/console make:infrastructure:entity BlogContext Article
+# Create entity with read/write repositories and ID generator
+bin/console make:infrastructure:entity Blog Article
 ```
 
 ### Domain Layer
 ```bash
 # Create aggregate
-bin/console make:domain:aggregate BlogContext CreateArticle Article
+bin/console make:domain:aggregate Blog CreateArticle Article
 
 # Create value object
-bin/console make:domain:value-object BlogContext Email --template=email
+bin/console make:domain:value-object Blog Email --template=email
 ```
 
 ### Application Layer
 ```bash
 # Create gateway
-bin/console make:application:gateway BlogContext CreateArticle
+bin/console make:application:gateway Blog CreateArticle
 
 # Create command
-bin/console make:application:command BlogContext PublishArticle
+bin/console make:application:command Blog PublishArticle
 
 # Create query
-bin/console make:application:query BlogContext GetArticle
+bin/console make:application:query Blog GetArticle
 ```
 
 ### UI Layer
 ```bash
 # Create admin resource
-bin/console make:admin:resource BlogContext Article
+bin/console make:admin:resource Blog Article
 
 # Create API resource
-bin/console make:api:resource BlogContext Article
+bin/console make:api:resource Blog Article
 ```
 
 ## 📁 Generated File Structure
 
 ```
-src/BlogContext/
+src/Blog/
 ├── Domain/
 │   ├── CreateArticle/
 │   │   ├── Creator.php
@@ -56,7 +56,8 @@ src/BlogContext/
 │       ├── ValueObject/
 │       │   └── ArticleId.php
 │       └── Repository/
-│           └── ArticleRepositoryInterface.php
+│           ├── ArticleWriteRepositoryInterface.php
+│           └── ArticleReadRepositoryInterface.php
 ├── Application/
 │   ├── Gateway/
 │   │   └── CreateArticle/
@@ -82,7 +83,8 @@ src/BlogContext/
 │           └── ORM/
 │               ├── Entity/
 │               │   └── Article.php
-│               └── ArticleRepository.php
+│               ├── ArticleWriteRepository.php
+│               └── ArticleReadRepository.php
 └── UI/
     ├── Web/
     │   └── Admin/
@@ -116,34 +118,34 @@ src/BlogContext/
 
 | Template | Usage | Example |
 |----------|-------|---------|
-| `generic` | Default template | `make:domain:value-object BlogContext Status` |
+| `generic` | Default template | `make:domain:value-object Blog Status` |
 | `email` | Email validation | `make:domain:value-object UserContext Email --template=email` |
 | `money` | Amount with currency | `make:domain:value-object BillingContext Price --template=money` |
 | `phone` | Phone number (E.164) | `make:domain:value-object UserContext Phone --template=phone` |
-| `url` | URL validation | `make:domain:value-object BlogContext Website --template=url` |
+| `url` | URL validation | `make:domain:value-object Blog Website --template=url` |
 | `percentage` | 0-100 percentage | `make:domain:value-object SalesContext Discount --template=percentage` |
 
 ## 🔄 Complete Feature Workflow
 
 ```bash
 # 1. Domain layer
-bin/console make:domain:value-object BlogContext ArticleId
-bin/console make:domain:aggregate BlogContext CreateArticle Article
+bin/console make:domain:value-object Blog ArticleId
+bin/console make:domain:aggregate Blog CreateArticle Article
 
 # 2. Infrastructure layer  
-bin/console make:infrastructure:entity BlogContext Article
+bin/console make:infrastructure:entity Blog Article
 
 # 3. Application layer
-bin/console make:application:gateway BlogContext CreateArticle
-bin/console make:application:command BlogContext CreateArticle
-bin/console make:application:query BlogContext GetArticle
-bin/console make:application:query BlogContext ListArticles
+bin/console make:application:gateway Blog CreateArticle
+bin/console make:application:command Blog CreateArticle
+bin/console make:application:query Blog GetArticle
+bin/console make:application:query Blog ListArticles
 
 # 4. UI layer - Admin
-bin/console make:admin:resource BlogContext Article
+bin/console make:admin:resource Blog Article
 
 # 5. UI layer - API
-bin/console make:api:resource BlogContext Article
+bin/console make:api:resource Blog Article
 
 # 6. Database
 bin/console doctrine:migrations:diff
@@ -154,7 +156,7 @@ bin/console doctrine:migrations:migrate
 
 | Type | Pattern | Examples |
 |------|---------|----------|
-| **Context** | `[Domain]Context` | `BlogContext`, `UserContext` |
+| **Context** | `[Domain]Context` | `Blog`, `UserContext` |
 | **Use Case** | `[Action][Entity]` | `CreateArticle`, `UpdateUser` |
 | **Query** | `Get[Entity]` or `List[Entities]` | `GetArticle`, `ListArticles` |
 | **Event** | `[Entity][PastTense]` | `ArticleCreated`, `UserUpdated` |

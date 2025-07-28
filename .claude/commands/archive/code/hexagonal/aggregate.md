@@ -174,7 +174,7 @@ Continue enhancing the aggregate:
 
 ```bash
 # 1. Create aggregate structure
-/code:hexagonal:aggregate BlogContext Article
+/code:hexagonal:aggregate Blog Article
 
 # This will:
 # - Generate aggregate with Creator
@@ -184,11 +184,12 @@ Continue enhancing the aggregate:
 # - Ensure consistency boundaries
 
 # 2. Implement business behaviors
-- publish() with status validation
-- schedule() for future publishing
-- archive() with state checks
-- updateContent() with validation
-- addTags() with limits
+- publish() with status validation (ArticleStatus enum)
+- update() with change detection
+- delete() with idempotent operation
+- assignToCategory() / removeFromCategory()
+- addTag() / removeTag() / clearTags()
+- Use specific business exceptions
 
 # 3. Enhance based on requirements
 ```
@@ -200,20 +201,20 @@ Before creating an aggregate, ensure these components exist:
 ### Required Value Objects
 ```bash
 # Create ID value object first
-/code:hexagonal:value-object BlogContext ArticleId
+/code:hexagonal:value-object Blog ArticleId
 
 # Create other value objects  
-/code:hexagonal:value-object BlogContext Title
-/code:hexagonal:value-object BlogContext Content
+/code:hexagonal:value-object Blog Title
+/code:hexagonal:value-object Blog Content
 ```
 
 ### Recommended ID Generator
 ```bash
 # Create dedicated ID generator
-/code:hexagonal:id-generator BlogContext Article
+/code:hexagonal:id-generator Blog Article
 ```
 
 ## Next Steps
-1. Test aggregate behavior: `/code:hexagonal:test BlogContext Article create-with-fields`
-2. Create gateway: `/code:hexagonal:gateway BlogContext CreateArticle`
-3. Create API endpoints: `/code/api/resource BlogContext Article`
+1. Test aggregate behavior: `/code:hexagonal:test Blog Article create-with-fields`
+2. Create gateway: `/code:hexagonal:gateway Blog CreateArticle`
+3. Create API endpoints: `/code/api/resource Blog Article`

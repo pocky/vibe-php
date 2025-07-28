@@ -375,7 +375,7 @@ Feature: Category form validation
 
 ```bash
 # 1. Create form with TDD approach
-/code:admin:form BlogContext CategoryType
+/code:admin:form Blog CategoryType
 
 # This will:
 # - Write form tests first (RED)
@@ -385,13 +385,13 @@ Feature: Category form validation
 # - Refactor while keeping tests green
 
 # 2. Add specific features incrementally
-/code:hexagonal:test BlogContext CategoryType parent-validation
+/code:hexagonal:test Blog CategoryType parent-validation
 # Implement circular reference prevention
 
-/code:hexagonal:test BlogContext CategoryType slug-generation
+/code:hexagonal:test Blog CategoryType slug-generation
 # Add automatic slug from name
 
-/code:hexagonal:test BlogContext CategoryType image-upload
+/code:hexagonal:test Blog CategoryType image-upload
 # Implement file upload field
 
 # 3. Each new requirement starts with a failing test

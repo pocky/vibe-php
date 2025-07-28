@@ -22,7 +22,7 @@ The `make:application:gateway` command has been significantly enhanced to automa
 
 #### Command
 ```bash
-bin/console make:application:gateway BlogContext CreateArticle
+bin/console make:application:gateway Blog CreateArticle
 ```
 
 #### Generated Processor (Automatic)
@@ -31,13 +31,13 @@ bin/console make:application:gateway BlogContext CreateArticle
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle\Middleware;
+namespace App\Blog\Application\Gateway\CreateArticle\Middleware;
 
-use App\BlogContext\Application\Gateway\CreateArticle\Request;
-use App\BlogContext\Application\Gateway\CreateArticle\Response;
-use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
-use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
-use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\Blog\Application\Gateway\CreateArticle\Request;
+use App\Blog\Application\Gateway\CreateArticle\Response;
+use App\Blog\Application\Operation\Command\CreateArticle\Command;
+use App\Blog\Application\Operation\Command\CreateArticle\Handler;
+use App\Blog\Domain\Shared\Generator\ArticleIdGeneratorInterface;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -87,7 +87,7 @@ final readonly class Processor
 
 #### Command
 ```bash
-bin/console make:application:gateway BlogContext UpdateArticle
+bin/console make:application:gateway Blog UpdateArticle
 ```
 
 #### Generated Processor (Automatic)
@@ -96,12 +96,12 @@ bin/console make:application:gateway BlogContext UpdateArticle
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\UpdateArticle\Middleware;
+namespace App\Blog\Application\Gateway\UpdateArticle\Middleware;
 
-use App\BlogContext\Application\Gateway\UpdateArticle\Request;
-use App\BlogContext\Application\Gateway\UpdateArticle\Response;
-use App\BlogContext\Application\Operation\Command\UpdateArticle\Command;
-use App\BlogContext\Application\Operation\Command\UpdateArticle\Handler;
+use App\Blog\Application\Gateway\UpdateArticle\Request;
+use App\Blog\Application\Gateway\UpdateArticle\Response;
+use App\Blog\Application\Operation\Command\UpdateArticle\Command;
+use App\Blog\Application\Operation\Command\UpdateArticle\Handler;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -146,7 +146,7 @@ final readonly class Processor
 
 #### Command
 ```bash
-bin/console make:application:gateway BlogContext ListArticles
+bin/console make:application:gateway Blog ListArticles
 ```
 
 #### Generated Processor (Automatic)
@@ -155,12 +155,12 @@ bin/console make:application:gateway BlogContext ListArticles
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\ListArticles\Middleware;
+namespace App\Blog\Application\Gateway\ListArticles\Middleware;
 
-use App\BlogContext\Application\Gateway\ListArticles\Request;
-use App\BlogContext\Application\Gateway\ListArticles\Response;
-use App\BlogContext\Application\Operation\Query\ListArticles\Handler;
-use App\BlogContext\Application\Operation\Query\ListArticles\Query;
+use App\Blog\Application\Gateway\ListArticles\Request;
+use App\Blog\Application\Gateway\ListArticles\Response;
+use App\Blog\Application\Operation\Query\ListArticles\Handler;
+use App\Blog\Application\Operation\Query\ListArticles\Query;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -206,7 +206,7 @@ final readonly class Processor
 
 #### Command
 ```bash
-bin/console make:application:gateway BlogContext GetArticle
+bin/console make:application:gateway Blog GetArticle
 ```
 
 #### Generated Processor (Automatic)
@@ -215,12 +215,12 @@ bin/console make:application:gateway BlogContext GetArticle
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\GetArticle\Middleware;
+namespace App\Blog\Application\Gateway\GetArticle\Middleware;
 
-use App\BlogContext\Application\Gateway\GetArticle\Request;
-use App\BlogContext\Application\Gateway\GetArticle\Response;
-use App\BlogContext\Application\Operation\Query\GetArticle\Handler;
-use App\BlogContext\Application\Operation\Query\GetArticle\Query;
+use App\Blog\Application\Gateway\GetArticle\Request;
+use App\Blog\Application\Gateway\GetArticle\Response;
+use App\Blog\Application\Operation\Query\GetArticle\Handler;
+use App\Blog\Application\Operation\Query\GetArticle\Query;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -262,7 +262,7 @@ final readonly class Processor
 
 #### Command
 ```bash
-bin/console make:application:gateway BlogContext DeleteArticle
+bin/console make:application:gateway Blog DeleteArticle
 ```
 
 #### Generated Processor (Automatic)
@@ -271,12 +271,12 @@ bin/console make:application:gateway BlogContext DeleteArticle
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\DeleteArticle\Middleware;
+namespace App\Blog\Application\Gateway\DeleteArticle\Middleware;
 
-use App\BlogContext\Application\Gateway\DeleteArticle\Request;
-use App\BlogContext\Application\Gateway\DeleteArticle\Response;
-use App\BlogContext\Application\Operation\Command\DeleteArticle\Command;
-use App\BlogContext\Application\Operation\Command\DeleteArticle\Handler;
+use App\Blog\Application\Gateway\DeleteArticle\Request;
+use App\Blog\Application\Gateway\DeleteArticle\Response;
+use App\Blog\Application\Operation\Command\DeleteArticle\Command;
+use App\Blog\Application\Operation\Command\DeleteArticle\Handler;
 use App\Shared\Application\Gateway\GatewayRequest;
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -342,7 +342,7 @@ bin/console make:application:gateway CatalogContext ListProducts
 
 ```bash
 # Update category
-bin/console make:application:gateway BlogContext UpdateCategory
+bin/console make:application:gateway Blog UpdateCategory
 
 # Generated without IdGeneratorInterface (Update operation)
 # Uses existing categoryId
@@ -493,9 +493,9 @@ The maker also supports custom operation patterns:
 
 ```bash
 # These work automatically:
-bin/console make:application:gateway BlogContext PublishArticle
-bin/console make:application:gateway BlogContext ArchiveArticle
-bin/console make:application:gateway BlogContext ApproveArticle
+bin/console make:application:gateway Blog PublishArticle
+bin/console make:application:gateway Blog ArchiveArticle
+bin/console make:application:gateway Blog ApproveArticle
 ```
 
 For unsupported patterns, it generates a generic template:

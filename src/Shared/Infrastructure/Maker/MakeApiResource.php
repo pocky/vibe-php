@@ -35,7 +35,7 @@ final class MakeApiResource extends AbstractMaker
         return 'Create a new API Platform resource with Providers and Processors';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -44,7 +44,7 @@ final class MakeApiResource extends AbstractMaker
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $entity = $input->getArgument('entity');
@@ -55,10 +55,12 @@ final class MakeApiResource extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         $entityPascal = Str::asCamelCase($entity);
         $entityPascal = ucfirst($entityPascal);
+
         $entitySnake = Str::asSnakeCase($entity);
         $entityCamel = lcfirst($entityPascal);
 
@@ -71,13 +73,13 @@ final class MakeApiResource extends AbstractMaker
         $apiNamespace = sprintf('%s\\UI\\Api\\Rest\\', $context);
 
         // Generate Resource class
-        $resourceClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             $entityPascal . 'Resource',
             $apiNamespace . 'Resource\\'
         );
 
         $generator->generateClass(
-            $resourceClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/api/Resource.tpl.php',
             [
                 'entity' => $entityPascal,
@@ -193,20 +195,20 @@ final class MakeApiResource extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
-            sprintf(' - Customize the resource properties in <info>%s</info>', $resourceClassDetails->getFullName()),
+            sprintf(' - Customize the resource properties in <info>%s</info>', $classNameDetails->getFullName()),
             ' - Add validation constraints to the resource class',
             ' - Configure filters if needed',
-            ' - Create corresponding Gateway operations if they don\'t exist',
+            " - Create corresponding Gateway operations if they don't exist",
             ' - Add OpenAPI documentation annotations',
             ' - Test your API endpoints',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

@@ -26,7 +26,7 @@ final class MakeApplicationGateway extends AbstractMaker
         return 'Create a new Application Gateway with Request/Response pattern';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -35,7 +35,7 @@ final class MakeApplicationGateway extends AbstractMaker
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $operation = $input->getArgument('operation');
@@ -46,11 +46,13 @@ final class MakeApplicationGateway extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         // Prepare operation names
         $operationPascalCase = Str::asCamelCase($operation);
         $operationPascalCase = ucfirst($operationPascalCase);
+
         $operationSnakeCase = Str::asSnakeCase($operation);
 
         // Extract operation type and entity from operation name
@@ -70,17 +72,17 @@ final class MakeApplicationGateway extends AbstractMaker
         $entityCamel = lcfirst($entity);
         $entitySnake = Str::asSnakeCase($entity);
 
-        // Gateway namespace
-        $gatewayNamespace = sprintf('%s\\Application\\Gateway\\%s\\', $context, $operationPascalCase);
+        // Gateway namespace - new structure Application/Gateway/{Entity}/{Operation}
+        $gatewayNamespace = sprintf('%s\\Application\\Gateway\\%s\\%s\\', $context, $entity, $operationPascalCase);
 
         // Generate Gateway class
-        $gatewayClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             'Gateway',
             $gatewayNamespace
         );
 
         $generator->generateClass(
-            $gatewayClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/gateway/Gateway.tpl.php',
             [
                 'context_snake' => Str::asSnakeCase(str_replace('Context', '', $context)),
@@ -139,9 +141,9 @@ final class MakeApplicationGateway extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
             sprintf(' - Implement the request validation in <info>%s</info>', $requestClassDetails->getFullName()),
             sprintf(' - Define the response structure in <info>%s</info>', $responseClassDetails->getFullName()),
@@ -150,7 +152,7 @@ final class MakeApplicationGateway extends AbstractMaker
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

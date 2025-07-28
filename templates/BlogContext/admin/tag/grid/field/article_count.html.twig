@@ -1,0 +1,4 @@
+{% set count = data.articleCount|default(0) %}
+<span class="ui label {% if count > 10 %}blue{% elseif count > 5 %}teal{% elseif count > 0 %}grey{% else %}basic{% endif %}">
+    {{ count }}
+</span>

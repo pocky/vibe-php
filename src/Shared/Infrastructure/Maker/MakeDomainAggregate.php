@@ -26,17 +26,17 @@ final class MakeDomainAggregate extends AbstractMaker
         return 'Create a new Domain Aggregate with Creator, Model, and Event';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
-            ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
+            ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., Blog)')
             ->addArgument('use-case', InputArgument::REQUIRED, 'The use case name (e.g., CreateArticle)')
             ->addArgument('entity', InputArgument::REQUIRED, 'The entity name (e.g., Article)')
             ->setHelp($this->getCustomHelpFileContents('MakeDomainAggregate.txt'))
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $useCase = $input->getArgument('use-case');
@@ -45,29 +45,29 @@ final class MakeDomainAggregate extends AbstractMaker
         // Clean up names
         $context = str_replace('\\', '', $context);
         $context = ltrim($context, 'App\\');
-        if (str_ends_with($context, 'Context')) {
-            $context = substr($context, 0, -7);
-        }
-        $context .= 'Context';
 
         $useCasePascal = Str::asCamelCase($useCase);
         $useCasePascal = ucfirst($useCasePascal);
 
         $entityPascal = Str::asCamelCase($entity);
         $entityPascal = ucfirst($entityPascal);
+
         $entitySnake = Str::asSnakeCase($entity);
 
-        // Domain namespace
-        $domainNamespace = sprintf('%s\\Domain\\%s\\', $context, $useCasePascal);
+        // Determine the service name based on use case
+        $serviceName = $this->getServiceName($useCasePascal, $entityPascal);
 
-        // Generate Creator class
-        $creatorClassDetails = $generator->createClassNameDetails(
-            'Creator',
+        // Domain namespace - new structure Domain/{Entity}/
+        $domainNamespace = sprintf('%s\\Domain\\%s\\', $context, $entityPascal);
+
+        // Generate domain service class (e.g., ArticleCreator)
+        $classNameDetails = $generator->createClassNameDetails(
+            $serviceName,
             $domainNamespace
         );
 
         $generator->generateClass(
-            $creatorClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/domain/Creator.tpl.php',
             [
                 'use_case' => $useCasePascal,
@@ -77,26 +77,13 @@ final class MakeDomainAggregate extends AbstractMaker
             ]
         );
 
-        // Generate CreatorInterface
-        $creatorInterfaceDetails = $generator->createClassNameDetails(
-            'CreatorInterface',
-            $domainNamespace
-        );
+        // No longer generate interfaces - following YAGNI principle
 
-        $generator->generateClass(
-            $creatorInterfaceDetails->getFullName(),
-            __DIR__ . '/Resources/skeleton/domain/CreatorInterface.tpl.php',
-            [
-                'use_case' => $useCasePascal,
-                'entity' => $entityPascal,
-                'context' => $context,
-            ]
-        );
-
-        // Generate Model
+        // Generate Model in Shared directory
+        $sharedNamespace = sprintf('%s\\Domain\\%s\\Shared\\', $context, $entityPascal);
         $modelClassDetails = $generator->createClassNameDetails(
             $entityPascal,
-            $domainNamespace . 'Model\\'
+            $sharedNamespace . 'Model\\'
         );
 
         $generator->generateClass(
@@ -111,10 +98,10 @@ final class MakeDomainAggregate extends AbstractMaker
             ]
         );
 
-        // Generate Event
+        // Generate Event in Shared directory
         $eventClassDetails = $generator->createClassNameDetails(
             $this->getEventName($useCasePascal),
-            $domainNamespace . 'Event\\'
+            $sharedNamespace . 'Event\\'
         );
 
         $generator->generateClass(
@@ -128,10 +115,10 @@ final class MakeDomainAggregate extends AbstractMaker
             ]
         );
 
-        // Generate Exception
+        // Generate Exception in Shared directory
         $exceptionClassDetails = $generator->createClassNameDetails(
             $entityPascal . 'AlreadyExists',
-            $domainNamespace . 'Exception\\'
+            $sharedNamespace . 'Exception\\'
         );
 
         $generator->generateClass(
@@ -146,20 +133,39 @@ final class MakeDomainAggregate extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
-            sprintf(' - Define the business logic in <info>%s</info>', $creatorClassDetails->getFullName()),
-            sprintf(' - Add value objects and business rules to <info>%s</info>', $dataPersisterClassDetails->getFullName()),
+            sprintf(' - Define the business logic in <info>%s</info>', $classNameDetails->getFullName()),
+            sprintf(' - Add value objects and business rules to <info>%s</info>', $modelClassDetails->getFullName()),
             sprintf(' - Customize the domain event in <info>%s</info>', $eventClassDetails->getFullName()),
             ' - Create corresponding Command/Query handlers in Application layer',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
+    }
+
+    private function getServiceName(string $useCase, string $entity): string
+    {
+        // CreateArticle -> ArticleCreator
+        // UpdateArticle -> ArticleUpdater
+        // PublishArticle -> ArticlePublisher
+        $action = preg_replace('/^(Create|Update|Delete|Publish|Submit|Approve|Reject)/', '$1', $useCase);
+
+        return match ($action) {
+            'Create' . $entity => $entity . 'Creator',
+            'Update' . $entity => $entity . 'Updater',
+            'Delete' . $entity => $entity . 'Deleter',
+            'Publish' . $entity => $entity . 'Publisher',
+            'Submit' . $entity => $entity . 'Submitter',
+            'Approve' . $entity => $entity . 'Approver',
+            'Reject' . $entity => $entity . 'Rejector',
+            default => $entity . 'Service',
+        };
     }
 
     private function getEventName(string $useCase): string

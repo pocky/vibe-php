@@ -45,9 +45,9 @@ These agents are called by the orchestrator automatically:
 - Generates consistent DDD structure across all layers
 - Coordinates with tdd-expert for implementation
 
-#### tdd-expert
-**Specialization**: Test-Driven Development implementation
-- Red-Green-Refactor cycle
+#### symfony-tdd-expert
+**Specialization**: Symfony Test-Driven Development implementation
+- Red-Green-Refactor cycle with PHP 8.4+ and Symfony
 - Complete test coverage
 - Clean code practices
 - Implementation of all concrete components
@@ -71,11 +71,10 @@ These agents are called by the orchestrator automatically:
 Used during the planning phase:
 
 - **business-analyst**: Business requirement analysis
-- **ears-expert**: EARS format requirements
+- **ears-expert**: EARS format requirements  
 - **story-decomposer**: User story breakdown
 - **test-generator**: Test scenario creation
 - **spec-validator**: Specification validation
-- **domain-expert**: Ubiquitous language
 
 ### 🔍 Quality Agents
 
@@ -86,6 +85,14 @@ Called for code review and optimization:
 - **performance-optimizer**: Performance tuning
 - **security-auditor**: Security analysis
 - **architecture-validator**: DDD validation
+- **behat**: BDD testing with Gherkin scenarios and Symfony integration
+
+### 🛠️ Infrastructure Agents
+
+Specialized in infrastructure and tooling:
+
+- **docker-expert**: Docker containerization and optimization
+- **architect**: Creating and optimizing Claude agents with advanced prompt engineering
 
 ## Using Agents
 
@@ -125,13 +132,22 @@ For specific tasks, call agents directly:
 > Use the domain-expert agent to design payment processing
 
 # TDD implementation
-> Use the tdd-expert agent to implement payment gateway
+> Use the symfony-tdd-expert agent to implement payment gateway
 
 # API development
 > Use the api-platform-expert agent to create payment API
 
 # Admin interface
 > Use the admin-ui-expert agent to create payment admin
+
+# BDD testing
+> Use the behat agent to create acceptance tests for payment processing
+
+# Docker setup
+> Use the docker-expert agent to optimize our container configuration
+
+# Agent creation
+> Use the architect to create a custom deployment agent
 ```
 
 ## Agent Capabilities

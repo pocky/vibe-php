@@ -36,20 +36,22 @@ final class MakeDomainValueObject extends AbstractMaker
         return 'Create a new Domain Value Object with validation';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
             ->addArgument('name', InputArgument::REQUIRED, 'The value object name (e.g., Email, Status)')
+            ->addOption('entity', 'e', InputOption::VALUE_OPTIONAL, 'The entity this value object belongs to (e.g., Article)')
             ->addOption('template', 't', InputOption::VALUE_OPTIONAL, sprintf('Template to use (%s)', implode(', ', self::AVAILABLE_TEMPLATES)), 'generic')
             ->setHelp($this->getCustomHelpFileContents('MakeDomainValueObject.txt'))
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $name = $input->getArgument('name');
+        $entity = $input->getOption('entity');
         $template = $input->getOption('template');
 
         // Validate template
@@ -63,17 +65,26 @@ final class MakeDomainValueObject extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         $namePascal = Str::asCamelCase($name);
         $namePascal = ucfirst($namePascal);
+
         $nameSnake = Str::asSnakeCase($name);
 
-        // Value object namespace
-        $valueObjectNamespace = sprintf('%s\\Domain\\Shared\\ValueObject\\', $context);
+        // Value object namespace - if entity is specified, put in entity's shared folder
+        if ($entity) {
+            $entityPascal = Str::asCamelCase($entity);
+            $entityPascal = ucfirst($entityPascal);
+            $valueObjectNamespace = sprintf('%s\\Domain\\%s\\Shared\\ValueObject\\', $context, $entityPascal);
+        } else {
+            // Otherwise put in global shared folder
+            $valueObjectNamespace = sprintf('%s\\Domain\\Shared\\ValueObject\\', $context);
+        }
 
         // Generate Value Object class
-        $valueObjectClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             $namePascal,
             $valueObjectNamespace
         );
@@ -82,7 +93,7 @@ final class MakeDomainValueObject extends AbstractMaker
         $templateFile = sprintf('ValueObject%s.tpl.php', ucfirst($template));
 
         $generator->generateClass(
-            $valueObjectClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/valueObject/' . $templateFile,
             [
                 'name' => $namePascal,
@@ -94,18 +105,18 @@ final class MakeDomainValueObject extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
-            sprintf(' - Customize validation rules in <info>%s</info>', $valueObjectClassDetails->getFullName()),
+            sprintf(' - Customize validation rules in <info>%s</info>', $classNameDetails->getFullName()),
             ' - Add translation keys for validation messages',
             ' - Consider adding factory methods if needed',
             ' - Add business-specific methods as required',
         ]);
 
         if ('generic' !== $template) {
-            $io->text([
+            $consoleStyle->text([
                 '',
                 sprintf('Template "%s" was used. You may need to:', $template),
                 ' - Adjust validation rules for your specific requirements',
@@ -114,7 +125,7 @@ final class MakeDomainValueObject extends AbstractMaker
         }
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

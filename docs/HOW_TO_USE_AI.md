@@ -90,29 +90,28 @@ The project includes comprehensive documentation and methodology:
 The project uses a command-driven workflow with custom slash commands:
 
 **Specification workflow:**
-- `/spec:plan` - Break down project into features
-- `/spec:requirements` - Detail EARS-formatted requirements
-- `/spec:design` - Generate technical design
-- `/spec:tasks` - Create TDD implementation tasks
-- `/act` - Execute TDD implementation
+- `/spec:prd` - Create Product Requirements Document with EARS
+- `/spec:requirements` - Detail requirements and acceptance criteria
+- `/spec:plan` - Create technical architecture and design
+- `/spec:design` - Domain modeling and detailed design (optional)
+- `/orchestrate` - Coordinate implementation with expert agents
 
-**Code generation:**
-- `/code:hexagonal:value-object` - Create value objects
-- `/code:hexagonal:entity` - Create domain entities
-- `/code:hexagonal:aggregate` - Create aggregate roots
-- `/code:hexagonal:gateway` - Create application gateways
-- `/code:hexagonal:command` - Create CQRS commands
-- `/code:hexagonal:query` - Create CQRS queries
+**Implementation support:**
+- `/orchestrate` uses expert agents for code generation:
+  - domain-expert: Domain modeling and ubiquitous language
+  - maker-expert: Code generation using Symfony makers
+  - symfony-tdd-expert: TDD implementation
+  - api-platform-expert: REST API development
+  - admin-ui-expert: Admin interface creation
 
 **Quality assurance:**
-- `/workflow:qa` - Run quality checks
-- `/utils:qa` - Quality assurance utilities
-- `/utils:debug` - Debug assistance
+- `/qa` - Run comprehensive quality checks
+- `/agent:review` - Code review using expert agents
 
-**Documentation:**
-- `/utils:adr` - Create Architecture Decision Records
-- `/utils:prd` - Create Product Requirements Documents
-- `/utils:user-story` - Create user stories
+**BDD Testing:**
+- `/bdd:feature` - Create BDD feature files
+- `/bdd:context` - Generate Behat contexts
+- `/bdd:setup` - Setup Behat test structure
 
 #### Recommended usage
 
@@ -133,23 +132,23 @@ The project uses a command-driven workflow with custom slash commands:
 #### Usage examples
 
 ```bash
-# Start a new feature with planning
-/spec:plan Add category management to blog system
+# Create Product Requirements Document
+/spec:prd blog category-management
 
-# Define requirements
-/spec:requirements blog-categories
+# Detail requirements
+/spec:requirements
 
 # Create technical design
+/spec:plan blog
+
+# Optional: Domain design
 /spec:design
 
-# Break down into TDD tasks
-/spec:tasks
-
-# Implement with TDD
-/act
+# Coordinate implementation with expert agents
+/orchestrate
 
 # Run quality assurance
-/workflow:qa
+/qa
 ```
 
 ### 2. Local development methodology
@@ -188,11 +187,11 @@ All commands are defined in `.claude/commands/` with specific purposes:
 
 ```mermaid
 graph LR
-    A[spec:plan] --> B[spec:requirements]
-    B --> C[spec:design]
-    C --> D[spec:tasks]
-    D --> E[act]
-    E --> F[workflow:qa]
+    A[spec:prd] --> B[spec:requirements]
+    B --> C[spec:plan]
+    C --> D[spec:design]
+    D --> E[orchestrate]
+    E --> F[qa]
     
     style A fill:#fff3e0
     style B fill:#e3f2fd
@@ -211,30 +210,29 @@ graph LR
    - Assess impact on existing architecture
    - Decide on technical constraints
 
-2. **AI-assisted specification**
+2. **Product Requirements Document**
    ```
-   /spec:plan Add email notification system for article publishing
+   /spec:prd blog email-notifications
    ```
 
-3. **Requirements definition**
+3. **Detailed requirements**
    ```
-   /spec:requirements article-notifications
+   /spec:requirements
    ```
 
 4. **Technical design** (mandatory human validation)
    ```
-   /spec:design
+   /spec:plan blog
    ```
 
-5. **TDD implementation**
+5. **Implementation with expert agents**
    ```
-   /spec:tasks
-   /act
+   /orchestrate
    ```
 
 6. **Quality assurance** (mandatory)
    ```
-   /workflow:qa
+   /qa
    ```
 
 7. **Human review** (mandatory)
@@ -245,9 +243,9 @@ graph LR
 ### For maintenance/debugging
 
 1. **Problem analysis**
-   ```
-   /utils:debug error "Class not found exception in ArticleRepository"
-   ```
+   - Analyze error messages and logs
+   - Check related documentation
+   - Use `/agent:review` for code analysis
 
 2. **Solution research**
    - AI suggests approaches

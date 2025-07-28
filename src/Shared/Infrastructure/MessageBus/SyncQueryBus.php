@@ -14,9 +14,9 @@ final class SyncQueryBus implements QueryBusInterface
 
     public function __construct(
         /** @phpstan-ignore-next-line */
-        private readonly MessageBusInterface $queryBus,
+        private readonly MessageBusInterface $bus,
     ) {
-        $this->messageBus = $queryBus;
+        $this->messageBus = $bus;
     }
 
     /**

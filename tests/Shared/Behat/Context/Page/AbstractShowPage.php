@@ -10,9 +10,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AbstractShowPage extends AbstractAdminPage
 {
-    public function __construct(Session $session, \ArrayAccess $minkParameters, RouterInterface $router)
+    public function __construct(Session $session, \ArrayAccess $arrayAccess, RouterInterface $router)
     {
-        parent::__construct($session, $minkParameters, $router);
+        parent::__construct($session, $arrayAccess, $router);
     }
 
     public function getValidationMessage(string $element): string

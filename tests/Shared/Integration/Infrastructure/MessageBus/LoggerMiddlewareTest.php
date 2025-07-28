@@ -15,15 +15,17 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class LoggerMiddlewareTest extends TestCase
 {
-    private LoggerInterface $logger;
-    private NormalizerInterface $normalizer;
-    private LoggerMiddleware $middleware;
+    private \PHPUnit\Framework\MockObject\MockObject $logger;
+
+    private \PHPUnit\Framework\MockObject\MockObject $normalizer;
+
+    private LoggerMiddleware $loggerMiddleware;
 
     protected function setUp(): void
     {
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->normalizer = $this->createMock(NormalizerInterface::class);
-        $this->middleware = new LoggerMiddleware($this->logger, $this->normalizer);
+        $this->loggerMiddleware = new LoggerMiddleware($this->logger, $this->normalizer);
     }
 
     public function testHandleLogsReceivedAndHandledMessages(): void
@@ -66,7 +68,7 @@ final class LoggerMiddlewareTest extends TestCase
         $actualLogs = [];
         $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->willReturnCallback(function (string $message) use (&$actualLogs) {
+            ->willReturnCallback(function (string $message) use (&$actualLogs): void {
                 $actualLogs[] = $message;
             });
 
@@ -82,7 +84,7 @@ final class LoggerMiddlewareTest extends TestCase
             ->with($envelope, $stack)
             ->willReturn($processedEnvelope);
 
-        $result = $this->middleware->handle($envelope, $stack);
+        $result = $this->loggerMiddleware->handle($envelope, $stack);
 
         $this->assertSame($processedEnvelope, $result);
         $this->assertCount(2, $actualLogs);
@@ -122,7 +124,7 @@ final class LoggerMiddlewareTest extends TestCase
         $actualLogs = [];
         $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->willReturnCallback(function (string $message) use (&$actualLogs) {
+            ->willReturnCallback(function (string $message) use (&$actualLogs): void {
                 $actualLogs[] = $message;
             });
 
@@ -138,7 +140,7 @@ final class LoggerMiddlewareTest extends TestCase
             ->with($envelope, $stack)
             ->willReturn($envelope);
 
-        $result = $this->middleware->handle($envelope, $stack);
+        $result = $this->loggerMiddleware->handle($envelope, $stack);
 
         $this->assertSame($envelope, $result);
         $this->assertCount(2, $actualLogs);
@@ -167,7 +169,7 @@ final class LoggerMiddlewareTest extends TestCase
             ->with($envelope, $stack)
             ->willReturn($modifiedEnvelope);
 
-        $result = $this->middleware->handle($envelope, $stack);
+        $result = $this->loggerMiddleware->handle($envelope, $stack);
 
         $this->assertSame($modifiedEnvelope, $result);
     }

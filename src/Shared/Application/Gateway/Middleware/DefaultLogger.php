@@ -9,16 +9,16 @@ use App\Shared\Application\Gateway\{GatewayRequest, GatewayResponse, Instrumenta
 final readonly class DefaultLogger
 {
     public function __construct(
-        private GatewayInstrumentation $instrumentation,
+        private GatewayInstrumentation $gatewayInstrumentation,
     ) {
     }
 
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest, callable $next): GatewayResponse
     {
-        $this->instrumentation->start($request);
+        $this->gatewayInstrumentation->start($gatewayRequest);
         /** @var GatewayResponse $response */
-        $response = ($next)($request);
-        $this->instrumentation->success($response);
+        $response = ($next)($gatewayRequest);
+        $this->gatewayInstrumentation->success($response);
 
         return $response;
     }

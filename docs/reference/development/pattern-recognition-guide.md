@@ -31,7 +31,7 @@ flowchart TD
 
 ## 🗺️ Gateway Request Pattern Map
 
-Based on analysis of existing BlogContext Gateway Request classes:
+Based on analysis of existing Blog Gateway Request classes:
 
 ```mermaid
 graph TB
@@ -305,9 +305,9 @@ Before creating any Gateway Request:
 ## 📚 References
 
 - **Gateway Pattern Documentation**: `@docs/reference/gateway-pattern.md`
-- **Existing Implementations**: `src/BlogContext/Application/Gateway/*/Request.php`
-- **Validation Examples**: `src/BlogContext/Application/Gateway/CreateArticle/Request.php`
-- **Simple Examples**: `src/BlogContext/Application/Gateway/GetArticle/Request.php`
+- **Existing Implementations**: `src/Blog/Application/Gateway/*/Request.php`
+- **Validation Examples**: `src/Blog/Application/Gateway/CreateArticle/Request.php`
+- **Simple Examples**: `src/Blog/Application/Gateway/GetArticle/Request.php`
 
 ## 🎯 Success Metrics
 

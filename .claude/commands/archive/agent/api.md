@@ -333,17 +333,17 @@ These commands create EMPTY scaffolding - just the structure, NO business logic.
 For implementing Article API with REAL Behat TDD:
 
 ### Phase 1: Scaffolding
-1. `/code/api:resource BlogContext Article` → creates empty API resource structure
-2. `/code/api:behat BlogContext ArticleAPI` → creates feature file structure
+1. `/code/api:resource Blog Article` → creates empty API resource structure
+2. `/code/api:behat Blog ArticleAPI` → creates feature file structure
 
 ### Phase 2: Incremental TDD (ONE scenario at a time)
-3. `/code/api/scenario BlogContext CreateArticle success` → RED ❌
+3. `/code/api/scenario Blog CreateArticle success` → RED ❌
 4. Implement POST /api/articles endpoint → GREEN ✅
-5. `/code/api/scenario BlogContext CreateArticle validation-error` → RED ❌
+5. `/code/api/scenario Blog CreateArticle validation-error` → RED ❌
 6. Add input validation → GREEN ✅
-7. `/code/api/scenario BlogContext GetArticle success` → RED ❌
+7. `/code/api/scenario Blog GetArticle success` → RED ❌
 8. Implement GET /api/articles/{id} endpoint → GREEN ✅
-9. `/code/api/scenario BlogContext GetArticle not-found` → RED ❌
+9. `/code/api/scenario Blog GetArticle not-found` → RED ❌
 10. Add 404 error handling → GREEN ✅
 11. Continue ONE scenario at a time for ALL API operations...
 
@@ -369,7 +369,7 @@ Check `@config/packages/api_platform.php` and verify your context is included:
 ```php
 'mapping' => [
     'paths' => [
-        '%kernel.project_dir%/src/BlogContext/UI/Api/Rest/Resource',
+        '%kernel.project_dir%/src/Blog/UI/Api/Rest/Resource',
         // Add new contexts here:
         '%kernel.project_dir%/src/YourNewContext/UI/Api/Rest/Resource',
     ],

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Application\Gateway\Middleware;
 
-use App\BlogContext\Application\Gateway\CreateArticle\Request;
-use App\BlogContext\Application\Gateway\CreateArticle\Response;
+use App\Blog\Application\Gateway\Article\CreateArticle\Request;
+use App\Blog\Application\Gateway\Article\CreateArticle\Response;
 use App\Shared\Application\Gateway\Middleware\DefaultValidation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -14,13 +14,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class DefaultValidationTest extends TestCase
 {
-    private ValidatorInterface $validator;
-    private DefaultValidation $validation;
+    private \PHPUnit\Framework\MockObject\MockObject $validator;
+
+    private DefaultValidation $defaultValidation;
 
     protected function setUp(): void
     {
         $this->validator = $this->createMock(ValidatorInterface::class);
-        $this->validation = new DefaultValidation($this->validator);
+        $this->defaultValidation = new DefaultValidation($this->validator);
     }
 
     public function testValidationPassesWithValidData(): void
@@ -41,7 +42,7 @@ final class DefaultValidationTest extends TestCase
             slug: 'test'
         );
 
-        $next = fn () => $expectedResponse;
+        $next = fn (): Response => $expectedResponse;
 
         // Mock validator to return no violations (valid)
         $violations = $this->createMock(ConstraintViolationListInterface::class);
@@ -55,10 +56,10 @@ final class DefaultValidationTest extends TestCase
             ->willReturn($violations);
 
         // When
-        $response = ($this->validation)($request, $next);
+        $gatewayResponse = ($this->defaultValidation)($request, $next);
 
         // Then
-        $this->assertSame($expectedResponse, $response);
+        $this->assertSame($expectedResponse, $gatewayResponse);
     }
 
     public function testValidationFailsWithInvalidData(): void
@@ -72,7 +73,7 @@ final class DefaultValidationTest extends TestCase
             'authorId' => '550e8400-e29b-41d4-a716-446655440000',
         ]);
 
-        $next = fn () => new Response(true, 'Article created successfully', '123', 'test');
+        $next = fn (): Response => new Response(true, 'Article created successfully', '123', 'test');
 
         // Mock validator to return violations (invalid)
         $violations = $this->createMock(ConstraintViolationListInterface::class);
@@ -89,7 +90,7 @@ final class DefaultValidationTest extends TestCase
         $this->expectException(ValidationFailedException::class);
 
         // When
-        ($this->validation)($request, $next);
+        ($this->defaultValidation)($request, $next);
     }
 
     public function testValidationWithMissingAuthorId(): void

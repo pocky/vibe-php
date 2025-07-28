@@ -43,9 +43,20 @@ Basic value object template for custom validation:
 final class Title
 {
     public function __construct(
-        private(set) string $value,
-    ) {
-        $this->validate();
+        private string $value {
+            set
+    {
+        $trimmed = trim($value);
+        
+        if ('' === $trimmed) {
+            throw ValidationException::withTranslationKey('validation.title.empty');
+        }
+        
+        $this->value = $trimmed;
+    }
+        }
+    )
+    {
     }
 }
 ```
@@ -263,11 +274,12 @@ if (!$this->isValidSkuFormat($this->value)) {
 
 ## Quality Standards
 - Follow @docs/reference/architecture/patterns/domain-layer-pattern.md
-- Use PHP 8.4 features (asymmetric visibility)
+- Use PHP 8.4 features (property hooks in constructor)
 - Immutable by design (no setters)
-- Business validation in constructor
+- Business validation in property hooks
 - Translation keys for error messages
 - Consistent `getValue()` method across all value objects
+- Factory method `fromString()` for all value objects
 
 ## 🚨 Quality Benefits
 
@@ -302,7 +314,7 @@ Implement comprehensive validation covering:
 
 ```bash
 # 1. Create value object with appropriate template
-/code:hexagonal:value-object BlogContext ArticleTitle
+/code:hexagonal:value-object Blog ArticleTitle
 
 # This will:
 # - Generate value object structure
@@ -377,7 +389,7 @@ After creating value objects:
 ### For ID Value Objects
 If you created an ID value object (e.g., ArticleId):
 ```bash
-/code:hexagonal:id-generator BlogContext Article  # Create dedicated ID generator
+/code:hexagonal:id-generator Blog Article  # Create dedicated ID generator
 ```
 
 ### For Other Value Objects

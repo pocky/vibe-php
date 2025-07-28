@@ -40,6 +40,8 @@
     </source>
 
     <extensions>
+        <bootstrap class="DG\BypassFinals\PHPUnitExtension"/>
         <bootstrap class="Symfony\Component\Panther\ServerExtension" />
+        <bootstrap class="DG\BypassFinals\PHPUnitExtension"/>
     </extensions>
 </phpunit>

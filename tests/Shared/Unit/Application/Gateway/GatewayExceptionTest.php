@@ -12,22 +12,22 @@ final class GatewayExceptionTest extends TestCase
     public function testConstructorBuildsMessageCorrectly(): void
     {
         $message = 'Test error message';
-        $originalException = new \RuntimeException('Original error', 0);
+        $runtimeException = new \RuntimeException('Original error', 0);
 
-        $gatewayException = new GatewayException($message, $originalException);
+        $gatewayException = new GatewayException($message, $runtimeException);
 
         $this->assertStringContainsString($message, $gatewayException->getMessage());
         $this->assertStringContainsString('Original error', $gatewayException->getMessage());
-        $this->assertSame($originalException, $gatewayException->getPrevious());
+        $this->assertSame($runtimeException, $gatewayException->getPrevious());
     }
 
     public function testExceptionChaining(): void
     {
-        $originalException = new \InvalidArgumentException('Invalid input');
-        $gatewayException = new GatewayException('Gateway error', $originalException);
+        $invalidArgumentException = new \InvalidArgumentException('Invalid input');
+        $gatewayException = new GatewayException('Gateway error', $invalidArgumentException);
 
         $this->assertInstanceOf(\Exception::class, $gatewayException);
-        $this->assertSame($originalException, $gatewayException->getPrevious());
+        $this->assertSame($invalidArgumentException, $gatewayException->getPrevious());
     }
 
     public function testMessageFormatting(): void

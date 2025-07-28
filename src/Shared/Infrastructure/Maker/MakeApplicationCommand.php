@@ -26,7 +26,7 @@ final class MakeApplicationCommand extends AbstractMaker
         return 'Create a new CQRS Command with Handler';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -35,7 +35,7 @@ final class MakeApplicationCommand extends AbstractMaker
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $commandName = $input->getArgument('command-name');
@@ -46,6 +46,7 @@ final class MakeApplicationCommand extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         $commandNamePascal = Str::asCamelCase($commandName);
@@ -55,17 +56,17 @@ final class MakeApplicationCommand extends AbstractMaker
         $entity = preg_replace('/^(Create|Update|Delete|Publish|Submit|Approve|Reject|Add)/', '', $commandNamePascal);
         $entitySnake = Str::asSnakeCase($entity);
 
-        // Command namespace
-        $commandNamespace = sprintf('%s\\Application\\Operation\\Command\\%s\\', $context, $commandNamePascal);
+        // Command namespace - new structure Application/Operation/Command/{Entity}/{Command}
+        $commandNamespace = sprintf('%s\\Application\\Operation\\Command\\%s\\%s\\', $context, $entity, $commandNamePascal);
 
         // Generate Command class
-        $commandClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             'Command',
             $commandNamespace
         );
 
         $generator->generateClass(
-            $commandClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/command/Command.tpl.php',
             [
                 'entity' => $entity,
@@ -106,18 +107,18 @@ final class MakeApplicationCommand extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
-            sprintf(' - Define command properties in <info>%s</info>', $commandClassDetails->getFullName()),
+            sprintf(' - Define command properties in <info>%s</info>', $classNameDetails->getFullName()),
             sprintf(' - Implement the handler logic in <info>%s</info>', $handlerClassDetails->getFullName()),
             sprintf(' - Create or update the domain Creator in <info>src/%s/Domain/%s/Creator.php</info>', $context, $commandNamePascal),
             ' - Register the handler as a message handler if using Messenger',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

@@ -11,29 +11,29 @@ final class SpecificationTest extends TestCase
 {
     public function testSpecificationIsInterface(): void
     {
-        $reflection = new \ReflectionClass(Specification::class);
+        $reflectionClass = new \ReflectionClass(Specification::class);
 
-        $this->assertTrue($reflection->isInterface());
+        $this->assertTrue($reflectionClass->isInterface());
     }
 
     public function testSpecificationHasIsSatisfiedByMethod(): void
     {
-        $reflection = new \ReflectionClass(Specification::class);
+        $reflectionClass = new \ReflectionClass(Specification::class);
 
-        $this->assertTrue($reflection->hasMethod('isSatisfiedBy'));
+        $this->assertTrue($reflectionClass->hasMethod('isSatisfiedBy'));
 
-        $method = $reflection->getMethod('isSatisfiedBy');
-        $this->assertTrue($method->isPublic());
-        $this->assertFalse($method->isStatic());
+        $reflectionMethod = $reflectionClass->getMethod('isSatisfiedBy');
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertFalse($reflectionMethod->isStatic());
     }
 
     public function testIsSatisfiedByMethodSignature(): void
     {
-        $reflection = new \ReflectionClass(Specification::class);
-        $method = $reflection->getMethod('isSatisfiedBy');
+        $reflectionClass = new \ReflectionClass(Specification::class);
+        $reflectionMethod = $reflectionClass->getMethod('isSatisfiedBy');
 
         // Vérifier les paramètres
-        $parameters = $method->getParameters();
+        $parameters = $reflectionMethod->getParameters();
         $this->assertCount(1, $parameters);
 
         $candidateParam = $parameters[0];
@@ -42,8 +42,8 @@ final class SpecificationTest extends TestCase
         $this->assertSame('object', $candidateParam->getType()->getName());
 
         // Vérifier le type de retour
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('bool', $method->getReturnType()->getName());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('bool', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testConcreteSpecificationImplementation(): void
@@ -181,7 +181,7 @@ final class SpecificationTest extends TestCase
             private array $specifications;
 
             public function __construct(
-                Specification ...$specifications
+                Specification ...$specifications,
             ) {
                 $this->specifications = $specifications;
             }
@@ -217,13 +217,13 @@ final class SpecificationTest extends TestCase
         $validObject = new \stdClass();
         $validObject->name = 'test';
 
-        $invalidTypeObject = new \ArrayObject();
-        $invalidTypeObject->name = 'test';
+        $arrayObject = new \ArrayObject();
+        $arrayObject->name = 'test';
 
         $invalidPropertyObject = new \stdClass();
 
         $this->assertTrue($composite->isSatisfiedBy($validObject));
-        $this->assertFalse($composite->isSatisfiedBy($invalidTypeObject));
+        $this->assertFalse($composite->isSatisfiedBy($arrayObject));
         $this->assertFalse($composite->isSatisfiedBy($invalidPropertyObject));
     }
 

@@ -307,7 +307,7 @@ grep -r "articles exist" features/
 cat behat.dist.php
 
 # Verify context class exists and namespace is correct
-ls -la tests/BlogContext/Behat/Context/
+ls -la tests/Blog/Behat/Context/
 
 # Check autoload
 docker compose exec app composer dump-autoload
@@ -605,7 +605,7 @@ docker compose exec app bin/console doctrine:query:sql "SHOW TABLES" --env=test
 
 ### Context-Specific Debugging
 ```bash
-# Debug BlogContext specifically
+# Debug Blog specifically
 docker compose exec app vendor/bin/behat --name="articles" -vvv
 
 # Check service registrations for contexts

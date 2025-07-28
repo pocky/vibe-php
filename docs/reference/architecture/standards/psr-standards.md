@@ -48,39 +48,39 @@ According to the [PSR-4 specification](https://www.php-fig.org/psr/psr-4/):
 | Namespace | Directory | Example |
 |-----------|-----------|---------|
 | `App\` | `src/` | Base application namespace |
-| `App\BlogContext\` | `src/BlogContext/` | Blog bounded context |
-| `App\BlogContext\Domain\` | `src/BlogContext/Domain/` | Domain layer |
-| `App\BlogContext\Application\` | `src/BlogContext/Application/` | Application layer |
-| `App\BlogContext\Infrastructure\` | `src/BlogContext/Infrastructure/` | Infrastructure layer |
-| `App\BlogContext\UI\` | `src/BlogContext/UI/` | UI layer |
+| `App\Blog\` | `src/Blog/` | Blog bounded context |
+| `App\Blog\Domain\` | `src/Blog/Domain/` | Domain layer |
+| `App\Blog\Application\` | `src/Blog/Application/` | Application layer |
+| `App\Blog\Infrastructure\` | `src/Blog/Infrastructure/` | Infrastructure layer |
+| `App\Blog\UI\` | `src/Blog/UI/` | UI layer |
 | `App\Shared\` | `src/Shared/` | Shared kernel |
 | `App\Tests\` | `tests/` | Test namespace |
 
 #### Examples
 
 1. **Domain Value Object**:
-   - Class: `App\BlogContext\Domain\Shared\ValueObject\ArticleId`
-   - File: `src/BlogContext/Domain/Shared/ValueObject/ArticleId.php`
+   - Class: `App\Blog\Domain\Article\Shared\ValueObject\ArticleId`
+   - File: `src/Blog/Domain/Article/Shared/ValueObject/ArticleId.php`
 
 2. **Application Gateway**:
-   - Class: `App\BlogContext\Application\Gateway\CreateArticle\Gateway`
-   - File: `src/BlogContext/Application/Gateway/CreateArticle/Gateway.php`
+   - Class: `App\Blog\Application\Gateway\Article\CreateArticle\Gateway`
+   - File: `src/Blog/Application/Gateway/Article/CreateArticle/Gateway.php`
 
 3. **Infrastructure Repository**:
-   - Class: `App\BlogContext\Infrastructure\Persistence\Doctrine\ArticleRepository`
-   - File: `src/BlogContext/Infrastructure/Persistence/Doctrine/ArticleRepository.php`
+   - Class: `App\Blog\Infrastructure\Persistence\Doctrine\ArticleRepository`
+   - File: `src/Blog/Infrastructure/Persistence/Doctrine/ArticleRepository.php`
 
 4. **Test Class**:
-   - Class: `App\Tests\BlogContext\Unit\Domain\ValueObject\ArticleIdTest`
-   - File: `tests/BlogContext/Unit/Domain/ValueObject/ArticleIdTest.php`
+   - Class: `App\Tests\Blog\Unit\Domain\ValueObject\ArticleIdTest`
+   - File: `tests/Blog/Unit/Domain/ValueObject/ArticleIdTest.php`
 
 ### Validation Rules
 
 #### ✅ Correct PSR-4 Implementation
 
 ```php
-// File: src/BlogContext/Domain/CreateArticle/Creator.php
-namespace App\BlogContext\Domain\CreateArticle;
+// File: src/Blog/Domain/Article/CreateArticle/Creator.php
+namespace App\Blog\Domain\Article\CreateArticle;
 
 final class Creator
 {
@@ -92,15 +92,15 @@ final class Creator
 
 1. **Wrong Case**:
    ```php
-   // File: src/blogcontext/domain/createarticle/creator.php ❌
-   // Should be: src/BlogContext/Domain/CreateArticle/Creator.php ✅
+   // File: src/blogcontext/domain/article/createarticle/creator.php ❌
+   // Should be: src/Blog/Domain/Article/CreateArticle/Creator.php ✅
    ```
 
 2. **Mismatched Namespace**:
    ```php
-   // File: src/BlogContext/Domain/CreateArticle/Creator.php
-   namespace App\Blog\Domain\CreateArticle; // ❌ Missing "Context"
-   namespace App\BlogContext\Domain\CreateArticle; // ✅
+   // File: src/Blog/Domain/Article/CreateArticle/Creator.php
+   namespace App\Blog\Domain\Article\CreateArticle; // ❌ Missing "Context"
+   namespace App\Blog\Domain\Article\CreateArticle; // ✅
    ```
 
 3. **Multiple Classes per File**:
@@ -148,10 +148,10 @@ This project follows PSR-12 for coding style, which extends and replaces PSR-2.
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle;
+namespace App\Blog\Domain\CreateArticle;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
-use App\BlogContext\Domain\Shared\ValueObject\Title;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\Title;
 
 final class Creator
 {
@@ -243,7 +243,7 @@ All PSR standards are enforced in the CI pipeline through quality assurance tool
 
 ### Issue: Class Not Found
 
-**Symptom**: `Class 'App\BlogContext\...' not found`
+**Symptom**: `Class 'App\Blog\...' not found`
 
 **Solutions**:
 1. Check file exists at correct path
@@ -256,7 +256,7 @@ All PSR standards are enforced in the CI pipeline through quality assurance tool
 **Symptom**: Works on Windows/Mac but fails on Linux
 
 **Solution**: Always use exact case matching:
-- `BlogContext` not `blogcontext` or `blogContext`
+- `Blog` not `blogcontext` or `blogContext`
 - `CreateArticle` not `createarticle` or `createArticle`
 
 ### Issue: Namespace Typos

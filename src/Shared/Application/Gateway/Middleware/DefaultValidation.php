@@ -20,20 +20,20 @@ final readonly class DefaultValidation
      * @template TRequest of GatewayRequest
      * @template TResponse of GatewayResponse
      *
-     * @param TRequest $request
+     * @param TRequest $gatewayRequest
      * @param callable(TRequest): TResponse $next
      *
      * @return TResponse
      */
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest, callable $next): GatewayResponse
     {
         // Use Symfony Validator to validate the request object
-        $violations = $this->validator->validate($request);
+        $constraintViolationList = $this->validator->validate($gatewayRequest);
 
-        if (0 < count($violations)) {
-            throw new ValidationFailedException($request, $violations);
+        if (0 < count($constraintViolationList)) {
+            throw new ValidationFailedException($gatewayRequest, $constraintViolationList);
         }
 
-        return $next($request);
+        return $next($gatewayRequest);
     }
 }

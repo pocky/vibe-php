@@ -13,9 +13,11 @@ use Psr\Log\LoggerInterface;
 
 final class AbstractGatewayInstrumentationTest extends TestCase
 {
-    private LoggerInterface $logger;
-    private LoggerInstrumentation $loggerInstrumentation;
-    private AbstractGatewayInstrumentation $instrumentation;
+    private \PHPUnit\Framework\MockObject\MockObject $logger;
+
+    private \PHPUnit\Framework\MockObject\MockObject $loggerInstrumentation;
+
+    private AbstractGatewayInstrumentation $gatewayInstrumentation;
 
     protected function setUp(): void
     {
@@ -26,7 +28,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
             ->willReturn($this->logger);
 
         // Create a concrete implementation for testing
-        $this->instrumentation = new class($this->loggerInstrumentation) extends AbstractGatewayInstrumentation {
+        $this->gatewayInstrumentation = new class($this->loggerInstrumentation) extends AbstractGatewayInstrumentation {
             public const NAME = 'test.gateway';
         };
     }
@@ -45,7 +47,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('test.gateway', $requestData);
 
-        $this->instrumentation->start($request);
+        $this->gatewayInstrumentation->start($request);
     }
 
     public function testSuccessLogsGatewayResponseData(): void
@@ -64,7 +66,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('test.gateway.success', $responseData);
 
-        $this->instrumentation->success($response);
+        $this->gatewayInstrumentation->success($response);
     }
 
     public function testErrorLogsGatewayRequestDataWithReason(): void
@@ -87,7 +89,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
             ->method('error')
             ->with('test.gateway.error', $expectedData);
 
-        $this->instrumentation->error($request, $reason);
+        $this->gatewayInstrumentation->error($request, $reason);
     }
 
     public function testConstructorSetsLoggerFromInstrumentation(): void
@@ -111,7 +113,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
     {
         $this->assertInstanceOf(
             \App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation::class,
-            $this->instrumentation
+            $this->gatewayInstrumentation
         );
     }
 
@@ -137,7 +139,7 @@ final class AbstractGatewayInstrumentationTest extends TestCase
         $this->logger
             ->expects($this->exactly(2))
             ->method('info')
-            ->willReturnCallback(function ($message, $context) use (&$callCount, $expectedCalls) {
+            ->willReturnCallback(function ($message, $context) use (&$callCount, $expectedCalls): void {
                 $this->assertEquals($expectedCalls[$callCount][0], $message);
                 $this->assertEquals($expectedCalls[$callCount][1], $context);
                 ++$callCount;
@@ -162,18 +164,12 @@ final class AbstractGatewayInstrumentationTest extends TestCase
 
         $reason = 'Complex error occurred';
 
-        // The spread operator should merge all data correctly
-        $expectedData = [
-            ...$complexRequestData, ...[
-                'reason' => $reason,
-            ]];
-
         $this->logger
             ->expects($this->once())
             ->method('error')
             ->with(
                 'test.gateway.error',
-                $this->callback(fn ($data) => '123' === $data['id']
+                $this->callback(fn ($data): bool => '123' === $data['id']
                     && $data['nested'] === [
                         'field1' => 'value1',
                         'field2' => 'value2',
@@ -182,6 +178,6 @@ final class AbstractGatewayInstrumentationTest extends TestCase
                     && $data[' reason'] === $reason)
             );
 
-        $this->instrumentation->error($request, $reason);
+        $this->gatewayInstrumentation->error($request, $reason);
     }
 }

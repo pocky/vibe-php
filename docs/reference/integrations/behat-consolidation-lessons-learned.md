@@ -77,10 +77,10 @@ Given the following articles exist
 ```bash
 # Error encountered during consolidation
 Step "there are articles pending review" is already defined in 
-App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingArticlesContext::theFollowingArticlesExist()
+App\Tests\Blog\Behat\Context\Ui\Admin\ManagingArticlesContext::theFollowingArticlesExist()
 
-App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingArticlesContext::theFollowingArticlesExist()
-App\Tests\BlogContext\Behat\Context\Ui\Admin\EditorialDashboardContext::thereAreArticlesPendingReview()
+App\Tests\Blog\Behat\Context\Ui\Admin\ManagingArticlesContext::theFollowingArticlesExist()
+App\Tests\Blog\Behat\Context\Ui\Admin\EditorialDashboardContext::thereAreArticlesPendingReview()
 ```
 
 **Solution**: Choose the most appropriate context and remove duplicates from others.

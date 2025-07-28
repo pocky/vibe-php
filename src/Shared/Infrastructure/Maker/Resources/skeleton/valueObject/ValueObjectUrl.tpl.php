@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -6,7 +8,8 @@ namespace <?php echo $namespace; ?>;
 
 use <?php echo $validation_exception_namespace; ?>\ValidationException;
 
-final class <?php echo $class_name . "\n"; ?>
+final class <?php echo $class_name; ?> implements \Stringable
+
 {
     private const array ALLOWED_SCHEMES = ['http', 'https'];
     private const int MAX_LENGTH = 2048;
@@ -15,6 +18,11 @@ final class <?php echo $class_name . "\n"; ?>
         private(set) string $value,
     ) {
         $this->validate();
+    }
+
+    public static function fromString(string $value): self
+    {
+        return new self($value);
     }
 
     private function validate(): void
@@ -96,10 +104,11 @@ final class <?php echo $class_name . "\n"; ?>
         return $this->value === $other->value;
     }
 
-    public function toString(): string
+    public function __toString(): string
     {
         return $this->value;
     }
+
 
     private function buildUrl(array $parts): string
     {

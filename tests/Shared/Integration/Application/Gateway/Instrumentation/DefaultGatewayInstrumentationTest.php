@@ -13,16 +13,18 @@ use Psr\Log\LoggerInterface;
 
 final class DefaultGatewayInstrumentationTest extends TestCase
 {
-    private LoggerInterface $mockLogger;
+    private \PHPUnit\Framework\MockObject\MockObject $mockLogger;
+
     private LoggerInstrumentation $mockLoggerInstrumentation;
-    private DefaultGatewayInstrumentation $instrumentation;
+
+    private DefaultGatewayInstrumentation $defaultGatewayInstrumentation;
 
     protected function setUp(): void
     {
         $this->mockLogger = $this->createMock(LoggerInterface::class);
         $this->mockLoggerInstrumentation = new LoggerInstrumentation($this->mockLogger);
 
-        $this->instrumentation = new DefaultGatewayInstrumentation(
+        $this->defaultGatewayInstrumentation = new DefaultGatewayInstrumentation(
             $this->mockLoggerInstrumentation,
             'TestGateway'
         );
@@ -30,12 +32,12 @@ final class DefaultGatewayInstrumentationTest extends TestCase
 
     public function testConstructorSetsName(): void
     {
-        $instrumentation = new DefaultGatewayInstrumentation(
+        $defaultGatewayInstrumentation = new DefaultGatewayInstrumentation(
             $this->mockLoggerInstrumentation,
             'UserGateway'
         );
 
-        $this->assertInstanceOf(DefaultGatewayInstrumentation::class, $instrumentation);
+        $this->assertInstanceOf(DefaultGatewayInstrumentation::class, $defaultGatewayInstrumentation);
     }
 
     public function testConstructorGetsLoggerFromInstrumentation(): void
@@ -43,7 +45,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
         $mockLogger = $this->createMock(LoggerInterface::class);
         $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
-        $instrumentation = new DefaultGatewayInstrumentation($loggerInstrumentation, 'TestGateway');
+        $defaultGatewayInstrumentation = new DefaultGatewayInstrumentation($loggerInstrumentation, 'TestGateway');
 
         // Test that the logger is used correctly by testing the start method
         $mockRequest = $this->createMock(GatewayRequest::class);
@@ -57,7 +59,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
                 'test' => 'data',
             ]);
 
-        $instrumentation->start($mockRequest);
+        $defaultGatewayInstrumentation->start($mockRequest);
     }
 
     public function testStartLogsInfoWithGatewayName(): void
@@ -74,7 +76,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('TestGateway', $requestData);
 
-        $this->instrumentation->start($mockRequest);
+        $this->defaultGatewayInstrumentation->start($mockRequest);
     }
 
     public function testSuccessLogsInfoWithSuccessSuffix(): void
@@ -91,7 +93,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('TestGateway.success', $responseData);
 
-        $this->instrumentation->success($mockResponse);
+        $this->defaultGatewayInstrumentation->success($mockResponse);
     }
 
     public function testErrorLogsErrorWithReasonAndRequestData(): void
@@ -114,7 +116,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
             ->method('error')
             ->with('TestGateway.error', $expectedErrorData);
 
-        $this->instrumentation->error($mockRequest, $reason);
+        $this->defaultGatewayInstrumentation->error($mockRequest, $reason);
     }
 
     public function testStartWithEmptyRequestData(): void
@@ -127,7 +129,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('TestGateway', []);
 
-        $this->instrumentation->start($mockRequest);
+        $this->defaultGatewayInstrumentation->start($mockRequest);
     }
 
     public function testSuccessWithEmptyResponseData(): void
@@ -140,7 +142,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
             ->method('info')
             ->with('TestGateway.success', []);
 
-        $this->instrumentation->success($mockResponse);
+        $this->defaultGatewayInstrumentation->success($mockResponse);
     }
 
     public function testErrorWithEmptyRequestDataAndReason(): void
@@ -157,20 +159,20 @@ final class DefaultGatewayInstrumentationTest extends TestCase
                 ' reason' => $reason,
             ]);
 
-        $this->instrumentation->error($mockRequest, $reason);
+        $this->defaultGatewayInstrumentation->error($mockRequest, $reason);
     }
 
     public function testImplementsGatewayInstrumentationInterface(): void
     {
         $this->assertInstanceOf(
             \App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation::class,
-            $this->instrumentation
+            $this->defaultGatewayInstrumentation
         );
     }
 
     public function testDifferentGatewayNamesProduceDifferentLogMessages(): void
     {
-        $anotherInstrumentation = new DefaultGatewayInstrumentation(
+        $defaultGatewayInstrumentation = new DefaultGatewayInstrumentation(
             $this->mockLoggerInstrumentation,
             'AnotherGateway'
         );
@@ -194,7 +196,7 @@ final class DefaultGatewayInstrumentationTest extends TestCase
                 ]
             );
 
-        $this->instrumentation->start($mockRequest);
-        $anotherInstrumentation->start($mockRequest);
+        $this->defaultGatewayInstrumentation->start($mockRequest);
+        $defaultGatewayInstrumentation->start($mockRequest);
     }
 }

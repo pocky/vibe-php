@@ -1,93 +1,128 @@
-# Domain Entity Template
+# Domain Entity Snippets
 
-## Entity Structure
+## Rich Domain Aggregate
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\[Context]Context\Domain\Shared\Model;
+namespace App\[Context]Context\Domain\[Entity];
 
+use App\[Context]Context\Domain\[Entity]\Event\[Entity]Created;
+use App\[Context]Context\Domain\[Entity]\Event\[Entity]Updated;
+use App\[Context]Context\Domain\[Entity]\Event\[Entity]Deleted;
 use App\[Context]Context\Domain\Shared\ValueObject\[Entity]Id;
 use App\[Context]Context\Domain\Shared\ValueObject\[Entity]Name;
 use App\[Context]Context\Domain\Shared\ValueObject\[Entity]Status;
-use App\[Context]Context\Domain\Create[Entity]\Event\[Entity]Created;
-use App\[Context]Context\Domain\Update[Entity]\Event\[Entity]Updated;
 
+/**
+ * [Entity] Aggregate Root - Rich domain model with business behavior
+ */
 final class [Entity]
 {
     private array $events = [];
+    private \DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $updatedAt;
 
     public function __construct(
-        private readonly [Entity]Id $id,
+        private [Entity]Id $id,
         private [Entity]Name $name,
         private [Entity]Status $status,
-        private readonly \DateTimeImmutable $createdAt,
-        private \DateTimeImmutable $updatedAt,
-    ) {}
+        ?\DateTimeImmutable $createdAt = null,
+        ?\DateTimeImmutable $updatedAt = null
+    ) {
+        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
+        $this->updatedAt = $updatedAt ?? new \DateTimeImmutable();
+    }
 
     public static function create(
         [Entity]Id $id,
-        [Entity]Name $name,
-        \DateTimeImmutable $createdAt,
+        [Entity]Name $name
     ): self {
-        $entity = new self(
+        $[entity] = new self(
             id: $id,
             name: $name,
-            status: [Entity]Status::DRAFT,
-            createdAt: $createdAt,
-            updatedAt: $createdAt,
+            status: [Entity]Status::DRAFT
         );
 
-        $entity->recordEvent(new [Entity]Created(
+        $[entity]->recordEvent(new [Entity]Created(
             [entity]Id: $id->getValue(),
             name: $name->getValue(),
-            createdAt: $createdAt->format(\DateTimeInterface::ATOM),
+            createdAt: $[entity]->createdAt
         ));
 
-        return $entity;
+        return $[entity];
     }
 
     public function update([Entity]Name $name): void
     {
-        if ($this->name->equals($name)) {
-            return;
+        if ($this->status === [Entity]Status::DELETED) {
+            throw new \DomainException('Cannot update a deleted [entity]');
         }
 
-        $this->name = $name;
+        if (!$this->name->equals($name)) {
+            $this->name = $name;
+            $this->updatedAt = new \DateTimeImmutable();
+            
+            $this->recordEvent(new [Entity]Updated(
+                [entity]Id: $this->id->getValue(),
+                name: $name->getValue(),
+                updatedAt: $this->updatedAt
+            ));
+        }
+    }
+
+    public function delete(): void
+    {
+        if ($this->status === [Entity]Status::DELETED) {
+            return; // Idempotent operation
+        }
+
+        $this->status = [Entity]Status::DELETED;
         $this->updatedAt = new \DateTimeImmutable();
 
-        $this->recordEvent(new [Entity]Updated(
+        $this->recordEvent(new [Entity]Deleted(
             [entity]Id: $this->id->getValue(),
-            name: $name->getValue(),
-            updatedAt: $this->updatedAt->format(\DateTimeInterface::ATOM),
+            deletedAt: $this->updatedAt
         ));
     }
 
-    public function getId(): [Entity]Id
+    // Getters
+    public function id(): [Entity]Id
     {
         return $this->id;
     }
 
-    public function getName(): [Entity]Name
+    public function name(): [Entity]Name
     {
         return $this->name;
     }
 
-    public function getStatus(): [Entity]Status
+    public function status(): [Entity]Status
     {
         return $this->status;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): \DateTimeImmutable
+    public function updatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->status === [Entity]Status::DELETED;
+    }
+
+    // Event handling
+    private function recordEvent(object $event): void
+    {
+        $this->events[] = $event;
     }
 
     public function releaseEvents(): array
@@ -96,26 +131,103 @@ final class [Entity]
         $this->events = [];
         return $events;
     }
-
-    private function recordEvent(object $event): void
-    {
-        $this->events[] = $event;
-    }
 }
 ```
 
-## Value Objects Required
+## Status Value Object (Using PHP Enum)
 
-### [Entity]Id
 ```php
-final class [Entity]Id
+<?php
+
+declare(strict_types=1);
+
+namespace App\[Context]Context\Domain\Shared\ValueObject;
+
+enum [Entity]Status: string
 {
+    case DRAFT = 'draft';
+    case PUBLISHED = 'published';
+    case ARCHIVED = 'archived';
+
+    public static function fromString(string $status): self
+    {
+        return self::from($status);
+    }
+
+    public function isDraft(): bool
+    {
+        return self::DRAFT === $this;
+    }
+
+    public function isPublished(): bool
+    {
+        return self::PUBLISHED === $this;
+    }
+
+    public function isArchived(): bool
+    {
+        return self::ARCHIVED === $this;
+    }
+
+    public function canTransitionTo(self $newStatus): bool
+    {
+        return match ($this) {
+            self::DRAFT => true,
+            self::PUBLISHED => $newStatus !== self::DRAFT,
+            self::ARCHIVED => false,
+        };
+    }
+}
+
+## Alternative Status Value Object (Class-based for complex logic)
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\[Context]Context\Domain\Shared\ValueObject;
+
+use App\[Context]Context\Domain\Shared\Exception\ValidationException;
+
+final class [Entity]Status implements \Stringable
+{
+    private const DRAFT = 'draft';
+    private const PUBLISHED = 'published';
+    private const ARCHIVED = 'archived';
+
+    private const VALID_STATUSES = [
+        self::DRAFT,
+        self::PUBLISHED,
+        self::ARCHIVED,
+    ];
+
     public function __construct(
-        private(set) string $value,
+        private(set) string $value
     ) {
-        if (!Uuid::isValid($value)) {
-            throw new \InvalidArgumentException('Invalid [Entity] ID format');
+        if (!in_array($value, self::VALID_STATUSES, true)) {
+            throw ValidationException::withTranslationKey('validation.[entity]_status.invalid');
         }
+    }
+
+    public static function draft(): self
+    {
+        return new self(self::DRAFT);
+    }
+
+    public static function published(): self
+    {
+        return new self(self::PUBLISHED);
+    }
+
+    public static function archived(): self
+    {
+        return new self(self::ARCHIVED);
+    }
+
+    public static function fromString(string $value): self
+    {
+        return new self($value);
     }
 
     public function getValue(): string
@@ -135,81 +247,15 @@ final class [Entity]Id
 }
 ```
 
-### [Entity]Name
+## Domain Event
+
 ```php
-final class [Entity]Name
-{
-    public function __construct(
-        private(set) string $value,
-    ) {
-        $this->validate();
-    }
+<?php
 
-    private function validate(): void
-    {
-        $length = mb_strlen($this->value);
-        if ($length < 2 || $length > 100) {
-            throw new \InvalidArgumentException('[Entity] name must be between 2 and 100 characters');
-        }
-    }
+declare(strict_types=1);
 
-    public function getValue(): string
-    {
-        return $this->value;
-    }
+namespace App\[Context]Context\Domain\Create[Entity]\Event;
 
-    public function equals(self $other): bool
-    {
-        return $this->value === $other->value;
-    }
-}
-```
-
-### [Entity]Status (Enum)
-```php
-enum [Entity]Status: string
-{
-    case DRAFT = 'draft';
-    case ACTIVE = 'active';
-    case ARCHIVED = 'archived';
-
-    public function isDraft(): bool
-    {
-        return self::DRAFT === $this;
-    }
-
-    public function isActive(): bool
-    {
-        return self::ACTIVE === $this;
-    }
-
-    public function isArchived(): bool
-    {
-        return self::ARCHIVED === $this;
-    }
-}
-```
-
-## Repository Interface
-```php
-interface [Entity]RepositoryInterface
-{
-    public function save([Entity] $[entity]): void;
-    
-    public function findById([Entity]Id $id): ?[Entity];
-    
-    public function findByName([Entity]Name $name): ?[Entity];
-    
-    public function findAllActive(): array;
-    
-    public function exists([Entity]Id $id): bool;
-}
-```
-
-## Domain Events
-
-### [Entity]Created
-```php
 final readonly class [Entity]Created
 {
     public function __construct(
@@ -217,69 +263,72 @@ final readonly class [Entity]Created
         public string $name,
         public string $createdAt,
     ) {}
-
-    public static function eventType(): string
-    {
-        return '[Context].[Entity].Created';
-    }
 }
 ```
 
-### [Entity]Updated
-```php
-final readonly class [Entity]Updated
-{
-    public function __construct(
-        public string $[entity]Id,
-        public string $name,
-        public string $updatedAt,
-    ) {}
+## Repository Interface
 
-    public static function eventType(): string
-    {
-        return '[Context].[Entity].Updated';
-    }
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\[Context]Context\Domain\[Entity]\Repository;
+
+use App\[Context]Context\Domain\[Entity]\[Entity];
+use App\[Context]Context\Domain\[Entity]\Specification\[Entity]Specification;
+use App\[Context]Context\Domain\Shared\ValueObject\[Entity]Id;
+
+interface [Entity]RepositoryInterface
+{
+    public function add([Entity] $[entity]): void;
+    
+    public function update([Entity] $[entity]): void;
+    
+    public function get([Entity]Id $id): [Entity];
+    
+    public function find([Entity]Id $id): ?[Entity];
+    
+    public function remove([Entity] $[entity]): void;
+    
+    /**
+     * @return [Entity][]
+     */
+    public function findAll(): array;
+    
+    /**
+     * Find [entity]s matching the specification
+     * 
+     * @return [Entity][]
+     */
+    public function findSatisfying([Entity]Specification $specification): array;
+    
+    /**
+     * Count [entity]s matching the specification
+     */
+    public function countSatisfying([Entity]Specification $specification): int;
 }
 ```
 
-## PHPUnit Test
+## Specification Pattern
+
 ```php
-final class [Entity]Test extends TestCase
+<?php
+
+declare(strict_types=1);
+
+namespace App\[Context]Context\Domain\[Entity]\Specification;
+
+use App\[Context]Context\Domain\[Entity]\[Entity];
+
+interface [Entity]Specification
 {
-    public function testCreate[Entity](): void
-    {
-        $id = new [Entity]Id('550e8400-e29b-41d4-a716-446655440000');
-        $name = new [Entity]Name('Test [Entity]');
-        $createdAt = new \DateTimeImmutable();
-
-        $[entity] = [Entity]::create($id, $name, $createdAt);
-
-        $this->assertEquals($id, $[entity]->getId());
-        $this->assertEquals($name, $[entity]->getName());
-        $this->assertEquals([Entity]Status::DRAFT, $[entity]->getStatus());
-
-        $events = $[entity]->releaseEvents();
-        $this->assertCount(1, $events);
-        $this->assertInstanceOf([Entity]Created::class, $events[0]);
-    }
-
-    public function testUpdate[Entity](): void
-    {
-        $[entity] = [Entity]::create(
-            new [Entity]Id('550e8400-e29b-41d4-a716-446655440000'),
-            new [Entity]Name('Original Name'),
-            new \DateTimeImmutable(),
-        );
-        $[entity]->releaseEvents(); // Clear creation event
-
-        $newName = new [Entity]Name('Updated Name');
-        $[entity]->update($newName);
-
-        $this->assertEquals($newName, $[entity]->getName());
-
-        $events = $[entity]->releaseEvents();
-        $this->assertCount(1, $events);
-        $this->assertInstanceOf([Entity]Updated::class, $events[0]);
-    }
+    public function isSatisfiedBy([Entity] $[entity]): bool;
+    
+    public function and([Entity]Specification $specification): [Entity]Specification;
+    
+    public function or([Entity]Specification $specification): [Entity]Specification;
+    
+    public function not(): [Entity]Specification;
 }
 ```

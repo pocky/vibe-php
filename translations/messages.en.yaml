@@ -1,0 +1,28 @@
+app:
+    ui:
+        blog: Blog
+        tags: Tags
+        tag: Tag
+        create_tag: Create tag
+        name: Name
+        slug: Slug
+        article_count: Articles
+        created_at: Created at
+        updated_at: Updated at
+        enter_tag_name: Enter tag name
+        leave_empty_to_generate: Leave empty to auto-generate
+        slug_help: URL-friendly version of the name (auto-generated if left empty)
+    tag:
+        name:
+            not_blank: Tag name cannot be blank
+            min_length: Tag name must be at least 1 character long
+            max_length: Tag name cannot exceed 50 characters
+            invalid_characters: Tag name can only contain letters, numbers, spaces, hyphens and underscores
+        slug:
+            max_length: Slug cannot exceed 100 characters
+            invalid_format: Slug can only contain lowercase letters, numbers and hyphens
+    flash:
+        tag:
+            created: Tag has been successfully created
+            updated: Tag has been successfully updated
+            deleted: Tag has been successfully deleted

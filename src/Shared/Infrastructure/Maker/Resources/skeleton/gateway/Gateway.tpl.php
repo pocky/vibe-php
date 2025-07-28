@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -15,15 +17,13 @@ use App\Shared\Application\Gateway\Middleware\DefaultValidation;
     context: '<?php echo $context; ?>',
     domain: '<?php echo $entity; ?>',
     operation: '<?php echo $operation; ?>',
-    middlewares: [],
+    middlewares: [
+        DefaultLogger::class,
+        DefaultErrorHandler::class,
+        DefaultValidation::class,
+        Processor::class,
+    ],
 )]
 final class <?php echo $class_name; ?> extends DefaultGateway
 {
-    public function __construct(
-        Middleware\Processor $processor,
-    ) {
-        parent::__construct([
-            $processor,
-        ]);
-    }
 }

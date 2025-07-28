@@ -20,6 +20,7 @@ abstract class DoctrineRepository extends ServiceEntityRepository implements \It
     protected QueryBuilder $queryBuilder;
 
     private int|null $_page = null;
+
     private int|null $_itemsPerPage = null;
 
     private int|null $page {
@@ -43,11 +44,11 @@ abstract class DoctrineRepository extends ServiceEntityRepository implements \It
     }
 
     public function __construct(
-        ManagerRegistry $registry,
+        ManagerRegistry $managerRegistry,
         string $entityClass,
-        string $alias
+        string $alias,
     ) {
-        parent::__construct($registry, $entityClass);
+        parent::__construct($managerRegistry, $entityClass);
 
         $this->queryBuilder = $this->createQueryBuilder($alias);
     }
@@ -101,6 +102,7 @@ abstract class DoctrineRepository extends ServiceEntityRepository implements \It
         // Clone query builder for count query
         $countQb = clone $this->queryBuilder;
         $countQb->select('COUNT(' . $countQb->getRootAliases()[0] . ')');
+
         $total = (int) $countQb->getQuery()->getSingleScalarResult();
 
         // Apply pagination to main query

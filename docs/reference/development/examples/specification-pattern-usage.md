@@ -451,7 +451,7 @@ final readonly class CancelOrderUseCase
         }
 
         $cancelledOrder = $order->cancel();
-        $this->orderRepository->save($cancelledOrder);
+        $this->orderRepository->update($cancelledOrder);
 
         return $cancelledOrder;
     }
@@ -505,7 +505,7 @@ final readonly class ApplyDiscountUseCase
             isPriority: $order->isPriority(),
         );
 
-        $this->orderRepository->save($discountedOrder);
+        $this->orderRepository->update($discountedOrder);
 
         return $discountedOrder;
     }
@@ -687,7 +687,9 @@ final class SpecificationBasedOrderRepository implements OrderRepository
     // Implémentation des méthodes de base du repository...
     public function findById(OrderId $id): ?Order { /* ... */ }
     public function findByCustomerId(CustomerId $customerId): array { /* ... */ }
-    public function save(Order $order): void { /* ... */ }
+    public function add(Order $order): void { /* ... */ }
+    public function update(Order $order): void { /* ... */ }
+    public function remove(Order $order): void { /* ... */ }
     public function findAll(): array { /* ... */ }
 }
 ```
@@ -711,6 +713,7 @@ use App\OrderContext\Domain\Specification\{
     IsEligibleForDiscountSpecification
 };
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\{Test, Override};
 
 final class OrderWorkflowTest extends TestCase
 {
@@ -718,6 +721,7 @@ final class OrderWorkflowTest extends TestCase
     private CanBeRefundedSpecification $canBeRefunded;
     private IsEligibleForDiscountSpecification $eligibleForDiscount;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->canBeCancelled = new CanBeCancelledSpecification();
@@ -728,7 +732,8 @@ final class OrderWorkflowTest extends TestCase
         );
     }
 
-    public function testCompleteOrderWorkflow(): void
+    #[Test]
+    public function complete_order_workflow_follows_business_rules(): void
     {
         // Créer une commande
         $order = Order::create(
@@ -762,7 +767,8 @@ final class OrderWorkflowTest extends TestCase
         $this->assertTrue($this->canBeRefunded->isSatisfiedBy($deliveredOrder));
     }
 
-    public function testDiscountEligibilityOverTime(): void
+    #[Test]
+    public function discount_eligibility_changes_over_time(): void
     {
         // Créer une commande avec un montant éligible
         $order = Order::create(
@@ -788,7 +794,8 @@ final class OrderWorkflowTest extends TestCase
         $this->assertTrue($this->eligibleForDiscount->isSatisfiedBy($oldOrder));
     }
 
-    public function testPriorityOrderSpecialRules(): void
+    #[Test]
+    public function priority_orders_have_special_discount_rules(): void
     {
         // Commande prioritaire
         $priorityOrder = Order::create(

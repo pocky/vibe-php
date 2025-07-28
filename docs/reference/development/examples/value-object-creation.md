@@ -10,11 +10,11 @@ This document provides practical examples of creating value objects using the `/
 
 ```bash
 # Create a generic value object
-/code/hexagonal/value-object BlogContext Title
+/code/hexagonal/value-object Blog Title
 ```
 
 This creates:
-- `src/BlogContext/Domain/Shared/ValueObject/Title.php`
+- `src/Blog/Domain/Shared/ValueObject/Title.php`
 - Basic validation structure
 - `getValue()` and `equals()` methods
 
@@ -56,14 +56,14 @@ Features:
 
 ```bash
 # Article identifier
-/code/hexagonal/value-object BlogContext ArticleId
+/code/hexagonal/value-object Blog ArticleId
 
 # Article properties
-/code/hexagonal/value-object BlogContext ArticleTitle
-/code/hexagonal/value-object BlogContext ArticleContent  
-/code/hexagonal/value-object BlogContext ArticleStatus
-/code/hexagonal/value-object BlogContext Slug
-/code/hexagonal/value-object BlogContext PublishedAt
+/code/hexagonal/value-object Blog ArticleTitle
+/code/hexagonal/value-object Blog ArticleContent  
+/code/hexagonal/value-object Blog ArticleStatus
+/code/hexagonal/value-object Blog Slug
+/code/hexagonal/value-object Blog PublishedAt
 ```
 
 ### Step 2: Implement Validation with TDD
@@ -104,7 +104,7 @@ Follow Red-Green-Refactor for each validation rule.
 ### Step 4: Create the Entity
 
 ```bash
-/code/hexagonal/entity BlogContext Article
+/code/hexagonal/entity Blog Article
 ```
 
 ### Step 5: Compose Entity with Value Objects
@@ -241,21 +241,26 @@ class ArticleTitleType extends AbstractType
 ### Unit Test Structure
 
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 class EmailTest extends TestCase
 {
-    public function testValidEmail(): void
+    #[Test]
+    public function valid_email_stores_correct_value(): void
     {
         $email = new Email('user@example.com');
         $this->assertEquals('user@example.com', $email->getValue());
     }
     
-    public function testNormalizesToLowercase(): void
+    #[Test]
+    public function email_normalizes_to_lowercase(): void
     {
         $email = new Email('User@EXAMPLE.com');
         $this->assertEquals('user@example.com', $email->getValue());
     }
     
-    public function testInvalidEmailThrowsException(): void
+    #[Test]
+    public function invalid_email_format_throws_exception(): void
     {
         $this->expectException(ValidationException::class);
         new Email('not-an-email');

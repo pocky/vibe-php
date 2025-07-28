@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -6,7 +8,8 @@ namespace <?php echo $namespace; ?>;
 
 use <?php echo $validation_exception_namespace; ?>\ValidationException;
 
-final class <?php echo $class_name . "\n"; ?>
+final class <?php echo $class_name; ?> implements \Stringable
+
 {
     private const array SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
 
@@ -15,6 +18,11 @@ final class <?php echo $class_name . "\n"; ?>
         private(set) string $currency,
     ) {
         $this->validate();
+    }
+
+    public static function fromAmountAndCurrency(int $amount, string $currency): self
+    {
+        return new self($amount, $currency);
     }
 
     private function validate(): void
@@ -77,8 +85,9 @@ final class <?php echo $class_name . "\n"; ?>
         return $this->amount === $other->amount && $this->currency === $other->currency;
     }
 
-    public function toString(): string
+    public function __toString(): string
     {
-        return sprintf('%s %s', $this->getFormattedAmount(), $this->currency);
+        return number_format($this->amount / 100, 2, '.', '') . ' ' . $this->currency;
     }
+
 }

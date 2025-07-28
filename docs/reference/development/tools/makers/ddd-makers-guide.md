@@ -28,7 +28,7 @@ The DDD Makers are custom Symfony Maker commands designed to generate code that 
 
 | Command | Description | Priority |
 |---------|-------------|----------|
-| `make:infrastructure:entity` | Create Doctrine entity with ValueObject ID and Repository | High |
+| `make:infrastructure:entity` | Create Doctrine entity with ValueObject ID and Read/Write Repositories | High |
 | `make:domain:aggregate` | Create domain aggregate with Creator, Events, and Exceptions | High |
 | `make:application:gateway` | Create application gateway with Request/Response pattern | High |
 | `make:application:command` | Create CQRS command with handler | High |
@@ -61,14 +61,15 @@ bin/console make:domain:value-object CatalogContext SKU
 Then create the domain aggregate:
 
 ```bash
-# Create the Product aggregate
+# Create the Product aggregate with Creator service
 bin/console make:domain:aggregate CatalogContext CreateProduct Product
+# This generates ProductCreator service at Domain/Product/ProductCreator.php
 ```
 
 #### 2. Create Infrastructure Layer
 
 ```bash
-# Create Doctrine entity and repository
+# Create Doctrine entity with read/write repositories
 bin/console make:infrastructure:entity CatalogContext Product
 ```
 
@@ -78,7 +79,7 @@ Create the gateway for the create operation:
 
 ```bash
 # Gateway for creating products (generates concrete Processor code)
-bin/console make:application:gateway CatalogContext CreateProduct
+bin/console make:application:gateway CatalogContext Product/CreateProduct
 ```
 
 **Note**: The Gateway maker now automatically generates functional Processor code with proper CQRS integration, ID generation, and dependencies injection - no more manual implementation needed!
@@ -87,7 +88,7 @@ Create CQRS operations:
 
 ```bash
 # Command for creating products
-bin/console make:application:command CatalogContext CreateProduct
+bin/console make:application:command CatalogContext Product/CreateProduct
 
 # Query for getting a single product
 bin/console make:application:query CatalogContext GetProduct
@@ -124,7 +125,7 @@ bin/console doctrine:migrations:migrate
 
 ### make:infrastructure:entity
 
-Creates a complete infrastructure entity with Doctrine mappings and ID generation support.
+Creates a complete infrastructure entity with Doctrine mappings, separate Read/Write repositories, and ID generation support.
 
 ```bash
 bin/console make:infrastructure:entity <Context> <Entity>
@@ -132,15 +133,120 @@ bin/console make:infrastructure:entity <Context> <Entity>
 
 **Example:**
 ```bash
-bin/console make:infrastructure:entity BlogContext Article
+bin/console make:infrastructure:entity Blog Article
 ```
 
 **Generates:**
-- `src/BlogContext/Domain/Shared/ValueObject/ArticleId.php`
-- `src/BlogContext/Domain/Shared/Repository/ArticleRepositoryInterface.php`
-- `src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/Entity/Article.php`
-- `src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php`
-- `src/BlogContext/Infrastructure/Identity/ArticleIdGenerator.php`
+- `src/Blog/Domain/Article/Shared/Identifier/ArticleId.php`
+- `src/Blog/Domain/Article/Shared/Repository/ArticleWriteRepositoryInterface.php`
+- `src/Blog/Domain/Article/Shared/Repository/ArticleReadRepositoryInterface.php`
+- `src/Blog/Infrastructure/Persistence/Doctrine/ORM/Entity/Article.php`
+- `src/Blog/Infrastructure/Persistence/Doctrine/ORM/ArticleWriteRepository.php`
+- `src/Blog/Infrastructure/Persistence/Doctrine/ORM/ArticleReadRepository.php`
+- `src/Blog/Infrastructure/Identity/ArticleIdGenerator.php`
+- `src/Blog/Infrastructure/Persistence/Mapper/ArticleQueryMapper.php`
+
+#### Repository Pattern: Read/Write Separation
+
+The `make:infrastructure:entity` command generates repositories following the **Read/Write separation pattern**:
+
+**Write Repository (`ArticleWriteRepository`):**
+- Extends `DoctrineRepository` (not `ServiceEntityRepository`)
+- Handles domain aggregates for write operations
+- Methods: `add()`, `update()`, `remove()`, `removeById()`
+- Uses reflection to reconstruct aggregates from entities
+- Contains finder methods for write operations (`findById`, `existsById`, etc.)
+
+**Read Repository (`ArticleReadRepository`):**
+- Extends `DoctrineRepository` with fluent interface support
+- Returns `ReadModel` instances (not domain aggregates)
+- Injects `QueryMapper` for entity-to-readmodel conversion
+- Provides fluent interface methods:
+  ```php
+  $articles = $articleReadRepository
+      ->withPublishedOnly()
+      ->withTitleLike($searchTerm)
+      ->withLatestFirst()
+      ->withPagination($page, 20)
+      ->getReadModels();
+  ```
+
+**Generated Repository Features:**
+- **Constants for aliases**: `private const string ALIAS = 'article';`
+- **#[\Override] attributes**: Explicit method overriding
+- **PHPDoc annotations**: Proper type hints for inherited magic methods
+- **Fluent interface**: Chainable query methods using `filter()` method
+- **Query mappers**: Automatic conversion from entities to read models
+
+**Example Generated Write Repository:**
+```php
+final class ArticleWriteRepository extends DoctrineRepository implements ArticleWriteRepositoryInterface
+{
+    private const string ALIAS = 'article';
+
+    #[\Override]
+    public function add(Article $article): void
+    {
+        $entity = new DoctrineArticle(/* ... */);
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
+    }
+
+    #[\Override]
+    public function update(Article $article): void
+    {
+        $entity = $this->find(Uuid::fromString($article->getId()->getValue()));
+        if (null === $entity) {
+            throw new \RuntimeException(sprintf('Article not found: %s', $article->getId()->getValue()));
+        }
+        
+        // Update entity properties
+        $entity->title = $article->getTitle()->getValue();
+        // ...
+        
+        $this->getEntityManager()->flush();
+    }
+
+    #[\Override]
+    public function remove(Article $article): void
+    {
+        $entity = $this->find(Uuid::fromString($article->getId()->getValue()));
+        if (null !== $entity) {
+            $this->getEntityManager()->remove($entity);
+            $this->getEntityManager()->flush();
+        }
+    }
+}
+```
+
+**Example Generated Read Repository:**
+```php
+final class ArticleReadRepository extends DoctrineRepository implements ArticleReadRepositoryInterface
+{
+    private const string ALIAS = 'article';
+
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        private readonly ArticleQueryMapper $articleQueryMapper,
+    ) {
+        parent::__construct($managerRegistry, DoctrineArticle::class, self::ALIAS);
+    }
+
+    public function withPublishedOnly(): static
+    {
+        return $this->filter(static function (QueryBuilder $queryBuilder): void {
+            $queryBuilder->andWhere(sprintf('%s.status = :status', self::ALIAS))
+                ->setParameter('status', ArticleStatus::PUBLISHED->value);
+        });
+    }
+
+    public function getReadModels(): array
+    {
+        $entities = $this->getIterator();
+        return array_map($this->articleQueryMapper->map(...), iterator_to_array($entities));
+    }
+}
+```
 
 ### make:domain:aggregate
 
@@ -152,15 +258,14 @@ bin/console make:domain:aggregate <Context> <UseCase> <Entity>
 
 **Example:**
 ```bash
-bin/console make:domain:aggregate BlogContext CreateArticle Article
+bin/console make:domain:aggregate Blog CreateArticle Article
 ```
 
 **Generates:**
-- `src/BlogContext/Domain/CreateArticle/Creator.php`
-- `src/BlogContext/Domain/CreateArticle/CreatorInterface.php`
-- `src/BlogContext/Domain/CreateArticle/DataPersister/Article.php`
-- `src/BlogContext/Domain/CreateArticle/Event/ArticleCreated.php`
-- `src/BlogContext/Domain/CreateArticle/Exception/ArticleAlreadyExists.php`
+- `src/Blog/Domain/Article/ArticleCreator.php` - Domain service
+- `src/Blog/Domain/Article/Shared/Model/Article.php` - Aggregate root
+- `src/Blog/Domain/Article/Shared/Event/ArticleCreated.php` - Domain event
+- `src/Blog/Domain/Article/Shared/Exception/ArticleAlreadyExists.php` - Domain exception
 
 ### make:application:gateway
 
@@ -172,14 +277,14 @@ bin/console make:application:gateway <Context> <Operation>
 
 **Example:**
 ```bash
-bin/console make:application:gateway BlogContext UpdateArticle
+bin/console make:application:gateway Blog UpdateArticle
 ```
 
 **Generates:**
-- `src/BlogContext/Application/Gateway/UpdateArticle/Gateway.php`
-- `src/BlogContext/Application/Gateway/UpdateArticle/Request.php`
-- `src/BlogContext/Application/Gateway/UpdateArticle/Response.php`
-- `src/BlogContext/Application/Gateway/UpdateArticle/Middleware/Processor.php`
+- `src/Blog/Application/Gateway/Article/UpdateArticle/Gateway.php`
+- `src/Blog/Application/Gateway/Article/UpdateArticle/Request.php`
+- `src/Blog/Application/Gateway/Article/UpdateArticle/Response.php`
+- `src/Blog/Application/Gateway/Article/UpdateArticle/Middleware/Processor.php`
 
 #### Smart Code Generation Features
 
@@ -274,12 +379,12 @@ bin/console make:application:command <Context> <CommandName>
 
 **Example:**
 ```bash
-bin/console make:application:command BlogContext PublishArticle
+bin/console make:application:command Blog PublishArticle
 ```
 
 **Generates:**
-- `src/BlogContext/Application/Operation/Command/PublishArticle/Command.php`
-- `src/BlogContext/Application/Operation/Command/PublishArticle/Handler.php`
+- `src/Blog/Application/Operation/Command/Article/PublishArticle/Command.php`
+- `src/Blog/Application/Operation/Command/Article/PublishArticle/Handler.php`
 
 ### make:application:query
 
@@ -291,12 +396,12 @@ bin/console make:application:query <Context> <QueryName>
 
 **Example:**
 ```bash
-bin/console make:application:query BlogContext GetArticlesByAuthor
+bin/console make:application:query Blog GetArticlesByAuthor
 ```
 
 **Generates:**
-- `src/BlogContext/Application/Operation/Query/GetArticlesByAuthor/Query.php`
-- `src/BlogContext/Application/Operation/Query/GetArticlesByAuthor/Handler.php`
+- `src/Blog/Application/Operation/Query/Article/GetArticlesByAuthor/Query.php`
+- `src/Blog/Application/Operation/Query/Article/GetArticlesByAuthor/Handler.php`
 
 **Note:** The maker automatically detects if it's a collection query based on the name pattern (List*, Search*).
 
@@ -310,18 +415,18 @@ bin/console make:admin:resource <Context> <Entity>
 
 **Example:**
 ```bash
-bin/console make:admin:resource BlogContext Category
+bin/console make:admin:resource Blog Category
 ```
 
 **Generates:**
-- `src/BlogContext/UI/Web/Admin/Resource/CategoryResource.php`
-- `src/BlogContext/UI/Web/Admin/Grid/CategoryGrid.php`
-- `src/BlogContext/UI/Web/Admin/Form/CategoryType.php`
-- `src/BlogContext/UI/Web/Admin/Provider/CategoryGridProvider.php`
-- `src/BlogContext/UI/Web/Admin/Provider/CategoryItemProvider.php`
-- `src/BlogContext/UI/Web/Admin/Processor/CreateCategoryProcessor.php`
-- `src/BlogContext/UI/Web/Admin/Processor/UpdateCategoryProcessor.php`
-- `src/BlogContext/UI/Web/Admin/Processor/DeleteCategoryProcessor.php`
+- `src/Blog/UI/Web/Admin/Resource/CategoryResource.php`
+- `src/Blog/UI/Web/Admin/Grid/CategoryGrid.php`
+- `src/Blog/UI/Web/Admin/Form/CategoryType.php`
+- `src/Blog/UI/Web/Admin/Provider/CategoryGridProvider.php`
+- `src/Blog/UI/Web/Admin/Provider/CategoryItemProvider.php`
+- `src/Blog/UI/Web/Admin/Processor/CreateCategoryProcessor.php`
+- `src/Blog/UI/Web/Admin/Processor/UpdateCategoryProcessor.php`
+- `src/Blog/UI/Web/Admin/Processor/DeleteCategoryProcessor.php`
 
 ### make:api:resource
 
@@ -333,24 +438,27 @@ bin/console make:api:resource <Context> <Entity>
 
 **Example:**
 ```bash
-bin/console make:api:resource BlogContext Article
+bin/console make:api:resource Blog Article
 ```
 
 **Generates:**
-- `src/BlogContext/UI/Api/Rest/Resource/ArticleResource.php`
-- `src/BlogContext/UI/Api/Rest/Provider/GetArticleProvider.php`
-- `src/BlogContext/UI/Api/Rest/Provider/ListArticlesProvider.php`
-- `src/BlogContext/UI/Api/Rest/Processor/CreateArticleProcessor.php`
-- `src/BlogContext/UI/Api/Rest/Processor/UpdateArticleProcessor.php`
-- `src/BlogContext/UI/Api/Rest/Processor/DeleteArticleProcessor.php`
+- `src/Blog/UI/Api/Rest/Resource/ArticleResource.php`
+- `src/Blog/UI/Api/Rest/Provider/GetArticleProvider.php`
+- `src/Blog/UI/Api/Rest/Provider/ListArticlesProvider.php`
+- `src/Blog/UI/Api/Rest/Processor/CreateArticleProcessor.php`
+- `src/Blog/UI/Api/Rest/Processor/UpdateArticleProcessor.php`
+- `src/Blog/UI/Api/Rest/Processor/DeleteArticleProcessor.php`
 
 ### make:domain:value-object
 
 Creates a value object with validation.
 
 ```bash
-bin/console make:domain:value-object <Context> <Name> [--template=<template>]
+bin/console make:domain:value-object <Context> <Name> [--entity=<Entity>] [--template=<template>]
 ```
+
+**Options:**
+- `--entity` - Optional. Specifies which entity this value object belongs to. If provided, the value object will be created in `Domain/{Entity}/Shared/ValueObject/`. If not provided, it will be created in `Domain/Shared/ValueObject/`.
 
 **Available Templates:**
 - `generic` (default) - Basic value object with customizable validation
@@ -362,8 +470,11 @@ bin/console make:domain:value-object <Context> <Name> [--template=<template>]
 
 **Examples:**
 ```bash
-# Generic value object
+# Generic value object (global shared)
 bin/console make:domain:value-object UserContext Username
+
+# Value object specific to User entity
+bin/console make:domain:value-object UserContext UserId --entity=User
 
 # Email value object
 bin/console make:domain:value-object UserContext Email --template=email
@@ -384,7 +495,7 @@ Always start by modeling your domain layer:
 ### 2. Use Consistent Naming
 
 Follow these naming conventions:
-- **Contexts**: `BlogContext`, `UserContext`, `BillingContext`
+- **Contexts**: `Blog`, `UserContext`, `BillingContext`
 - **Commands**: `CreateArticle`, `UpdateArticle`, `PublishArticle`
 - **Queries**: `GetArticle`, `ListArticles`, `SearchArticles`
 - **Events**: `ArticleCreated`, `ArticlePublished`, `ArticleDeleted`
@@ -448,7 +559,7 @@ If generated code has issues:
 ### Known Issues and Solutions
 
 #### Namespace Issues ✅ RESOLVED
-- **Problem**: Generated events may have incorrect namespace (e.g., `use App\Blog\Domain\...` instead of `use App\BlogContext\Domain\...`)
+- **Problem**: Generated events may have incorrect namespace (e.g., `use App\Blog\Domain\...` instead of `use App\Blog\Domain\...`)
 - **Solution**: Fixed in MakeDomainAggregate.php - contexts now properly include "Context" suffix
 
 #### Middleware Interface ✅ RESOLVED

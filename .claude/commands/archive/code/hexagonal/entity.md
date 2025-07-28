@@ -31,10 +31,11 @@ Create a domain entity with repository for domain persistence following DDD prin
 - **Entity** (`/code:hexagonal:entity`): Creates Doctrine ORM entity for database mapping
 - **Aggregate** (`/code:hexagonal:aggregate`): Creates domain aggregate with business logic
 
-Both are needed for a complete DDD implementation:
-1. First create the Doctrine entity (this command) for persistence
-2. Then create the domain aggregate for business logic
-3. The repository will map between them
+Recommended new approach:
+1. Create a SINGLE unified Aggregate model with business logic
+2. Services (Creator, Updater, etc.) use the Aggregate
+3. Repository maps between Aggregate and Doctrine entity
+4. No more model duplication per operation
 
 ## Usage
 `/ddd:entity [context] [entity-name]`
@@ -123,14 +124,14 @@ Enhance repository with domain-specific queries:
 
 ### Step 9: Create Domain Layer
 
-Implement the domain entity:
+Implement the domain aggregate:
 
 [Create domain components:
-- Domain entity with value objects
-- Business methods and invariants
+- Unified domain aggregate with value objects
+- Business methods (create, update, publish, delete, etc.)
 - Domain event generation
-- Repository interface
-- Mapping between layers]
+- Repository interface with Specification Pattern
+- Mapping between Aggregate and Doctrine entity]
 
 ## Test Examples
 
@@ -213,14 +214,14 @@ After generating the infrastructure:
 
 ```bash
 # 1. Create value objects first
-/code:hexagonal:value-object BlogContext ArticleId
-/code:hexagonal:value-object BlogContext ArticleTitle
-/code:hexagonal:value-object BlogContext ArticleContent
-/code:hexagonal:value-object BlogContext ArticleStatus
-/code:hexagonal:value-object BlogContext Slug
+/code:hexagonal:value-object Blog ArticleId
+/code:hexagonal:value-object Blog ArticleTitle
+/code:hexagonal:value-object Blog ArticleContent
+/code:hexagonal:value-object Blog ArticleStatus
+/code:hexagonal:value-object Blog Slug
 
 # 2. Create entity infrastructure
-/code:hexagonal:entity BlogContext Article
+/code:hexagonal:entity Blog Article
 
 # This will:
 # - Generate Doctrine entity

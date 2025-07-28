@@ -12,7 +12,7 @@ This document clarifies where Behat files should be located in the project struc
 
 ```
 features/
-└── BlogContext/           # Or blog/ for lowercase
+└── Blog/           # Or blog/ for lowercase
     ├── api/              # API test features
     │   └── rest/
     │       └── article_management.feature
@@ -32,7 +32,7 @@ features/
 
 ```
 tests/
-└── BlogContext/
+└── Blog/
     └── Behat/
         ├── Context/      # Step definition classes
         │   ├── Api/
@@ -105,7 +105,7 @@ For Article management:
 
 ```
 features/
-└── BlogContext/
+└── Blog/
     ├── api/
     │   └── rest/
     │       └── article_management.feature    # API scenarios
@@ -113,7 +113,7 @@ features/
         └── managing_articles.feature         # UI scenarios
 
 tests/
-└── BlogContext/
+└── Blog/
     └── Behat/
         ├── Context/
         │   ├── Api/
@@ -136,11 +136,11 @@ tests/
 docker compose exec app vendor/bin/behat
 
 # Run specific context
-docker compose exec app vendor/bin/behat features/BlogContext/
+docker compose exec app vendor/bin/behat features/Blog/
 
 # Run specific layer
-docker compose exec app vendor/bin/behat features/BlogContext/api/
-docker compose exec app vendor/bin/behat features/BlogContext/admin/
+docker compose exec app vendor/bin/behat features/Blog/api/
+docker compose exec app vendor/bin/behat features/Blog/admin/
 
 # Run by tags
 docker compose exec app vendor/bin/behat --tags="@api"

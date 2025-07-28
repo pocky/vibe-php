@@ -26,7 +26,7 @@ final class MakeDomainIdGenerator extends AbstractMaker
         return 'Create a domain ID generator for specific entity identity generation';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -34,7 +34,7 @@ final class MakeDomainIdGenerator extends AbstractMaker
             ->setHelp($this->getCustomHelpFileContents('MakeDomainIdGenerator.txt'));
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $entity = $input->getArgument('entity');
@@ -45,31 +45,33 @@ final class MakeDomainIdGenerator extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         // Prepare entity names
         $entityPascalCase = Str::asCamelCase($entity);
         $entityPascalCase = ucfirst($entityPascalCase);
 
-        // Create ID class details (must exist)
-        $idClassDetails = $generator->createClassNameDetails(
+        // Create ID class details (must exist) - new structure
+        $classNameDetails = $generator->createClassNameDetails(
             $entityPascalCase . 'Id',
-            sprintf('%s\\Domain\\Shared\\ValueObject\\', $context)
+            sprintf('%s\\Domain\\%s\\Shared\\ValueObject\\', $context, $entityPascalCase)
         );
 
-        // Check if ID class exists
+        // Check if ID class exists - new structure
         $idClassPath = sprintf(
-            'src/%s/Domain/Shared/ValueObject/%sId.php',
+            'src/%s/Domain/%s/Shared/ValueObject/%sId.php',
             $context,
+            $entityPascalCase,
             $entityPascalCase
         );
 
         if (!file_exists($idClassPath)) {
-            $io->error(sprintf(
+            $consoleStyle->error(sprintf(
                 'The %sId value object does not exist yet. Please create it first with:',
                 $entityPascalCase
             ));
-            $io->text(sprintf('  php bin/console make:domain:value-object %s %sId', $context, $entityPascalCase));
+            $consoleStyle->text(sprintf('  php bin/console make:domain:value-object %s %sId --entity=%s', $context, $entityPascalCase, $entityPascalCase));
 
             return;
         }
@@ -84,16 +86,16 @@ final class MakeDomainIdGenerator extends AbstractMaker
             $idGeneratorDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/infrastructure/IdGenerator.tpl.php',
             [
-                'id_class_full_name' => $idClassDetails->getFullName(),
-                'id_class_short_name' => $idClassDetails->getShortName(),
+                'id_class_full_name' => $classNameDetails->getFullName(),
+                'id_class_short_name' => $classNameDetails->getShortName(),
             ]
         );
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
             sprintf(' - Use the generator in your domain services: <info>%s</info>', $idGeneratorDetails->getFullName()),
             sprintf(' - Inject it via constructor: <info>private %s $idGenerator</info>', $idGeneratorDetails->getShortName()),
@@ -105,7 +107,7 @@ final class MakeDomainIdGenerator extends AbstractMaker
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

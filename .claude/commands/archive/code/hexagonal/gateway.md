@@ -180,7 +180,7 @@ Enhance gateway performance:
 
 ```bash
 # 1. Create gateway structure
-/code:hexagonal:gateway BlogContext CreateArticle
+/code:hexagonal:gateway Blog CreateArticle
 
 # This will:
 # - Generate gateway with middleware pipeline

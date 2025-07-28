@@ -31,7 +31,7 @@ This command complements the Symfony Maker bundle. You can also generate admin t
 ```bash
 # Currently, there's no specific Maker for Behat admin tests
 # But you can use the generated admin resources as a base
-docker compose exec app bin/console make:admin:resource BlogContext Category
+docker compose exec app bin/console make:admin:resource Blog Category
 ```
 
 Then use this command to create the corresponding Behat tests.
@@ -94,12 +94,12 @@ Then use this command to create the corresponding Behat tests.
 
 3. **Create Context Class**
    ```php
-   namespace App\Tests\BlogContext\Behat\Context\Ui\Admin;
+   namespace App\Tests\Blog\Behat\Context\Ui\Admin;
 
    use Behat\Behat\Context\Context;
-   use App\Tests\BlogContext\Behat\Page\Admin\Category\IndexPageInterface;
-   use App\Tests\BlogContext\Behat\Page\Admin\Category\CreatePageInterface;
-   use App\Tests\BlogContext\Behat\Page\Admin\Category\UpdatePageInterface;
+   use App\Tests\Blog\Behat\Page\Admin\Category\IndexPageInterface;
+   use App\Tests\Blog\Behat\Page\Admin\Category\CreatePageInterface;
+   use App\Tests\Blog\Behat\Page\Admin\Category\UpdatePageInterface;
    use Webmozart\Assert\Assert;
 
    final class ManagingCategoriesContext implements Context
@@ -156,7 +156,7 @@ Then use this command to create the corresponding Behat tests.
 4. **Create Page Objects**
    ```php
    // IndexPageInterface.php
-   namespace App\Tests\BlogContext\Behat\Page\Admin\Category;
+   namespace App\Tests\Blog\Behat\Page\Admin\Category;
 
    use App\Tests\Shared\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 
@@ -166,7 +166,7 @@ Then use this command to create the corresponding Behat tests.
    }
 
    // IndexPage.php
-   namespace App\Tests\BlogContext\Behat\Page\Admin\Category;
+   namespace App\Tests\Blog\Behat\Page\Admin\Category;
 
    use App\Tests\Shared\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
@@ -226,7 +226,7 @@ Then use this command to create the corresponding Behat tests.
    # behat.dist.php
    'admin_ui' => [
        'contexts' => [
-           ['App\Tests\BlogContext\Behat\Context\Ui\Admin\ManagingCategoriesContext'],
+           ['App\Tests\Blog\Behat\Context\Ui\Admin\ManagingCategoriesContext'],
            ['App\Tests\Shared\Behat\Context\NotificationContext'],
            ['App\Tests\Shared\Behat\Context\HookContext'],
        ],

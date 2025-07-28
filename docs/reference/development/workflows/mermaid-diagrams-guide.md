@@ -55,7 +55,7 @@ Shows the relationship between different contexts and layers in the DDD structur
 ```mermaid
 graph TB
     subgraph "src/"
-        subgraph "BlogContext/"
+        subgraph "Blog/"
             BA[Application/]
             BD[Domain/]
             BI[Infrastructure/]

@@ -13,21 +13,20 @@ use PHPUnit\Framework\TestCase;
 
 final class DefaultErrorHandlerTest extends TestCase
 {
-    private const string CALLABLE_MIDDLEWARE_CLASS = CallableMiddleware::class;
-    private DefaultErrorHandler $errorHandler;
+    private DefaultErrorHandler $defaultErrorHandler;
 
     protected function setUp(): void
     {
         $instrumentation = $this->createMock(GatewayInstrumentation::class);
-        $this->errorHandler = new DefaultErrorHandler($instrumentation, 'test', 'entity', 'operation');
+        $this->defaultErrorHandler = new DefaultErrorHandler($instrumentation, 'test', 'entity', 'operation');
     }
 
     public function testConstructorSetsProperties(): void
     {
         $instrumentation = $this->createMock(GatewayInstrumentation::class);
-        $errorHandler = new DefaultErrorHandler($instrumentation, 'test', 'entity', 'operation');
+        $defaultErrorHandler = new DefaultErrorHandler($instrumentation, 'test', 'entity', 'operation');
 
-        $this->assertInstanceOf(DefaultErrorHandler::class, $errorHandler);
+        $this->assertInstanceOf(DefaultErrorHandler::class, $defaultErrorHandler);
     }
 
     public function testInvokeReturnsResponseOnSuccess(): void
@@ -35,45 +34,45 @@ final class DefaultErrorHandlerTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $mockResponse = $this->createMock(GatewayResponse::class);
 
-        $next = fn (GatewayRequest $request) => $mockResponse;
+        $next = fn (GatewayRequest $gatewayRequest): \PHPUnit\Framework\MockObject\MockObject => $mockResponse;
 
-        $result = ($this->errorHandler)($mockRequest, $next);
+        $gatewayResponse = ($this->defaultErrorHandler)($mockRequest, $next);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeCatchesRuntimeExceptionAndThrowsGatewayException(): void
     {
         $mockRequest = $this->createMock(GatewayRequest::class);
-        $originalException = new \RuntimeException('Database error');
+        $runtimeException = new \RuntimeException('Database error');
 
-        $next = function (GatewayRequest $request) use ($originalException) {
-            throw $originalException;
+        $next = function (GatewayRequest $gatewayRequest) use ($runtimeException): never {
+            throw $runtimeException;
         };
 
         $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Error during operation process for test entity');
 
-        ($this->errorHandler)($mockRequest, $next);
+        ($this->defaultErrorHandler)($mockRequest, $next);
     }
 
     public function testInvokeCatchesInvalidArgumentExceptionAndThrowsGatewayException(): void
     {
         $mockRequest = $this->createMock(GatewayRequest::class);
-        $originalException = new \InvalidArgumentException('Validation failed');
+        $invalidArgumentException = new \InvalidArgumentException('Validation failed');
 
-        $next = function (GatewayRequest $request) use ($originalException) {
-            throw $originalException;
+        $next = function (GatewayRequest $gatewayRequest) use ($invalidArgumentException): never {
+            throw $invalidArgumentException;
         };
 
         $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Error during operation process for test entity');
 
         try {
-            ($this->errorHandler)($mockRequest, $next);
-        } catch (GatewayException $e) {
-            $this->assertSame($originalException, $e->getPrevious());
-            throw $e;
+            ($this->defaultErrorHandler)($mockRequest, $next);
+        } catch (GatewayException $gatewayException) {
+            $this->assertSame($invalidArgumentException, $gatewayException->getPrevious());
+            throw $gatewayException;
         }
     }
 
@@ -82,12 +81,12 @@ final class DefaultErrorHandlerTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $originalException = new \Exception('Original error');
 
-        $next = function (GatewayRequest $request) use ($originalException) {
+        $next = function (GatewayRequest $gatewayRequest) use ($originalException): never {
             throw $originalException;
         };
 
         try {
-            ($this->errorHandler)($mockRequest, $next);
+            ($this->defaultErrorHandler)($mockRequest, $next);
             $this->fail('Expected GatewayException to be thrown');
         } catch (GatewayException $gatewayException) {
             $this->assertSame($originalException, $gatewayException->getPrevious());
@@ -99,12 +98,12 @@ final class DefaultErrorHandlerTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $originalException = new \Exception('Not found');
 
-        $next = function (GatewayRequest $request) use ($originalException) {
+        $next = function (GatewayRequest $gatewayRequest) use ($originalException): never {
             throw $originalException;
         };
 
         try {
-            ($this->errorHandler)($mockRequest, $next);
+            ($this->defaultErrorHandler)($mockRequest, $next);
             $this->fail('Expected GatewayException to be thrown');
         } catch (GatewayException $gatewayException) {
             $this->assertStringContainsString('Error during operation process for test entity', $gatewayException->getMessage());

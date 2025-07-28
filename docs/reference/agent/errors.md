@@ -142,7 +142,7 @@ docker compose exec app composer diagnose
 ```
 Attempt 1: PHPStan error - Interface "App\Shared\Application\Gateway\Middleware\Middleware" not found
 Attempt 2: PHP error - Call to undefined static method App\Shared\Application\Gateway\GatewayException::badRequest()
-Attempt 3: Namespace error - use App\Blog\Domain\... instead of App\BlogContext\Domain\...
+Attempt 3: Namespace error - use App\Blog\Domain\... instead of App\Blog\Domain\...
 ```
 
 ### Approaches Attempted

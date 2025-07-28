@@ -1,14 +1,18 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
 
-use App\<?php echo $context; ?>\Domain\Shared\ValueObject\<?php echo $entity; ?>Id;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity; ?>\Shared\ValueObject\<?php echo $entity; ?>Id;
 
 /**
- * Represents <?php echo strtolower((string) $entity); ?> data during <?php echo strtolower(str_replace($entity, '', $use_case)); ?>.
- * This is a data transfer object specific to the <?php echo $use_case; ?> operation.
+ * <?php echo $entity; ?> aggregate root.
+ * 
+ * This is the main domain model that encapsulates all business logic
+ * and rules for the <?php echo $entity; ?> entity.
  */
 final readonly class <?php echo $class_name . "\n"; ?>
 {

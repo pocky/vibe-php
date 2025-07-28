@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -6,7 +8,8 @@ namespace <?php echo $namespace; ?>;
 
 use <?php echo $validation_exception_namespace; ?>\ValidationException;
 
-final class <?php echo $class_name . "\n"; ?>
+final class <?php echo $class_name; ?> implements \Stringable
+
 {
     private const float MIN_VALUE = 0.0;
     private const float MAX_VALUE = 100.0;
@@ -15,6 +18,11 @@ final class <?php echo $class_name . "\n"; ?>
         private(set) float $value,
     ) {
         $this->validate();
+    }
+
+    public static function fromFloat(float $value): self
+    {
+        return new self($value);
     }
 
     private function validate(): void
@@ -80,8 +88,9 @@ final class <?php echo $class_name . "\n"; ?>
         return abs($this->value - $other->value) < 0.0001;
     }
 
-    public function toString(): string
+    public function __toString(): string
     {
-        return $this->getFormatted();
+        return $this->value . '%';
     }
+
 }

@@ -21,7 +21,7 @@ This guide provides step-by-step instructions for implementing the Blog context 
 #### Step 1: Domain Layer
 1. Create value objects:
    ```
-   src/BlogContext/Domain/Shared/ValueObject/
+   src/Blog/Domain/Shared/ValueObject/
    ├── ArticleId.php
    ├── Title.php
    ├── Content.php
@@ -31,17 +31,17 @@ This guide provides step-by-step instructions for implementing the Blog context 
 
 2. Create ArticleStatus enum:
    ```
-   src/BlogContext/Domain/Shared/ValueObject/ArticleStatus.php
+   src/Blog/Domain/Shared/ValueObject/ArticleStatus.php
    ```
 
 3. Create Article aggregate:
    ```
-   src/BlogContext/Domain/Article/Article.php
+   src/Blog/Domain/Article/Article.php
    ```
 
 4. Define domain events:
    ```
-   src/BlogContext/Domain/Article/Event/
+   src/Blog/Domain/Article/Event/
    ├── ArticleCreated.php
    ├── ArticleUpdated.php
    ├── ArticlePublished.php
@@ -51,7 +51,7 @@ This guide provides step-by-step instructions for implementing the Blog context 
 #### Step 2: Application Layer
 1. Create commands:
    ```
-   src/BlogContext/Application/Operation/Command/
+   src/Blog/Application/Operation/Command/
    ├── CreateArticle/
    │   ├── Command.php
    │   └── Handler.php
@@ -68,7 +68,7 @@ This guide provides step-by-step instructions for implementing the Blog context 
 
 2. Create queries:
    ```
-   src/BlogContext/Application/Operation/Query/
+   src/Blog/Application/Operation/Query/
    ├── GetArticle/
    │   ├── Query.php
    │   ├── Handler.php
@@ -81,7 +81,7 @@ This guide provides step-by-step instructions for implementing the Blog context 
 
 3. Create gateways:
    ```
-   src/BlogContext/Application/Gateway/
+   src/Blog/Application/Gateway/
    ├── CreateArticle/
    │   ├── Gateway.php
    │   ├── Request.php
@@ -95,17 +95,17 @@ This guide provides step-by-step instructions for implementing the Blog context 
 #### Step 3: Infrastructure Layer
 1. Create repository interface:
    ```
-   src/BlogContext/Domain/Shared/Repository/ArticleRepositoryInterface.php
+   src/Blog/Domain/Shared/Repository/ArticleRepositoryInterface.php
    ```
 
 2. Create Doctrine entity:
    ```
-   src/BlogContext/Infrastructure/Persistence/Doctrine/Entity/BlogArticle.php
+   src/Blog/Infrastructure/Persistence/Doctrine/Entity/BlogArticle.php
    ```
 
 3. Implement repository:
    ```
-   src/BlogContext/Infrastructure/Persistence/Doctrine/Repository/ArticleRepository.php
+   src/Blog/Infrastructure/Persistence/Doctrine/Repository/ArticleRepository.php
    ```
 
 4. Create database migration:
@@ -153,7 +153,7 @@ This guide provides step-by-step instructions for implementing the Blog context 
 1. Configure API Platform
 2. Create API resources:
    ```
-   src/BlogContext/UI/Api/Rest/Resource/
+   src/Blog/UI/Api/Rest/Resource/
    ├── ArticleResource.php
    ├── CategoryResource.php
    └── AuthorResource.php

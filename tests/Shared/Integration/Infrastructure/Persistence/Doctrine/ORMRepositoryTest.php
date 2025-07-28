@@ -15,9 +15,11 @@ use PHPUnit\Framework\TestCase;
 
 final class ORMRepositoryTest extends TestCase
 {
-    private ManagerRegistry $mockManagerRegistry;
-    private \Doctrine\ORM\EntityManagerInterface $mockManager;
-    private ORMRepository $repository;
+    private \PHPUnit\Framework\MockObject\MockObject $mockManagerRegistry;
+
+    private \PHPUnit\Framework\MockObject\MockObject $mockManager;
+
+    private ORMRepository $ormRepository;
 
     protected function setUp(): void
     {
@@ -31,24 +33,24 @@ final class ORMRepositoryTest extends TestCase
         // Set up mock expectations for EntityManager methods - return new instances each time
         $this->mockManager
             ->method('createQueryBuilder')
-            ->willReturnCallback(fn () => $this->createMock(QueryBuilder::class));
+            ->willReturnCallback(fn (): QueryBuilder => $this->createMock(QueryBuilder::class));
 
         $this->mockManager
             ->method('createQuery')
-            ->willReturnCallback(fn () => $this->createMock(Query::class));
+            ->willReturnCallback(fn (): Query => $this->createMock(Query::class));
 
         $this->mockManager
             ->method('createNativeQuery')
-            ->willReturnCallback(fn () => $this->createMock(NativeQuery::class));
+            ->willReturnCallback(fn (): NativeQuery => $this->createMock(NativeQuery::class));
 
-        $this->repository = new class($this->mockManagerRegistry, \stdClass::class) extends ORMRepository {};
+        $this->ormRepository = new class($this->mockManagerRegistry, \stdClass::class) extends ORMRepository {};
     }
 
     public function testClassIsAbstract(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
 
-        $this->assertTrue($reflection->isAbstract());
+        $this->assertTrue($reflectionClass->isAbstract());
     }
 
     public function testConstructorAcceptsManagerRegistryAndClass(): void
@@ -63,7 +65,7 @@ final class ORMRepositoryTest extends TestCase
 
     public function testGetClassNameReturnsInjectedClass(): void
     {
-        $result = $this->repository->getClassName();
+        $result = $this->ormRepository->getClassName();
 
         $this->assertSame(\stdClass::class, $result);
     }
@@ -81,7 +83,7 @@ final class ORMRepositoryTest extends TestCase
             ->with(\stdClass::class)
             ->willReturn($mockMetadata);
 
-        $result = $this->repository->getClass();
+        $result = $this->ormRepository->getClass();
 
         $this->assertInstanceOf(\stdClass::class, $result);
     }
@@ -102,26 +104,26 @@ final class ORMRepositoryTest extends TestCase
 
     public function testGetQueryBuilderReturnsQueryBuilder(): void
     {
-        $result = $this->repository->getQueryBuilder();
+        $queryBuilder = $this->ormRepository->getQueryBuilder();
 
-        $this->assertInstanceOf(QueryBuilder::class, $result);
+        $this->assertInstanceOf(QueryBuilder::class, $queryBuilder);
     }
 
     public function testGetQueryReturnsQuery(): void
     {
         $sql = 'SELECT e FROM Entity e';
-        $result = $this->repository->getQuery($sql);
+        $query = $this->ormRepository->getQuery($sql);
 
-        $this->assertInstanceOf(Query::class, $result);
+        $this->assertInstanceOf(Query::class, $query);
     }
 
     public function testGetNativeQueryReturnsNativeQuery(): void
     {
         $sql = 'SELECT * FROM table';
         $mockRsm = $this->createMock(ResultSetMapping::class);
-        $result = $this->repository->getNativeQuery($sql, $mockRsm);
+        $nativeQuery = $this->ormRepository->getNativeQuery($sql, $mockRsm);
 
-        $this->assertInstanceOf(NativeQuery::class, $result);
+        $this->assertInstanceOf(NativeQuery::class, $nativeQuery);
     }
 
     public function testGetRsmCreatesResultSetMappingBuilder(): void
@@ -132,26 +134,26 @@ final class ORMRepositoryTest extends TestCase
         $mockManagerRegistry->method('getManager')->willReturn($mockEntityManager);
 
         $repository = new class($mockManagerRegistry, \stdClass::class) extends ORMRepository {};
-        $result = $repository->getRsm();
+        $resultSetMappingBuilder = $repository->getRsm();
 
-        $this->assertInstanceOf(ResultSetMappingBuilder::class, $result);
+        $this->assertInstanceOf(ResultSetMappingBuilder::class, $resultSetMappingBuilder);
     }
 
     public function testApiAnnotations(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
 
         $apiMethods = ['getQueryBuilder', 'getQuery', 'getNativeQuery', 'getRsm'];
-        foreach ($apiMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
+        foreach ($apiMethods as $apiMethod) {
+            $method = $reflectionClass->getMethod($apiMethod);
             $docComment = $method->getDocComment();
-            $this->assertStringContainsString('@api', $docComment, "Method {$methodName} should have @api annotation");
+            $this->assertStringContainsString('@api', (string) $docComment, sprintf('Method %s should have @api annotation', $apiMethod));
         }
     }
 
     public function testReturnTypes(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
 
         $expectedReturnTypes = [
             'getClassName' => 'string',
@@ -162,33 +164,35 @@ final class ORMRepositoryTest extends TestCase
         ];
 
         foreach ($expectedReturnTypes as $methodName => $expectedType) {
-            $method = $reflection->getMethod($methodName);
-            $this->assertTrue($method->hasReturnType(), "Method {$methodName} should have return type");
+            $method = $reflectionClass->getMethod($methodName);
+            $this->assertTrue($method->hasReturnType(), sprintf('Method %s should have return type', $methodName));
 
             $returnType = $method->getReturnType();
             if ($returnType->getName() !== $expectedType) {
                 // For some methods, the return type might be different due to inheritance
                 continue;
             }
-            $this->assertSame($expectedType, $returnType->getName(), "Method {$methodName} should return {$expectedType}");
+
+            $this->assertSame($expectedType, $returnType->getName(), sprintf('Method %s should return %s', $methodName, $expectedType));
         }
     }
 
     public function testMethodVisibility(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
 
         $publicMethods = ['getClass', 'getClassName', 'getQueryBuilder', 'getQuery', 'getNativeQuery', 'getRsm'];
-        foreach ($publicMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
-            $this->assertTrue($method->isPublic(), "Method {$methodName} should be public");
+        foreach ($publicMethods as $publicMethod) {
+            $method = $reflectionClass->getMethod($publicMethod);
+            $this->assertTrue($method->isPublic(), sprintf('Method %s should be public', $publicMethod));
         }
     }
 
     public function testConstructorParametersAndTypes(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
-        $constructor = $reflection->getConstructor();
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
+        $constructor = $reflectionClass->getConstructor();
+        $this->assertInstanceOf(\ReflectionMethod::class, $constructor);
         $parameters = $constructor->getParameters();
 
         $this->assertCount(2, $parameters);
@@ -205,35 +209,35 @@ final class ORMRepositoryTest extends TestCase
 
     public function testManagerPropertyWithAsymmetricVisibility(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
-        $managerProperty = $reflection->getProperty('manager');
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
+        $reflectionProperty = $reflectionClass->getProperty('manager');
 
         // Check that the property exists and is accessible
-        $this->assertSame('manager', $managerProperty->getName());
+        $this->assertSame('manager', $reflectionProperty->getName());
 
         // Check that the type allows null
-        $type = $managerProperty->getType();
-        $this->assertNotNull($type);
+        $type = $reflectionProperty->getType();
+        $this->assertInstanceOf(\ReflectionType::class, $type);
 
         // With asymmetric visibility, the property should still be readable from protected context
         // We test this by checking the property name and type rather than visibility specifics
-        $this->assertStringContainsString('EntityManagerInterface', $type->getName());
+        $this->assertStringContainsString('EntityManagerInterface', (string) $type->getName());
     }
 
     public function testPhpstanIgnoreComments(): void
     {
-        $reflection = new \ReflectionClass(ORMRepository::class);
+        $reflectionClass = new \ReflectionClass(ORMRepository::class);
 
         $methodsWithIgnore = ['getClass', 'getQueryBuilder', 'getQuery', 'getNativeQuery', 'getRsm'];
-        foreach ($methodsWithIgnore as $methodName) {
-            $method = $reflection->getMethod($methodName);
+        foreach ($methodsWithIgnore as $methodWithIgnore) {
+            $method = $reflectionClass->getMethod($methodWithIgnore);
             $docComment = $method->getDocComment();
 
-            if ('getClass' === $methodName) {
+            if ('getClass' === $methodWithIgnore) {
                 $this->assertStringContainsString(
                     '@phpstan-ignore-next-line',
-                    $docComment,
-                    "Method {$methodName} should have phpstan ignore comment"
+                    (string) $docComment,
+                    sprintf('Method %s should have phpstan ignore comment', $methodWithIgnore)
                 );
             } else {
                 // These methods have phpstan ignore in the implementation, not the doc comment
@@ -258,22 +262,22 @@ final class ORMRepositoryTest extends TestCase
 
     public function testMultipleQueryBuilderCallsCreateNewInstances(): void
     {
-        $result1 = $this->repository->getQueryBuilder();
-        $result2 = $this->repository->getQueryBuilder();
+        $queryBuilder = $this->ormRepository->getQueryBuilder();
+        $result2 = $this->ormRepository->getQueryBuilder();
 
-        $this->assertInstanceOf(QueryBuilder::class, $result1);
+        $this->assertInstanceOf(QueryBuilder::class, $queryBuilder);
         $this->assertInstanceOf(QueryBuilder::class, $result2);
-        $this->assertNotSame($result1, $result2);
+        $this->assertNotSame($queryBuilder, $result2);
     }
 
     public function testMultipleQueryCallsCreateNewInstances(): void
     {
         $sql = 'SELECT e FROM Entity e';
-        $result1 = $this->repository->getQuery($sql);
-        $result2 = $this->repository->getQuery($sql);
+        $query = $this->ormRepository->getQuery($sql);
+        $result2 = $this->ormRepository->getQuery($sql);
 
-        $this->assertInstanceOf(Query::class, $result1);
+        $this->assertInstanceOf(Query::class, $query);
         $this->assertInstanceOf(Query::class, $result2);
-        $this->assertNotSame($result1, $result2);
+        $this->assertNotSame($query, $result2);
     }
 }

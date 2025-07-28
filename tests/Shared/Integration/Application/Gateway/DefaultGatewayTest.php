@@ -14,7 +14,7 @@ final class DefaultGatewayTest extends TestCase
     public function testConstructorSetsMiddlewares(): void
     {
         $middlewares = [
-            fn (GatewayRequest $request, callable $next) => $next($request),
+            fn (GatewayRequest $gatewayRequest, callable $next) => $next($gatewayRequest),
         ];
 
         $gateway = new class($middlewares) extends DefaultGateway {};
@@ -34,15 +34,15 @@ final class DefaultGatewayTest extends TestCase
             'result' => 'success',
         ]);
 
-        $middleware = (fn (GatewayRequest $request, callable|null $next = null) =>
+        $middleware = (fn (GatewayRequest $gatewayRequest, callable|null $next = null): \PHPUnit\Framework\MockObject\MockObject =>
             // Simulate middleware that returns a response
             $mockResponse);
 
         $gateway = new class([$middleware]) extends DefaultGateway {};
-        $result = $gateway($mockRequest);
+        $gatewayResponse = $gateway($mockRequest);
 
-        $this->assertInstanceOf(GatewayResponse::class, $result);
-        $this->assertSame($mockResponse, $result);
+        $this->assertInstanceOf(GatewayResponse::class, $gatewayResponse);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeWithMultipleMiddlewares(): void
@@ -52,22 +52,22 @@ final class DefaultGatewayTest extends TestCase
 
         $callOrder = [];
 
-        $middleware1 = function (GatewayRequest $request, callable $next) use (&$callOrder) {
+        $middleware1 = function (GatewayRequest $gatewayRequest, callable $next) use (&$callOrder) {
             $callOrder[] = 'middleware1';
 
-            return $next($request);
+            return $next($gatewayRequest);
         };
 
-        $middleware2 = function (GatewayRequest $request, callable|null $next = null) use (&$callOrder, $mockResponse) {
+        $middleware2 = function (GatewayRequest $gatewayRequest, callable|null $next = null) use (&$callOrder, $mockResponse): \PHPUnit\Framework\MockObject\MockObject {
             $callOrder[] = 'middleware2';
 
             return $mockResponse;
         };
 
         $gateway = new class([$middleware1, $middleware2]) extends DefaultGateway {};
-        $result = $gateway($mockRequest);
+        $gatewayResponse = $gateway($mockRequest);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
         $this->assertSame(['middleware1', 'middleware2'], $callOrder);
     }
 

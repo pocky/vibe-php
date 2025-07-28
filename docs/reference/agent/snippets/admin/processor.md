@@ -14,9 +14,9 @@ use App\[Context]Context\Application\Gateway\Create[Resource]\Request as Create[
 use App\[Context]Context\Domain\Create[Resource]\Exception\[Resource]AlreadyExists;
 use App\[Context]Context\UI\Web\Admin\Resource\[Resource]Resource;
 use App\Shared\Application\Gateway\GatewayException;
-use Sylius\Component\Resource\Context\Context;
-use Sylius\Component\Resource\Metadata\Operation;
-use Sylius\Component\Resource\State\ProcessorInterface;
+use Sylius\Resource\Context\Context;
+use Sylius\Resource\Metadata\Operation;
+use Sylius\Resource\State\ProcessorInterface;
 
 final readonly class Create[Resource]Processor implements ProcessorInterface
 {
@@ -82,9 +82,9 @@ use App\[Context]Context\Application\Gateway\Update[Resource]\Request as Update[
 use App\[Context]Context\Domain\Update[Resource]\Exception\[Resource]NotFound;
 use App\[Context]Context\UI\Web\Admin\Resource\[Resource]Resource;
 use App\Shared\Application\Gateway\GatewayException;
-use Sylius\Component\Resource\Context\Context;
-use Sylius\Component\Resource\Metadata\Operation;
-use Sylius\Component\Resource\State\ProcessorInterface;
+use Sylius\Resource\Context\Context;
+use Sylius\Resource\Metadata\Operation;
+use Sylius\Resource\State\ProcessorInterface;
 
 final readonly class Update[Resource]Processor implements ProcessorInterface
 {
@@ -151,9 +151,9 @@ use App\[Context]Context\Application\Gateway\Delete[Resource]\Request as Delete[
 use App\[Context]Context\Domain\Delete[Resource]\Exception\[Resource]NotFound;
 use App\[Context]Context\UI\Web\Admin\Resource\[Resource]Resource;
 use App\Shared\Application\Gateway\GatewayException;
-use Sylius\Component\Resource\Context\Context;
-use Sylius\Component\Resource\Metadata\Operation;
-use Sylius\Component\Resource\State\ProcessorInterface;
+use Sylius\Resource\Context\Context;
+use Sylius\Resource\Metadata\Operation;
+use Sylius\Resource\State\ProcessorInterface;
 
 final readonly class Delete[Resource]Processor implements ProcessorInterface
 {
@@ -205,9 +205,9 @@ namespace App\[Context]Context\UI\Web\Admin\Processor;
 use App\[Context]Context\Application\Gateway\[Action][Resource]\Gateway as [Action][Resource]Gateway;
 use App\[Context]Context\Application\Gateway\[Action][Resource]\Request as [Action][Resource]Request;
 use App\[Context]Context\UI\Web\Admin\Resource\[Resource]Resource;
-use Sylius\Component\Resource\Context\Context;
-use Sylius\Component\Resource\Metadata\Operation;
-use Sylius\Component\Resource\State\ProcessorInterface;
+use Sylius\Resource\Context\Context;
+use Sylius\Resource\Metadata\Operation;
+use Sylius\Resource\State\ProcessorInterface;
 
 final readonly class [Action][Resource]Processor implements ProcessorInterface
 {

@@ -13,6 +13,27 @@
             "src/ExampleContext/UI/Api/.gitignore"
         ]
     },
+    "babdev/pagerfanta-bundle": {
+        "version": "v4.5.0"
+    },
+    "dg/bypass-finals": {
+        "version": "1.9",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.7",
+            "ref": "44c76c50b2aaa81221a8b1e37ad1cd562386257e"
+        }
+    },
+    "doctrine/annotations": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "1.10",
+            "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
+        }
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -103,6 +124,9 @@
             "version": "1.1",
             "ref": "ff13d88ef6152caaed9412750a0d677207e02d72"
         }
+    },
+    "knplabs/knp-menu-bundle": {
+        "version": "v3.6.0"
     },
     "mformono/docker": {
         "version": "1.0",
@@ -217,6 +241,88 @@
             "ref": "af8d06901c897a459321b935cf8f6d227c3e3a12"
         }
     },
+    "sylius/admin-ui": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php-contrib",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "84e0fec52e739f0d11ff7f9c8e9ed919b031ca97"
+        },
+        "files": [
+            "config/routes/sylius_admin_ui.php"
+        ]
+    },
+    "sylius/bootstrap-admin-ui": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "c4bd98d29d98dfbcde419f16542eb144e349f344"
+        },
+        "files": [
+            "config/packages/sylius_bootstrap_admin_ui.php"
+        ]
+    },
+    "sylius/grid-bundle": {
+        "version": "v1.13.0-ALPHA.2"
+    },
+    "sylius/resource-bundle": {
+        "version": "1.12",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "1.12",
+            "ref": "41927063b80d46574d3a5bdb89c888efa22c298c"
+        },
+        "files": [
+            "config/packages/sylius_resource.php",
+            "config/routes/sylius_resource.php"
+        ]
+    },
+    "sylius/twig-extra": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php-contrib",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "00e1c7f2e97de7b0d990e507e1541fd05d4cdbfe"
+        }
+    },
+    "sylius/twig-hooks": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php-contrib",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "42a2dc11276d447efefa639b95f9c7a4edd7031a"
+        }
+    },
+    "sylius/ui-translations": {
+        "version": "0.8",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php-contrib",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "dea908d6a4add041281c1a1a60f37cba55312f98"
+        }
+    },
+    "symfony/asset-mapper": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "6.4",
+            "ref": "c233b1acd6c1459ce8a6497f44140fa87aed6f19"
+        },
+        "files": [
+            "assets/app.js",
+            "assets/styles/app.css",
+            "config/packages/asset_mapper.php",
+            "importmap.php"
+        ]
+    },
     "symfony/console": {
         "version": "7.3",
         "recipe": {
@@ -252,6 +358,18 @@
         "files": [
             ".env",
             ".env.dev"
+        ]
+    },
+    "symfony/form": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "7.2",
+            "ref": "cd0302853a8ef2c170b1beffec6d35f4292d7d14"
+        },
+        "files": [
+            "config/packages/csrf.php"
         ]
     },
     "symfony/framework-bundle": {
@@ -360,6 +478,21 @@
             "config/routes/security.php"
         ]
     },
+    "symfony/stimulus-bundle": {
+        "version": "2.27",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "2.20",
+            "ref": "e058471c5502e549c1404ebdd510099107bb5549"
+        },
+        "files": [
+            "assets/bootstrap.js",
+            "assets/controllers.json",
+            "assets/controllers/csrf_protection_controller.js",
+            "assets/controllers/hello_controller.js"
+        ]
+    },
     "symfony/translation": {
         "version": "7.3",
         "recipe": {
@@ -394,6 +527,54 @@
             "version": "7.0",
             "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
         }
+    },
+    "symfony/ux-autocomplete": {
+        "version": "2.27",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "2.6",
+            "ref": "3b03893dff9fca18b7dabacabb09c0da05489820"
+        },
+        "files": [
+            "config/routes/ux_autocomplete.php"
+        ]
+    },
+    "symfony/ux-icons": {
+        "version": "2.27",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "2.17",
+            "ref": "803a3bbd5893f9584969ab8670290cdfb6a0a5b5"
+        },
+        "files": [
+            "assets/icons/symfony.svg"
+        ]
+    },
+    "symfony/ux-live-component": {
+        "version": "2.27",
+        "recipe": {
+            "repo": "github.com/schranz-php-recipes/symfony-recipes-php",
+            "branch": "main",
+            "version": "2.6",
+            "ref": "971798c3f8eba8beb54713a646eb4790a854ab79"
+        },
+        "files": [
+            "config/routes/ux_live_component.php"
+        ]
+    },
+    "symfony/ux-twig-component": {
+        "version": "2.27",
+        "recipe": {
+            "repo": "github.com/MforMono/recipes",
+            "branch": "main",
+            "version": "2.13",
+            "ref": "f7f1ca90c268f790fd4b2847d0cd67f471630798"
+        },
+        "files": [
+            "config/packages/twig_component.php"
+        ]
     },
     "symfony/validator": {
         "version": "7.3",

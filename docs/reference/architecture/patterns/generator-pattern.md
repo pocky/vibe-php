@@ -122,7 +122,7 @@ The project includes DDD Maker commands that automatically create ID generators 
 
 ```bash
 # This command creates both the entity AND its ID generator
-bin/console make:infrastructure:entity BlogContext Article
+bin/console make:infrastructure:entity Blog Article
 ```
 
 This generates:
@@ -134,9 +134,9 @@ This generates:
 Example of generated ID Generator:
 
 ```php
-namespace App\BlogContext\Infrastructure\Identity;
+namespace App\Blog\Infrastructure\Identity;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 use App\Shared\Infrastructure\Generator\UuidGenerator;
 
 final readonly class ArticleIdGenerator
@@ -325,9 +325,12 @@ class UserRepository
 ### Generation Testing
 
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 class UuidGeneratorTest extends TestCase
 {
-    public function testGenerateReturnsValidUuid(): void
+    #[Test]
+    public function generate_returns_valid_uuid(): void
     {
         $uuid = UuidGenerator::generate();
         
@@ -338,7 +341,8 @@ class UuidGeneratorTest extends TestCase
         );
     }
 
-    public function testGenerateDifferentUuids(): void
+    #[Test]
+    public function generate_returns_different_uuids(): void
     {
         $uuid1 = UuidGenerator::generate();
         $uuid2 = UuidGenerator::generate();
@@ -387,8 +391,11 @@ class MockGenerator implements GeneratorInterface
 ### Testing with Mock
 
 ```php
+use PHPUnit\Framework\Attributes\{Test, Override};
+
 class UserCreationTest extends TestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         MockGenerator::setPredefinedIds([
@@ -397,12 +404,14 @@ class UserCreationTest extends TestCase
         ]);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         MockGenerator::reset();
     }
 
-    public function testUserCreationWithPredictableId(): void
+    #[Test]
+    public function user_creation_with_predictable_id(): void
     {
         // Temporarily replace the generator
         $originalGenerator = UuidGenerator::class;

@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -17,26 +19,11 @@ class <?php echo $class_name . "\n"; ?>
     public function __construct(
         #[ORM\Id]
         #[ORM\Column(type: UuidType::NAME, unique: true)]
-        private Uuid $id,
+        public Uuid $id,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-        private \DateTimeImmutable $createdAt,
-        #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-        private \DateTimeImmutable|null $updatedAt = null
+        public \DateTimeImmutable $createdAt,
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+        public \DateTimeImmutable $updatedAt
     ) {
-    }
-
-    public function getId(): Uuid
-    {
-        return $this->id;
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeImmutable|null
-    {
-        return $this->updatedAt;
     }
 }

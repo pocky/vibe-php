@@ -127,10 +127,6 @@ enum ArticleStatus: string
         return self::DRAFT === $this;
     }
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }
 ```
 
@@ -416,16 +412,20 @@ final readonly class DoctrineUserRepository implements UserRepositoryInterface
 
 ### Domain Object Testing
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 final class EmailTest extends TestCase
 {
-    public function testValidEmailCreation(): void
+    #[Test]
+    public function valid_email_creation(): void
     {
         $email = new Email('user@example.com');
         
         self::assertEquals('user@example.com', $email->getValue());
     }
 
-    public function testInvalidEmailThrowsException(): void
+    #[Test]
+    public function invalid_email_throws_exception(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         
@@ -436,9 +436,12 @@ final class EmailTest extends TestCase
 
 ### Service Testing with Mocks
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 final class UserRegistrationServiceTest extends TestCase
 {
-    public function testUserRegistration(): void
+    #[Test]
+    public function user_registration_sends_welcome_email(): void
     {
         $repository = $this->createMock(UserRepositoryInterface::class);
         $hasher = $this->createMock(PasswordHasherInterface::class);

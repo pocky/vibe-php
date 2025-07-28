@@ -1,16 +1,16 @@
 # Domain Layer Pattern Documentation
 
-This document provides comprehensive documentation for implementing the Domain layer in our Domain-Driven Design architecture, organized by use cases rather than aggregates.
+This document provides comprehensive documentation for implementing the Domain layer in our Domain-Driven Design architecture, organized by entities with domain services at the entity level.
 
 ## Overview
 
-The Domain layer contains pure business logic organized by use cases. Each use case is self-contained with its own entry point, data models, events, and exceptions. This structure promotes clarity, testability, and maintainability.
+The Domain layer contains pure business logic. We now use a **unified aggregate approach** where a single rich domain model (aggregate) contains all business logic, replacing the previous pattern of separate models per use case. Services (Creator, Updater, etc.) use this unified aggregate.
 
 ## Core Principles
 
-### Use Case Organization
-- **One directory per use case** (CreateArticle, PublishArticle, etc.)
-- **Self-contained logic** - each use case contains everything it needs
+### Entity-Centric Organization
+- **Domain services at entity level** ({Entity}Creator, {Entity}Updater, etc.)
+- **Shared subfolder for common elements** - Model, Repository, ValueObject, Event, Exception
 - **Clear entry points** - single `__invoke()` method for execution
 - **Explicit dependencies** - all dependencies injected via constructor
 
@@ -22,52 +22,211 @@ The Domain layer contains pure business logic organized by use cases. Each use c
 
 ## Directory Structure
 
-### Global Context Structure
+### Entity-Centric Structure (Current Standard)
 ```
-src/BlogContext/Domain/
-├── CreateArticle/              # Write use case
-│   ├── Creator.php             # Entry point with __invoke
-│   ├── Model/                  # Domain models for this use case
-│   │   └── Article.php         # Domain model with events
-│   ├── Event/                  # Domain events
-│   │   └── ArticleCreated.php
-│   └── Exception/              # Business exceptions
-│       ├── ArticleAlreadyExists.php
-│       ├── InvalidArticleData.php
-│       └── InvalidSlug.php
-├── PublishArticle/             # Write use case
-│   ├── Publisher.php           # Entry point with __invoke
-│   ├── Model/                  # Domain models for this use case
-│   │   └── Article.php         # Article model for publishing
-│   ├── Event/
-│   │   └── ArticlePublished.php
-│   └── Exception/
-│       ├── ArticleNotFound.php
-│       ├── ArticleAlreadyPublished.php
-│       └── ArticleNotReady.php
-├── GetArticle/                 # Read use case
-│   ├── ArticleProvider.php     # Entry point with __invoke
-│   ├── DataProvider/           # Read models
-│   │   └── ArticleView.php
-│   └── Exception/
-│       └── ArticleNotFound.php
-├── Shared/                     # Context shared components
-│   ├── Model/                  # Shared domain models
-│   │   ├── Article.php         # Shared article model
-│   │   └── Category.php        # Shared category model
-│   ├── ValueObject/            # Shared value objects
-│   │   ├── ArticleId.php
-│   │   ├── Title.php
-│   │   ├── Content.php
-│   │   ├── Slug.php
-│   │   └── ArticleStatus.php
-│   └── Repository/             # Repository interfaces
-│       └── ArticleRepositoryInterface.php
-└── Event/                      # Base event interfaces
-    └── DomainEventInterface.php
+src/Blog/Domain/
+├── Article/                   # Article entity domain
+│   ├── ArticleCreator.php    # Domain service for creation
+│   ├── ArticleUpdater.php    # Domain service for updates
+│   ├── ArticleDeleter.php    # Domain service for deletion
+│   ├── ArticlePublisher.php  # Domain service for publishing
+│   ├── ArticleGetter.php     # Domain service for retrieval
+│   └── Shared/               # Shared within Article domain
+│       ├── Model/
+│       │   └── Article.php   # Aggregate root with all business logic
+│       ├── Repository/
+│       │   ├── ArticleRepositoryInterface.php
+│       │   └── ArticleReadRepositoryInterface.php
+│       ├── Identifier/
+│       │   └── ArticleId.php
+│       ├── ValueObject/
+│       │   ├── ArticleStatus.php
+│       │   ├── Content.php
+│       │   └── Title.php
+│       ├── Event/            # All article events
+│       │   ├── ArticleCreated.php
+│       │   ├── ArticlePublished.php
+│       │   ├── ArticleUpdated.php
+│       │   └── ArticleDeleted.php
+│       ├── Exception/        # All article exceptions
+│       │   ├── ArticleAlreadyExists.php
+│       │   ├── ArticleAlreadyPublished.php
+│       │   ├── ArticleNotDraft.php
+│       │   └── ArticleNotFound.php
+│       └── Specification/    # Query specifications
+│           ├── ArticleSpecification.php
+│           ├── PublishedArticleSpecification.php
+│           ├── ArticleByAuthorSpecification.php
+│           ├── ArticleByCategorySpecification.php
+│           └── ArticleByTagSpecification.php
+├── Author/                    # Author entity domain
+│   ├── AuthorCreator.php
+│   ├── AuthorUpdater.php
+│   ├── AuthorDeletor.php
+│   └── Shared/
+│       ├── Model/
+│       ├── Repository/
+│       ├── Identifier/
+│       ├── ValueObject/
+│       ├── Event/
+│       └── Exception/
+├── Category/                  # Category entity domain
+│   ├── CategoryCreator.php
+│   ├── CategoryUpdater.php
+│   ├── CategoryDeleter.php
+│   ├── CategoryGetter.php
+│   ├── CategoryTreeBuilder.php
+│   └── Shared/
+│       ├── Model/
+│       ├── Repository/
+│       ├── Identifier/
+│       ├── ValueObject/
+│       ├── Event/
+│       └── Exception/
+├── Tag/                       # Tag entity domain
+│   ├── TagCreator.php
+│   ├── TagUpdater.php
+│   ├── TagDeleter.php
+│   └── Shared/
+│       ├── Model/
+│       ├── Repository/
+│       ├── Identifier/
+│       ├── ValueObject/
+│       ├── Event/
+│       └── Exception/
+└── Shared/                    # Shared across entities
+    ├── ValueObject/           # Cross-entity value objects
+    │   ├── Description.php
+    │   ├── Name.php
+    │   ├── Order.php
+    │   ├── Slug.php
+    │   ├── Timestamps.php
+    │   └── Title.php
+    ├── Service/               # Domain service interfaces
+    │   └── SlugGeneratorInterface.php
+    └── Exception/             # Shared exceptions
+        └── ValidationException.php
 ```
 
-## Use Case Components
+## Entity-Centric Organization
+
+### Key Principles
+
+1. **Entity Cohesion**: All elements related to an entity (Article, Author, etc.) are grouped together under `Domain/{Entity}/`
+2. **Domain Services at Root**: Domain services are directly under the entity folder (e.g., `Article/ArticleCreator.php`)
+3. **Shared Subfolder**: Common elements for an entity (model, value objects, events, exceptions) are in `{Entity}/Shared/`
+4. **Clear Navigation**: Finding anything related to Article? Look in `Domain/Article/`
+5. **No Duplication**: The aggregate model is shared across all domain services for that entity
+
+### Example: Rich Aggregate
+
+```php
+namespace App\Blog\Domain\Article\Shared\Model;
+
+final class Article
+{
+    private array $events = [];
+    
+    public function __construct(
+        private readonly ArticleId $id,
+        private Title $title,
+        private Content $content,
+        private Slug $slug,
+        private ArticleStatus $status,
+        private readonly AuthorId $authorId,
+        // ...
+    ) {}
+
+    public static function create(
+        ArticleId $id,
+        Title $title,
+        Content $content,
+        Slug $slug,
+        AuthorId $authorId
+    ): self {
+        $article = new self($id, $title, $content, $slug, ArticleStatus::DRAFT, $authorId);
+        $article->recordEvent(new ArticleCreated(...));
+        return $article;
+    }
+
+    public function publish(): void
+    {
+        if (ArticleStatus::PUBLISHED === $this->status) {
+            throw new ArticleAlreadyPublished($this->id);
+        }
+        
+        $this->status = ArticleStatus::PUBLISHED;
+        $this->recordEvent(new ArticlePublished(...));
+    }
+
+    public function update(Title $title, Content $content, Slug $slug): void
+    {
+        // Change detection and business logic
+    }
+
+    private function recordEvent(object $event): void
+    {
+        $this->events[] = $event;
+    }
+
+    public function releaseEvents(): array
+    {
+        $events = $this->events;
+        $this->events = [];
+        return $events;
+    }
+}
+```
+
+### Example: Service Using Aggregate
+
+```php
+namespace App\Blog\Domain\Article;
+
+use App\Blog\Domain\Article\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Article\Shared\Exception\ArticleAlreadyExists;
+use App\Blog\Domain\Article\Shared\Model\Article;
+
+final readonly class ArticleCreator
+{
+    public function __construct(
+        private ArticleRepositoryInterface $repository,
+    ) {}
+
+    public function __invoke(
+        ArticleId $articleId,
+        Title $title,
+        Content $content,
+        Description $excerpt,
+        Slug $slug,
+        AuthorId $authorId,
+    ): Article {
+        // Check business rules
+        if ($this->repository->existsWithSlug($slug)) {
+            throw new ArticleAlreadyExists($slug);
+        }
+
+        // Create using aggregate factory method
+        $article = Article::create(
+            id: $articleId,
+            title: $title,
+            content: $content,
+            excerpt: $excerpt,
+            slug: $slug,
+            authorId: $authorId,
+            categoryIds: [],
+            tagIds: []
+        );
+
+        // Persist
+        $this->repository->add($article);
+
+        return $article;
+    }
+}
+```
+
+## Use Case Components (Legacy Pattern - Still Supported)
 
 ### Entry Points (MANDATORY)
 
@@ -78,12 +237,12 @@ Entry points are the main orchestrators of business logic.
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle;
+namespace App\Blog\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
-use App\BlogContext\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleId, ArticleStatus};
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Article\Shared\Model\Article;
+use App\Blog\Domain\CreateArticle\Exception\ArticleAlreadyExists;
+use App\Blog\Domain\Shared\ValueObject\{Title, Content, Slug, ArticleId, ArticleStatus};
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\Shared\Infrastructure\Generator\UuidGenerator;
 
 final readonly class Creator
@@ -116,7 +275,7 @@ final readonly class Creator
         );
 
         // 5. Persist aggregate
-        $this->repository->save($article);
+        $this->repository->add($article);
 
         return $article;
     }
@@ -139,9 +298,9 @@ Each use case has its own Model subdirectory containing domain models specific t
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Model;
+namespace App\Blog\Domain\Article\Shared\Model;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus, Timestamps};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus, Timestamps};
 
 /**
  * Represents article data during creation.
@@ -219,9 +378,9 @@ DataProvider contains input models and read-optimized structures.
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\GetArticle\DataProvider;
+namespace App\Blog\Domain\GetArticle\DataProvider;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
 
 final readonly class ArticleView
 {
@@ -279,9 +438,9 @@ For entities that are used across multiple use cases without modification, share
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\Model;
+namespace App\Blog\Domain\Shared\Model;
 
-use App\BlogContext\Domain\Shared\ValueObject\{CategoryId, CategoryName, CategorySlug, Description, Order};
+use App\Blog\Domain\Shared\ValueObject\{CategoryId, CategoryName, CategorySlug, Description, Order};
 
 final readonly class Category
 {
@@ -359,7 +518,7 @@ Use builders or factories only for complex object creation with:
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final class Title
 {
@@ -405,7 +564,7 @@ final class Title
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final readonly class Slug
 {
@@ -463,7 +622,7 @@ For fixed sets of values, **always use PHP 8.1+ enums** instead of classes:
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 enum ArticleStatus: string
 {
@@ -531,11 +690,11 @@ Events are created separately and attached to models via the `withEvents()` meth
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle;
+namespace App\Blog\Domain\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\Event\ArticleCreated;
-use App\BlogContext\Domain\CreateArticle\Model\Article;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug};
+use App\Blog\Domain\CreateArticle\Event\ArticleCreated;
+use App\Blog\Domain\CreateArticle\Model\Article;
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug};
 
 final readonly class Creator implements CreatorInterface
 {
@@ -592,9 +751,9 @@ final readonly class Creator implements CreatorInterface
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Event;
+namespace App\Blog\Domain\Article\Shared\Event;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title};
 
 final readonly class ArticleCreated
 {
@@ -621,7 +780,7 @@ final readonly class ArticleCreated
 
     public function eventType(): string
     {
-        return 'BlogContext.Article.Created';
+        return 'Blog.Article.Created';
     }
 
     public function aggregateId(): string
@@ -650,7 +809,7 @@ final readonly class ArticleCreated
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Exception;
+namespace App\Blog\Domain\Article\Shared\Exception;
 
 abstract class CreateArticleException extends \DomainException
 {
@@ -670,9 +829,9 @@ abstract class CreateArticleException extends \DomainException
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Exception;
+namespace App\Blog\Domain\Article\Shared\Exception;
 
-use App\BlogContext\Domain\Shared\ValueObject\Slug;
+use App\Blog\Domain\Shared\ValueObject\Slug;
 
 final class ArticleAlreadyExists extends CreateArticleException
 {
@@ -698,14 +857,16 @@ final class ArticleAlreadyExists extends CreateArticleException
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\Repository;
+namespace App\Blog\Domain\Shared\Repository;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Slug};
+use App\Blog\Domain\Article\Shared\Model\Article;
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Slug};
 
 interface ArticleRepositoryInterface
 {
-    public function save(Article $article): void;
+    public function add(Article $article): void;
+    public function update(Article $article): void;
+    public function remove(Article $article): void;
     
     public function findById(ArticleId $id): ?Article;
     
@@ -724,14 +885,16 @@ interface ArticleRepositoryInterface
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Tests\Unit\Domain\CreateArticle;
+namespace App\Blog\Tests\Unit\Domain\Article\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\Creator;
-use App\BlogContext\Domain\CreateArticle\Exception\ArticleAlreadyExists;
-use App\BlogContext\Domain\Shared\ValueObject\{Title, Content, Slug};
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Article\CreateArticle\Creator;
+use App\Blog\Domain\CreateArticle\Exception\ArticleAlreadyExists;
+use App\Blog\Domain\Shared\ValueObject\{Title, Content, Slug};
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
 use App\Shared\Infrastructure\Generator\GeneratorInterface;
 use PHPUnit\Framework\TestCase;
+
+use PHPUnit\Framework\Attributes\{Test, Override};
 
 final class CreatorTest extends TestCase
 {
@@ -739,6 +902,7 @@ final class CreatorTest extends TestCase
     private GeneratorInterface $generator;
     private Creator $creator;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->repository = $this->createMock(ArticleRepositoryInterface::class);
@@ -746,7 +910,8 @@ final class CreatorTest extends TestCase
         $this->creator = new Creator($this->repository, $this->generator);
     }
 
-    public function testCreateArticleSuccessfully(): void
+    #[Test]
+    public function create_article_successfully_with_valid_data(): void
     {
         // Given
         $title = new Title('My Article Title');
@@ -775,7 +940,8 @@ final class CreatorTest extends TestCase
         $this->assertTrue($article->hasUnreleasedEvents());
     }
 
-    public function testCreateArticleThrowsExceptionWhenSlugExists(): void
+    #[Test]
+    public function create_article_throws_exception_when_slug_exists(): void
     {
         // Given
         $title = new Title('Existing Article');
@@ -800,21 +966,25 @@ final class CreatorTest extends TestCase
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Tests\Unit\Domain\Shared\ValueObject;
+namespace App\Blog\Tests\Unit\Domain\Shared\ValueObject;
 
-use App\BlogContext\Domain\Shared\ValueObject\Title;
+use App\Blog\Domain\Shared\ValueObject\Title;
 use PHPUnit\Framework\TestCase;
+
+use PHPUnit\Framework\Attributes\Test;
 
 final class TitleTest extends TestCase
 {
-    public function testCreateValidTitle(): void
+    #[Test]
+    public function create_valid_title_stores_value(): void
     {
         $title = new Title('Valid Title');
         
         $this->assertSame('Valid Title', $title->getValue());
     }
 
-    public function testRejectEmptyTitle(): void
+    #[Test]
+    public function reject_empty_title_with_exception(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Title cannot be empty');
@@ -822,7 +992,8 @@ final class TitleTest extends TestCase
         new Title('');
     }
 
-    public function testRejectTooShortTitle(): void
+    #[Test]
+    public function reject_too_short_title_with_exception(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Title must be at least 5 characters');
@@ -830,7 +1001,8 @@ final class TitleTest extends TestCase
         new Title('Hi');
     }
 
-    public function testRejectTooLongTitle(): void
+    #[Test]
+    public function reject_too_long_title_with_exception(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Title cannot exceed 200 characters');
@@ -838,7 +1010,8 @@ final class TitleTest extends TestCase
         new Title(str_repeat('a', 201));
     }
 
-    public function testTitleEquality(): void
+    #[Test]
+    public function title_equality_works_correctly(): void
     {
         $title1 = new Title('Same Title');
         $title2 = new Title('Same Title');
@@ -905,7 +1078,7 @@ final class TitleTest extends TestCase
 All repositories are placed at the ORM level with consistent naming:
 
 ```
-src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/
+src/Blog/Infrastructure/Persistence/Doctrine/ORM/
 ├── ArticleRepository.php       # Not in Repository/ subdirectory
 ├── AuthorRepository.php        # Not in Repository/ subdirectory
 ├── CategoryRepository.php      # Not in Repository/ subdirectory

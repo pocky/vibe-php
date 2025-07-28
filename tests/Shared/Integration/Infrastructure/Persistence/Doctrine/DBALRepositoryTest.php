@@ -11,20 +11,21 @@ use PHPUnit\Framework\TestCase;
 
 final class DBALRepositoryTest extends TestCase
 {
-    private Connection $mockConnection;
-    private DBALRepository $repository;
+    private \PHPUnit\Framework\MockObject\MockObject $mockConnection;
+
+    private DBALRepository $dbalRepository;
 
     protected function setUp(): void
     {
         $this->mockConnection = $this->createMock(Connection::class);
-        $this->repository = new class($this->mockConnection) extends DBALRepository {};
+        $this->dbalRepository = new class($this->mockConnection) extends DBALRepository {};
     }
 
     public function testClassIsAbstract(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
 
-        $this->assertTrue($reflection->isAbstract());
+        $this->assertTrue($reflectionClass->isAbstract());
     }
 
     public function testConstructorAcceptsConnection(): void
@@ -37,9 +38,9 @@ final class DBALRepositoryTest extends TestCase
 
     public function testGetConnectionReturnsInjectedConnection(): void
     {
-        $result = $this->repository->getConnection();
+        $connection = $this->dbalRepository->getConnection();
 
-        $this->assertSame($this->mockConnection, $result);
+        $this->assertSame($this->mockConnection, $connection);
     }
 
     public function testGetQueryBuilderCreatesNewQueryBuilder(): void
@@ -51,9 +52,9 @@ final class DBALRepositoryTest extends TestCase
             ->method('createQueryBuilder')
             ->willReturn($mockQueryBuilder);
 
-        $result = $this->repository->getQueryBuilder();
+        $queryBuilder = $this->dbalRepository->getQueryBuilder();
 
-        $this->assertSame($mockQueryBuilder, $result);
+        $this->assertSame($mockQueryBuilder, $queryBuilder);
     }
 
     public function testBeginTransactionDelegatesToConnection(): void
@@ -62,7 +63,7 @@ final class DBALRepositoryTest extends TestCase
             ->expects($this->once())
             ->method('beginTransaction');
 
-        $this->repository->beginTransaction();
+        $this->dbalRepository->beginTransaction();
     }
 
     public function testBeginTransactionCanThrowException(): void
@@ -77,40 +78,41 @@ final class DBALRepositoryTest extends TestCase
         $this->expectException(\Doctrine\DBAL\Exception::class);
         $this->expectExceptionMessage('Transaction failed');
 
-        $this->repository->beginTransaction();
+        $this->dbalRepository->beginTransaction();
     }
 
     public function testGetConnectionMethodIsPublic(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
-        $method = $reflection->getMethod('getConnection');
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
+        $reflectionMethod = $reflectionClass->getMethod('getConnection');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertSame('getConnection', $method->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertSame('getConnection', $reflectionMethod->getName());
     }
 
     public function testGetQueryBuilderMethodIsPublic(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
-        $method = $reflection->getMethod('getQueryBuilder');
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
+        $reflectionMethod = $reflectionClass->getMethod('getQueryBuilder');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertSame('getQueryBuilder', $method->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertSame('getQueryBuilder', $reflectionMethod->getName());
     }
 
     public function testBeginTransactionMethodIsPublic(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
-        $method = $reflection->getMethod('beginTransaction');
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
+        $reflectionMethod = $reflectionClass->getMethod('beginTransaction');
 
-        $this->assertTrue($method->isPublic());
-        $this->assertSame('beginTransaction', $method->getName());
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertSame('beginTransaction', $reflectionMethod->getName());
     }
 
     public function testConnectionParameterProperties(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
-        $constructor = $reflection->getConstructor();
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
+        $constructor = $reflectionClass->getConstructor();
+        $this->assertInstanceOf(\ReflectionMethod::class, $constructor);
         $parameters = $constructor->getParameters();
 
         $connectionParam = $parameters[0];
@@ -122,31 +124,31 @@ final class DBALRepositoryTest extends TestCase
 
     public function testApiAnnotations(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
 
-        $getConnectionMethod = $reflection->getMethod('getConnection');
-        $this->assertStringContainsString('@api', $getConnectionMethod->getDocComment());
+        $reflectionMethod = $reflectionClass->getMethod('getConnection');
+        $this->assertStringContainsString('@api', (string) $reflectionMethod->getDocComment());
 
-        $getQueryBuilderMethod = $reflection->getMethod('getQueryBuilder');
-        $this->assertStringContainsString('@api', $getQueryBuilderMethod->getDocComment());
+        $getQueryBuilderMethod = $reflectionClass->getMethod('getQueryBuilder');
+        $this->assertStringContainsString('@api', (string) $getQueryBuilderMethod->getDocComment());
 
-        $beginTransactionMethod = $reflection->getMethod('beginTransaction');
-        $this->assertStringContainsString('@api', $beginTransactionMethod->getDocComment());
+        $beginTransactionMethod = $reflectionClass->getMethod('beginTransaction');
+        $this->assertStringContainsString('@api', (string) $beginTransactionMethod->getDocComment());
     }
 
     public function testReturnTypes(): void
     {
-        $reflection = new \ReflectionClass(DBALRepository::class);
+        $reflectionClass = new \ReflectionClass(DBALRepository::class);
 
-        $getConnectionMethod = $reflection->getMethod('getConnection');
-        $this->assertTrue($getConnectionMethod->hasReturnType());
-        $this->assertSame(Connection::class, $getConnectionMethod->getReturnType()->getName());
+        $reflectionMethod = $reflectionClass->getMethod('getConnection');
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame(Connection::class, $reflectionMethod->getReturnType()->getName());
 
-        $getQueryBuilderMethod = $reflection->getMethod('getQueryBuilder');
+        $getQueryBuilderMethod = $reflectionClass->getMethod('getQueryBuilder');
         $this->assertTrue($getQueryBuilderMethod->hasReturnType());
         $this->assertSame(QueryBuilder::class, $getQueryBuilderMethod->getReturnType()->getName());
 
-        $beginTransactionMethod = $reflection->getMethod('beginTransaction');
+        $beginTransactionMethod = $reflectionClass->getMethod('beginTransaction');
         $this->assertTrue($beginTransactionMethod->hasReturnType());
         $this->assertSame('void', $beginTransactionMethod->getReturnType()->getName());
     }
@@ -161,12 +163,12 @@ final class DBALRepositoryTest extends TestCase
             ->method('createQueryBuilder')
             ->willReturnOnConsecutiveCalls($queryBuilder1, $queryBuilder2);
 
-        $result1 = $this->repository->getQueryBuilder();
-        $result2 = $this->repository->getQueryBuilder();
+        $queryBuilder = $this->dbalRepository->getQueryBuilder();
+        $result2 = $this->dbalRepository->getQueryBuilder();
 
-        $this->assertSame($queryBuilder1, $result1);
+        $this->assertSame($queryBuilder1, $queryBuilder);
         $this->assertSame($queryBuilder2, $result2);
-        $this->assertNotSame($result1, $result2);
+        $this->assertNotSame($queryBuilder, $result2);
     }
 
     public function testCanExtendDBALRepository(): void

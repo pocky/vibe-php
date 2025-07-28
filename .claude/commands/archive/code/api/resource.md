@@ -323,7 +323,7 @@ public function testProcessorCreatesResource(): void
 
 ```bash
 # 1. Create API resource with TDD approach
-/code:api:resource BlogContext Article
+/code:api:resource Blog Article
 
 # This will:
 # - Write API tests first (RED)
@@ -333,13 +333,13 @@ public function testProcessorCreatesResource(): void
 # - Refactor while keeping tests green
 
 # 2. Add specific features incrementally
-/code:hexagonal:test BlogContext ArticleAPI advanced-search
+/code:hexagonal:test Blog ArticleAPI advanced-search
 # Implement search with filters
 
-/code:hexagonal:test BlogContext ArticleAPI csv-export
+/code:hexagonal:test Blog ArticleAPI csv-export
 # Add export functionality
 
-/code:hexagonal:test BlogContext ArticleAPI rate-limiting
+/code:hexagonal:test Blog ArticleAPI rate-limiting
 # Implement rate limits
 
 # 3. Each new requirement starts with a failing test

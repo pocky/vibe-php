@@ -19,8 +19,9 @@ final readonly class DoctrineORMContext implements Context
     public function purgeDatabase(): void
     {
         $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
-        $purger = new ORMPurger($this->entityManager);
-        $purger->purge();
+        $ormPurger = new ORMPurger($this->entityManager);
+        $ormPurger->purge();
+
         $this->entityManager->clear();
     }
 }

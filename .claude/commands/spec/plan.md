@@ -4,8 +4,19 @@ args:
   - name: project-description
     description: High-level description of the project to plan
     required: true
-allowed-tools: Write(docs/contexts/**), Bash(*), TodoWrite
+allowed-tools: Task
 ---
+
+[Task: Use @agent-business-analyst to plan and structure project: {{project-description}}
+
+The expert will:
+1. Extract and structure business needs
+2. Identify personas and success metrics
+3. Define bounded contexts and features
+4. Prioritize by business value
+5. Create comprehensive project plan
+
+Focus: Business-driven planning with clear contexts and prioritized features]
 
 I'll help you plan and break down "{{project-description}}" into manageable features and contexts.
 

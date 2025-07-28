@@ -175,7 +175,7 @@ file_size: '{bytes, number, integer} bytes'
 ### Domain Layer - ValidationException
 
 ```php
-namespace App\BlogContext\Domain\Shared\Exception;
+namespace App\Blog\Domain\Shared\Exception;
 
 final class ValidationException extends \InvalidArgumentException
 {
@@ -224,7 +224,7 @@ final class ValidationException extends \InvalidArgumentException
 
 ```php
 // Example: Title Value Object
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final class Title
 {
@@ -268,7 +268,7 @@ final class Title
 
 ```php
 // Custom constraint for SEO validation
-namespace App\BlogContext\Application\Gateway\PublishArticle\Constraint;
+namespace App\Blog\Application\Gateway\PublishArticle\Constraint;
 
 #[\Attribute]
 final class SeoReady extends Constraint
@@ -288,7 +288,7 @@ final class SeoReady extends Constraint
 
 ```php
 // Example: API Platform Processor
-namespace App\BlogContext\UI\Api\Rest\Processor;
+namespace App\Blog\UI\Api\Rest\Processor;
 
 final readonly class CreateArticleProcessor implements ProcessorInterface
 {

@@ -47,22 +47,22 @@ We use a unified approach that combines business vision with technical rigor.
 graph LR
     subgraph "📋 Requirements Phase"
         PRD["📋 /spec:prd<br/>Business Vision +<br/>EARS Requirements"]
-        US["/user-story<br/>Detailed Stories"]
-        PRD --> US
+        REQ["/spec:requirements<br/>Detailed Requirements"]
+        PRD --> REQ
     end
     
     subgraph "🏗️ Design Phase"
         PLAN["🏗️ /spec:plan<br/>Architecture +<br/>Technical Design"]
-        ADV["/spec:advanced<br/>Security & Risk<br/>(Optional)"]
-        US --> PLAN
-        PLAN -.-> ADV
+        DESIGN["/spec:design<br/>Domain Design<br/>(Optional)"]
+        REQ --> PLAN
+        PLAN -.-> DESIGN
     end
     
     subgraph "⚡ Implementation Phase"
-        ACT["⚡ /spec:act<br/>TDD Tasks +<br/>Implementation"]
+        ORCH["⚡ /orchestrate<br/>Coordinate Implementation<br/>with Expert Agents"]
         QA["✅ /qa<br/>Quality Checks"]
-        PLAN --> ACT
-        ACT --> QA
+        PLAN --> ORCH
+        ORCH --> QA
     end
     
     style PRD fill:#fff3e0
@@ -75,8 +75,9 @@ graph LR
 | Command | Purpose | Approval Gate |
 |---|---|---|
 | `/spec:prd [context] [feature]` | Create PRD with business vision & EARS requirements | ✅ Required |
+| `/spec:requirements` | Create detailed requirements and acceptance criteria | ✅ Required |
 | `/spec:plan [context]` | Create technical architecture & design | ✅ Required |
-| `/spec:act` | Start TDD implementation with task breakdown | ✅ Required |
+| `/orchestrate` | Coordinate implementation with expert agents | ✅ Required |
 | `/qa` | Run comprehensive quality checks | ✅ Final |
 
 

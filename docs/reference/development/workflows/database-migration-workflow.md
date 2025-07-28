@@ -15,14 +15,14 @@ This workflow document illustrates the complete process for implementing databas
 Start with the business requirement and define the domain model:
 
 ```php
-// src/BlogContext/Domain/CreateArticle/DataPersister/Article.php
+// src/Blog/Domain/CreateArticle/DataPersister/Article.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\DataPersister;
+namespace App\Blog\Domain\CreateArticle\DataPersister;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title, Content, Slug, ArticleStatus};
 
 final class Article
 {
@@ -56,12 +56,12 @@ final class Article
 Define the value objects that encapsulate business rules:
 
 ```php
-// src/BlogContext/Domain/Shared/ValueObject/Title.php
+// src/Blog/Domain/Shared/ValueObject/Title.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final readonly class Title
 {
@@ -77,20 +77,16 @@ final readonly class Title
         }
     }
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }
 ```
 
 ```php
-// src/BlogContext/Domain/Shared/ValueObject/ArticleStatus.php
+// src/Blog/Domain/Shared/ValueObject/ArticleStatus.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final readonly class ArticleStatus
 {
@@ -126,10 +122,6 @@ final readonly class ArticleStatus
         return $this->value === self::PUBLISHED;
     }
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }
 ```
 
@@ -138,12 +130,12 @@ final readonly class ArticleStatus
 Create the Doctrine entity that maps to the database:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Doctrine/Entity/BlogArticle.php
+// src/Blog/Infrastructure/Persistence/Doctrine/Entity/BlogArticle.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Persistence\Doctrine\Entity;
+namespace App\Blog\Infrastructure\Persistence\Doctrine\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -288,17 +280,17 @@ docker compose exec app bin/console doctrine:migrations:status
 Create the repository that bridges domain and infrastructure:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php
+// src/Blog/Infrastructure/Persistence/Doctrine/ORM/ArticleRepository.php
 <?php
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Persistence\Doctrine\ORM;
+namespace App\Blog\Infrastructure\Persistence\Doctrine\ORM;
 
-use App\BlogContext\Domain\CreateArticle\DataPersister\Article;
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Slug};
-use App\BlogContext\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
+use App\Blog\Domain\CreateArticle\DataPersister\Article;
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Slug};
+use App\Blog\Infrastructure\Persistence\Doctrine\ORM\Entity\BlogArticle;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
@@ -319,7 +311,7 @@ final class ArticleRepository implements ArticleRepositoryInterface
     #[\Override]
     public function findById(ArticleId $id): ?Article
     {
-        $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($id->toString()));
+        $entity = $this->entityManager->find(BlogArticle::class, Uuid::fromString($id->__toString()));
         
         return $entity ? $this->mapToDomain($entity) : null;
     }
@@ -331,7 +323,7 @@ final class ArticleRepository implements ArticleRepositoryInterface
             ->select('COUNT(a.id)')
             ->from(BlogArticle::class, 'a')
             ->where('a.slug = :slug')
-            ->setParameter('slug', $slug->toString())
+            ->setParameter('slug', $slug->__toString())
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -341,11 +333,11 @@ final class ArticleRepository implements ArticleRepositoryInterface
     private function mapToEntity(Article $article): BlogArticle
     {
         return new BlogArticle(
-            id: Uuid::fromString($article->id()->toString()),
-            title: $article->title()->toString(),
-            content: $article->content()->toString(),
-            slug: $article->slug()->toString(),
-            status: $article->status()->toString(),
+            id: Uuid::fromString($article->id()->__toString()),
+            title: $article->title()->__toString(),
+            content: $article->content()->__toString(),
+            slug: $article->slug()->__toString(),
+            status: $article->status()->__toString(),
             createdAt: $article->createdAt(),
             publishedAt: $article->publishedAt(),
             updatedAt: $article->updatedAt()
@@ -395,7 +387,7 @@ final class Article
 #### 2. Create Author Value Object
 
 ```php
-// src/BlogContext/Domain/Shared/ValueObject/AuthorId.php
+// src/Blog/Domain/Shared/ValueObject/AuthorId.php
 final readonly class AuthorId
 {
     public function __construct(
@@ -406,10 +398,6 @@ final readonly class AuthorId
         }
     }
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }
 ```
 
@@ -463,7 +451,7 @@ private function mapToEntity(Article $article): BlogArticle
     $entity = new BlogArticle(/* existing parameters */);
     
     if ($article->authorId()) {
-        $entity->setAuthorId(Uuid::fromString($article->authorId()->toString()));
+        $entity->setAuthorId(Uuid::fromString($article->authorId()->__toString()));
     }
     
     return $entity;
@@ -487,7 +475,7 @@ private function mapToDomain(BlogArticle $entity): Article
 ### 1. Unit Tests for Domain
 
 ```php
-// tests/BlogContext/Unit/Domain/CreateArticle/ArticleTest.php
+// tests/Blog/Unit/Domain/CreateArticle/ArticleTest.php
 final class ArticleTest extends TestCase
 {
     public function testArticleCreationWithValidData(): void
@@ -501,7 +489,7 @@ final class ArticleTest extends TestCase
             createdAt: new \DateTimeImmutable(),
         );
 
-        self::assertEquals('Test Article', $article->title()->toString());
+        self::assertEquals('Test Article', $article->title()->__toString());
         self::assertTrue($article->status()->isDraft());
     }
 }
@@ -510,7 +498,7 @@ final class ArticleTest extends TestCase
 ### 2. Integration Tests for Repository
 
 ```php
-// tests/BlogContext/Integration/Infrastructure/Repository/ArticleRepositoryTest.php
+// tests/Blog/Integration/Infrastructure/Repository/ArticleRepositoryTest.php
 final class ArticleRepositoryTest extends KernelTestCase
 {
     private ArticleRepository $repository;
@@ -532,7 +520,7 @@ final class ArticleRepositoryTest extends KernelTestCase
         $retrieved = $this->repository->findById($article->id());
         
         self::assertNotNull($retrieved);
-        self::assertEquals($article->title()->toString(), $retrieved->title()->toString());
+        self::assertEquals($article->title()->__toString(), $retrieved->title()->__toString());
     }
 }
 ```

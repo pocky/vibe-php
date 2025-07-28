@@ -28,7 +28,7 @@ PHP enums should be used for all fixed sets of values instead of classes with co
 
 ```php
 // Correct: Enum for fixed values
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 enum ArticleStatus: string
 {
@@ -46,10 +46,6 @@ enum ArticleStatus: string
         return self::DRAFT === $this;
     }
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }
 
 // Usage: Direct enum cases
@@ -200,37 +196,55 @@ final class DefaultGatewayInstrumentation extends AbstractGatewayInstrumentation
 }
 ```
 
-### 4. PHP 8.4 Property Hooks (Future Implementation)
+### 4. PHP 8.4 Property Hooks (ACTIVELY USED)
 
-PHP 8.4 introduces property hooks, allowing getter/setter logic directly in property declarations.
+PHP 8.4 introduces property hooks, allowing getter/setter logic directly in property declarations. We actively use this feature in our value objects.
 
-#### Syntax Example (Not Yet in Codebase)
+#### Current Implementation in Our Codebase
 
 ```php
-class User
+// From src/Blog/Domain/Shared/ValueObject/Title.php
+final class Title implements \Stringable
 {
-    // Asymmetric visibility with property hooks
-    public private(set) string $name {
-        set {
-            if (strlen($value) < 2) {
-                throw new \InvalidArgumentException('Name too short');
-            }
-            $this->name = $value;
+    public function __construct(
+        private string $value {
+            set
+    {
+        $trimmed = trim($value);
+        
+        if ('' === $trimmed) {
+            throw ValidationException::withTranslationKey('validation.title.empty');
         }
+        
+        if (self::MIN_LENGTH > mb_strlen($trimmed)) {
+            throw ValidationException::withTranslationKey('validation.title.too_short', [
+                'min_length' => self::MIN_LENGTH,
+                'actual_length' => mb_strlen($trimmed),
+            ]);
+        }
+        
+        $this->value = $trimmed;
+    }
+        }
+    )
+    {
     }
     
-    // Computed property with getter hook
-    public string $displayName {
-        get => strtoupper($this->name);
+    public static function fromString(string $value): self
+    {
+        return new self($value);
     }
 }
 ```
 
 #### When to Use Property Hooks
 
+- **Value object validation** (our primary use case)
 - Validation logic for individual properties
 - Computed properties that don't need storage
-- Maintaining backward compatibility while adding logic
+- Maintaining immutability with validation
+
+**Important Note**: Property hooks cannot be used with `readonly` classes. Use `final class` instead when implementing property hooks.
 
 ### 5. Asymmetric Visibility (PHP 8.4)
 
@@ -258,7 +272,7 @@ class Configuration
 - Keep domain objects pure PHP with no framework dependencies
 
 ```php
-namespace App\BlogContext\Domain\Shared\ValueObject;
+namespace App\Blog\Domain\Shared\ValueObject;
 
 final class ArticleId
 {
@@ -455,12 +469,15 @@ Before committing PHP 8.4 code:
 ### Unit Testing Readonly Classes
 
 ```php
-public function testReadonlyValueObject(): void
+use PHPUnit\Framework\Attributes\Test;
+
+#[Test]
+public function readonly_value_object_immutability(): void
 {
     $userId = new UserId('550e8400-e29b-41d4-a716-446655440000');
     
     // Can't modify after construction
-    $this->assertEquals('550e8400-e29b-41d4-a716-446655440000', $userId->toString());
+    $this->assertEquals('550e8400-e29b-41d4-a716-446655440000', (string) $userId);
 }
 ```
 

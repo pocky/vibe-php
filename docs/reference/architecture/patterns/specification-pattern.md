@@ -493,37 +493,44 @@ use App\UserContext\Application\Specification\IsAdultUserSpecification;
 use App\UserContext\Domain\User;
 use PHPUnit\Framework\TestCase;
 
+use PHPUnit\Framework\Attributes\{Test, Override};
+
 final class IsAdultUserSpecificationTest extends TestCase
 {
     private IsAdultUserSpecification $specification;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->specification = new IsAdultUserSpecification();
     }
 
-    public function testAdultUserSatisfiesSpecification(): void
+    #[Test]
+    public function adult_user_satisfies_specification(): void
     {
         $user = $this->createUserWithAge(25);
         
         $this->assertTrue($this->specification->isSatisfiedBy($user));
     }
 
-    public function testMinorUserDoesNotSatisfySpecification(): void
+    #[Test]
+    public function minor_user_does_not_satisfy_specification(): void
     {
         $user = $this->createUserWithAge(17);
         
         $this->assertFalse($this->specification->isSatisfiedBy($user));
     }
 
-    public function testEdgeCaseAge18SatisfiesSpecification(): void
+    #[Test]
+    public function edge_case_age_18_satisfies_specification(): void
     {
         $user = $this->createUserWithAge(18);
         
         $this->assertTrue($this->specification->isSatisfiedBy($user));
     }
 
-    public function testNonUserObjectReturnsFalse(): void
+    #[Test]
+    public function non_user_object_returns_false(): void
     {
         $notAUser = new \stdClass();
         

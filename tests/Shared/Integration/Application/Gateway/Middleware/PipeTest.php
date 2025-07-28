@@ -20,7 +20,7 @@ final class PipeTest extends TestCase
 
     public function testConstructorWithMiddlewares(): void
     {
-        $middleware = fn (GatewayRequest $request, callable $next) => $next($request);
+        $middleware = fn (GatewayRequest $gatewayRequest, callable $next) => $next($gatewayRequest);
         $pipe = new Pipe([$middleware]);
 
         $this->assertInstanceOf(Pipe::class, $pipe);
@@ -31,12 +31,12 @@ final class PipeTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $mockResponse = $this->createMock(GatewayResponse::class);
 
-        $middleware = (fn (GatewayRequest $request, callable|null $next = null) => $mockResponse);
+        $middleware = (fn (GatewayRequest $gatewayRequest, callable|null $next = null): \PHPUnit\Framework\MockObject\MockObject => $mockResponse);
 
         $pipe = new Pipe([$middleware]);
-        $result = $pipe($mockRequest);
+        $gatewayResponse = $pipe($mockRequest);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeWithMultipleMiddlewares(): void
@@ -46,28 +46,28 @@ final class PipeTest extends TestCase
 
         $callOrder = [];
 
-        $middleware1 = function (GatewayRequest $request, callable $next) use (&$callOrder) {
+        $middleware1 = function (GatewayRequest $gatewayRequest, callable $next) use (&$callOrder) {
             $callOrder[] = 'first';
 
-            return $next($request);
+            return $next($gatewayRequest);
         };
 
-        $middleware2 = function (GatewayRequest $request, callable $next) use (&$callOrder) {
+        $middleware2 = function (GatewayRequest $gatewayRequest, callable $next) use (&$callOrder) {
             $callOrder[] = 'second';
 
-            return $next($request);
+            return $next($gatewayRequest);
         };
 
-        $finalHandler = function (GatewayRequest $request) use (&$callOrder, $mockResponse) {
+        $finalHandler = function (GatewayRequest $gatewayRequest) use (&$callOrder, $mockResponse): \PHPUnit\Framework\MockObject\MockObject {
             $callOrder[] = 'final';
 
             return $mockResponse;
         };
 
         $pipe = new Pipe([$middleware1, $middleware2]);
-        $result = $pipe($mockRequest, $finalHandler);
+        $gatewayResponse = $pipe($mockRequest, $finalHandler);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
         $this->assertSame(['first', 'second', 'final'], $callOrder);
     }
 
@@ -76,12 +76,12 @@ final class PipeTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $mockResponse = $this->createMock(GatewayResponse::class);
 
-        $customNext = (fn (GatewayRequest $request) => $mockResponse);
+        $customNext = (fn (GatewayRequest $gatewayRequest): \PHPUnit\Framework\MockObject\MockObject => $mockResponse);
 
         $pipe = new Pipe([]);
-        $result = $pipe($mockRequest, $customNext);
+        $gatewayResponse = $pipe($mockRequest, $customNext);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeWithoutNextThrowsException(): void
@@ -101,23 +101,23 @@ final class PipeTest extends TestCase
         $executionOrder = [];
 
         // Middleware that adds to execution order
-        $middleware1 = function (GatewayRequest $request, callable $next) use (&$executionOrder) {
+        $middleware1 = function (GatewayRequest $gatewayRequest, callable $next) use (&$executionOrder) {
             $executionOrder[] = 'middleware1_before';
-            $response = $next($request);
+            $response = $next($gatewayRequest);
             $executionOrder[] = 'middleware1_after';
 
             return $response;
         };
 
-        $middleware2 = function (GatewayRequest $request, callable $next) use (&$executionOrder) {
+        $middleware2 = function (GatewayRequest $gatewayRequest, callable $next) use (&$executionOrder) {
             $executionOrder[] = 'middleware2_before';
-            $response = $next($request);
+            $response = $next($gatewayRequest);
             $executionOrder[] = 'middleware2_after';
 
             return $response;
         };
 
-        $finalHandler = function (GatewayRequest $request) use (&$executionOrder, $mockResponse) {
+        $finalHandler = function (GatewayRequest $gatewayRequest) use (&$executionOrder, $mockResponse): \PHPUnit\Framework\MockObject\MockObject {
             $executionOrder[] = 'handler';
 
             return $mockResponse;

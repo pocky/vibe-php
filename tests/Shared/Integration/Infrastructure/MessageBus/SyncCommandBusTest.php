@@ -19,7 +19,7 @@ final class SyncCommandBusTest extends TestCase
         $command = new \stdClass();
         $expectedResult = 'command-result';
 
-        $handler = (fn () => $expectedResult);
+        $handler = (fn (): string => $expectedResult);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -27,8 +27,8 @@ final class SyncCommandBusTest extends TestCase
             ])),
         ]);
 
-        $commandBus = new SyncCommandBus($messageBus);
-        $result = $commandBus($command);
+        $syncCommandBus = new SyncCommandBus($messageBus);
+        $result = $syncCommandBus($command);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -39,7 +39,7 @@ final class SyncCommandBusTest extends TestCase
         $envelope = new Envelope($command);
         $expectedResult = 'command-result';
 
-        $handler = (fn () => $expectedResult);
+        $handler = (fn (): string => $expectedResult);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -47,8 +47,8 @@ final class SyncCommandBusTest extends TestCase
             ])),
         ]);
 
-        $commandBus = new SyncCommandBus($messageBus);
-        $result = $commandBus($envelope);
+        $syncCommandBus = new SyncCommandBus($messageBus);
+        $result = $syncCommandBus($envelope);
 
         $this->assertSame($expectedResult, $result);
     }
@@ -56,10 +56,10 @@ final class SyncCommandBusTest extends TestCase
     public function testInvokeThrowsExceptionWhenHandlerFails(): void
     {
         $command = new \stdClass();
-        $expectedException = new \RuntimeException('Handler failed');
+        $runtimeException = new \RuntimeException('Handler failed');
 
-        $handler = function () use ($expectedException) {
-            throw $expectedException;
+        $handler = function () use ($runtimeException): never {
+            throw $runtimeException;
         };
 
         $messageBus = new MessageBus([
@@ -68,10 +68,10 @@ final class SyncCommandBusTest extends TestCase
             ])),
         ]);
 
-        $commandBus = new SyncCommandBus($messageBus);
+        $syncCommandBus = new SyncCommandBus($messageBus);
 
         $this->expectException(HandlerFailedException::class);
-        $commandBus($command);
+        $syncCommandBus($command);
     }
 
     public function testInvokeWithNoHandler(): void
@@ -82,10 +82,10 @@ final class SyncCommandBusTest extends TestCase
             new HandleMessageMiddleware(new HandlersLocator([])),
         ]);
 
-        $commandBus = new SyncCommandBus($messageBus);
+        $syncCommandBus = new SyncCommandBus($messageBus);
 
         $this->expectException(\Symfony\Component\Messenger\Exception\NoHandlerForMessageException::class);
-        $commandBus($command);
+        $syncCommandBus($command);
     }
 
     public function testInvokeWithMultipleHandlers(): void
@@ -94,9 +94,9 @@ final class SyncCommandBusTest extends TestCase
         $expectedResult1 = 'result-1';
         $expectedResult2 = 'result-2';
 
-        $handler1 = (fn () => $expectedResult1);
+        $handler1 = (fn (): string => $expectedResult1);
 
-        $handler2 = (fn () => $expectedResult2);
+        $handler2 = (fn (): string => $expectedResult2);
 
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
@@ -104,8 +104,8 @@ final class SyncCommandBusTest extends TestCase
             ])),
         ]);
 
-        $commandBus = new SyncCommandBus($messageBus);
-        $result = $commandBus($command);
+        $syncCommandBus = new SyncCommandBus($messageBus);
+        $result = $syncCommandBus($command);
 
         $this->assertSame($expectedResult1, $result);
     }

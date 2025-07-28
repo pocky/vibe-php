@@ -11,28 +11,28 @@ interface TableAccessorInterface
     /**
      * @throws \InvalidArgumentException If row cannot be found
      */
-    public function getRowWithFields(NodeElement $table, array $fields): NodeElement;
+    public function getRowWithFields(NodeElement $nodeElement, array $fields): NodeElement;
 
     /**
      * @return NodeElement[]
      *
      * @throws \InvalidArgumentException If there is no rows fulfilling given conditions
      */
-    public function getRowsWithFields(NodeElement $table, array $fields): array;
+    public function getRowsWithFields(NodeElement $nodeElement, array $fields): array;
 
     /**
      * @return string[]
      *
      * @throws \InvalidArgumentException
      */
-    public function getIndexedColumn(NodeElement $table, string $fieldName): array;
+    public function getIndexedColumn(NodeElement $nodeElement, string $fieldName): array;
 
     /**
      * @return NodeElement[]
      */
-    public function getSortableHeaders(NodeElement $table): array;
+    public function getSortableHeaders(NodeElement $nodeElement): array;
 
     public function getFieldFromRow(NodeElement $table, NodeElement $row, string $field): NodeElement;
 
-    public function countTableBodyRows(NodeElement $table): int;
+    public function countTableBodyRows(NodeElement $nodeElement): int;
 }

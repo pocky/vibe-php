@@ -139,9 +139,9 @@ The ID generator provides:
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Shared\Generator;
+namespace App\Blog\Domain\Shared\Generator;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 
 interface ArticleIdGeneratorInterface
 {
@@ -155,10 +155,10 @@ interface ArticleIdGeneratorInterface
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Generator;
+namespace App\Blog\Infrastructure\Generator;
 
-use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 use Symfony\Component\Uid\Uuid;
 
 final readonly class ArticleIdGenerator implements ArticleIdGeneratorInterface
@@ -176,10 +176,10 @@ final readonly class ArticleIdGenerator implements ArticleIdGeneratorInterface
 ### In Domain Creators
 
 ```php
-namespace App\BlogContext\Domain\CreateArticle;
+namespace App\Blog\Domain\CreateArticle;
 
-use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
-use App\BlogContext\Domain\Shared\Repository\ArticleRepositoryInterface;
+use App\Blog\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\Blog\Domain\Shared\Repository\ArticleRepositoryInterface;
 
 final readonly class Creator implements CreatorInterface
 {
@@ -211,10 +211,10 @@ final readonly class Creator implements CreatorInterface
 ### In Application Handlers
 
 ```php
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\Shared\Generator\ArticleIdGeneratorInterface;
-use App\BlogContext\Domain\CreateArticle\CreatorInterface;
+use App\Blog\Domain\Shared\Generator\ArticleIdGeneratorInterface;
+use App\Blog\Domain\CreateArticle\CreatorInterface;
 
 final readonly class Handler implements HandlerInterface
 {
@@ -406,7 +406,7 @@ public function testGeneratesManyIdsQuickly(): void
 
 ```bash
 # 1. Create ID generator
-/code:hexagonal:id-generator BlogContext Article
+/code:hexagonal:id-generator Blog Article
 
 # This will:
 # - Generate ID generator structure
@@ -439,14 +439,14 @@ Well-designed ID generators provide:
 
 **Prerequisites (in order):**
 ```bash
-/code:hexagonal:value-object BlogContext ArticleId  # Create ID value object first
-/code:hexagonal:id-generator BlogContext Article    # Then create generator
+/code:hexagonal:value-object Blog ArticleId  # Create ID value object first
+/code:hexagonal:id-generator Blog Article    # Then create generator
 ```
 
 **Usage in other components:**
 ```bash
-/code:hexagonal:aggregate BlogContext Article       # Uses the generator in Creator
-/code:hexagonal:gateway BlogContext CreateArticle   # Injects generator in Handler
+/code:hexagonal:aggregate Blog Article       # Uses the generator in Creator
+/code:hexagonal:gateway Blog CreateArticle   # Injects generator in Handler
 ```
 
 ## Service Configuration
@@ -454,7 +454,7 @@ Well-designed ID generators provide:
 Add to `config/services.php`:
 
 ```php
-use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\Blog\Infrastructure\Identity\ArticleIdGenerator;
 use App\Shared\Infrastructure\Generator\UuidGenerator;
 
 return static function (ContainerConfigurator $container): void {

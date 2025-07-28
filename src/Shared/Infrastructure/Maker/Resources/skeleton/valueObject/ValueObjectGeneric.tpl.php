@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -6,7 +8,7 @@ namespace <?php echo $namespace; ?>;
 
 use <?php echo $validation_exception_namespace; ?>\ValidationException;
 
-final class <?php echo $class_name . "\n"; ?>
+final class <?php echo $class_name; ?> implements \Stringable
 {
     // TODO: Add constants for validation rules
     // private const int MIN_LENGTH = 3;
@@ -14,31 +16,38 @@ final class <?php echo $class_name . "\n"; ?>
     // private const string PATTERN = '/^[a-zA-Z0-9]+$/';
 
     public function __construct(
-        private(set) string $value,
-    ) {
-        $this->validate();
-    }
-
-    private function validate(): void
+        private string $value {
+            set
     {
-        // TODO: Implement validation logic
-        if ('' === $this->value) {
+        $trimmed = trim($value);
+
+        if ('' === $trimmed) {
             throw ValidationException::withTranslationKey('validation.<?php echo $name_snake; ?>.empty');
         }
 
+        // TODO: Add other validations
         // Example validations:
-        // Length validation
-        // if (self::MIN_LENGTH > strlen($this->value)) {
+        // if (self::MIN_LENGTH > mb_strlen($trimmed)) {
         //     throw ValidationException::withTranslationKey('validation.<?php echo $name_snake; ?>.too_short', [
         //         'min_length' => self::MIN_LENGTH,
-        //         'actual_length' => strlen($this->value),
+        //         'actual_length' => mb_strlen($trimmed),
         //     ]);
         // }
 
-        // Pattern validation
-        // if (!preg_match(self::PATTERN, $this->value)) {
+        // if (!preg_match(self::PATTERN, $trimmed)) {
         //     throw ValidationException::withTranslationKey('validation.<?php echo $name_snake; ?>.invalid_format');
         // }
+
+        $this->value = $trimmed;
+    }
+        }
+    )
+    {
+    }
+
+    public static function fromString(string $value): self
+    {
+        return new self($value);
     }
 
     public function getValue(): string
@@ -51,9 +60,9 @@ final class <?php echo $class_name . "\n"; ?>
         return $this->value === $other->value;
     }
 
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
     // TODO: Add business methods as needed
-    // public function toString(): string
-    // {
-    //     return $this->value;
-    // }
-}

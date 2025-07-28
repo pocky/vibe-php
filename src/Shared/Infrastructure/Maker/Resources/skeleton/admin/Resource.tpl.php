@@ -1,4 +1,6 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
@@ -47,15 +49,38 @@ use Sylius\Resource\Model\ResourceInterface;
 )]
 final class <?php echo $class_name; ?> implements ResourceInterface
 {
+    public \DateTimeInterface|null $createdAt;
+    public \DateTimeInterface|null $updatedAt;
+
     public function __construct(
         public string|null $id = null,
         // TODO: Add resource properties
         // Example:
         // public string|null $name = null,
         // public string|null $description = null,
-        public \DateTimeInterface|null $createdAt = null,
-        public \DateTimeInterface|null $updatedAt = null,
+        \DateTimeInterface|string|null $createdAt = null,
+        \DateTimeInterface|string|null $updatedAt = null,
     ) {
+        // Handle DateTime conversion from strings
+        if (is_string($createdAt)) {
+            try {
+                $this->createdAt = new \DateTimeImmutable($createdAt);
+            } catch (\Exception) {
+                $this->createdAt = null;
+            }
+        } else {
+            $this->createdAt = $createdAt;
+        }
+
+        if (is_string($updatedAt)) {
+            try {
+                $this->updatedAt = new \DateTimeImmutable($updatedAt);
+            } catch (\Exception) {
+                $this->updatedAt = null;
+            }
+        } else {
+            $this->updatedAt = $updatedAt;
+        }
     }
 
     public function getId(): string|null

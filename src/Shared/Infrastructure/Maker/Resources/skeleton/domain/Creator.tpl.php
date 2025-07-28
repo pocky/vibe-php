@@ -1,19 +1,21 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
 
-use App\<?php echo $context; ?>\Domain\<?php echo $use_case; ?>\Event\<?php echo $entity; ?>Created;
-use App\<?php echo $context; ?>\Domain\<?php echo $use_case; ?>\Exception\<?php echo $entity; ?>AlreadyExists;
-use App\<?php echo $context; ?>\Domain\<?php echo $use_case; ?>\Model\<?php echo $entity; ?>;
-use App\<?php echo $context; ?>\Domain\Shared\Repository\<?php echo $entity; ?>RepositoryInterface;
-use App\<?php echo $context; ?>\Domain\Shared\ValueObject\<?php echo $entity; ?>Id;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity; ?>\Shared\Model\<?php echo $entity; ?>;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity; ?>\Shared\Repository\<?php echo $entity; ?>WriteRepositoryInterface;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity; ?>\Shared\Exception\<?php echo $entity; ?>AlreadyExists;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity; ?>\Shared\Identifier\<?php echo $entity; ?>Id;
+// TODO: Import other value objects
 
-final readonly class <?php echo $class_name; ?> implements CreatorInterface
+final readonly class <?php echo $class_name; ?>
 {
     public function __construct(
-        private <?php echo $entity; ?>RepositoryInterface $repository,
+        private <?php echo $entity; ?>WriteRepositoryInterface $repository,
     ) {
     }
 
@@ -24,29 +26,20 @@ final readonly class <?php echo $class_name; ?> implements CreatorInterface
     {
         // TODO: Add business logic validation
         // Example: Check if entity already exists
-        // if ($this->repository->existsById($<?php echo $entity_snake; ?>Id)) {
+        // if ($this->repository->find($<?php echo $entity_snake; ?>Id) !== null) {
         //     throw new <?php echo $entity; ?>AlreadyExists($<?php echo $entity_snake; ?>Id);
         // }
 
-        // Create domain model
+        // Create the <?php echo strtolower((string) $entity); ?> using the rich domain model
         $<?php echo $entity_snake; ?> = <?php echo $entity; ?>::create(
             id: $<?php echo $entity_snake; ?>Id,
             // TODO: Pass other value objects
         );
 
-        // Create domain event
-        $event = new <?php echo $entity; ?>Created(
-            <?php echo $entity_snake; ?>Id: $<?php echo $entity_snake; ?>Id->getValue(),
-            createdAt: $<?php echo $entity_snake; ?>->createdAt,
-        );
+        // Persist the <?php echo strtolower((string) $entity); ?>
+        $this->repository->save($<?php echo $entity_snake; ?>);
 
-        // Attach event to model
-        $<?php echo $entity_snake; ?> = $<?php echo $entity_snake; ?>->withEvents([$event]);
-
-        // Persist
-        $this->repository->add($<?php echo $entity_snake; ?>);
-
-        // Return model with events
+        // Return the <?php echo strtolower((string) $entity); ?> with its events
         return $<?php echo $entity_snake; ?>;
     }
 }

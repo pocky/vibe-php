@@ -61,9 +61,9 @@ Application/Operation/Command/[UseCase]/
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+use App\Blog\Domain\Shared\ValueObject\ArticleId;
 
 final readonly class Command
 {
@@ -94,10 +94,10 @@ final readonly class Command
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Domain\CreateArticle\CreatorInterface;
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
+use App\Blog\Domain\CreateArticle\CreatorInterface;
+use App\Blog\Domain\Shared\ValueObject\{ArticleStatus, Content, Slug, Title};
 use App\Shared\Infrastructure\MessageBus\EventBusInterface;
 
 final readonly class Handler implements HandlerInterface
@@ -148,9 +148,9 @@ Domain events are emitted by the aggregate (Article) and dispatched by the Handl
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\CreateArticle\Event;
+namespace App\Blog\Domain\CreateArticle\Event;
 
-use App\BlogContext\Domain\Shared\ValueObject\{ArticleId, Title};
+use App\Blog\Domain\Shared\ValueObject\{ArticleId, Title};
 
 final readonly class ArticleCreated
 {
@@ -177,7 +177,7 @@ final readonly class ArticleCreated
 
     public function eventType(): string
     {
-        return 'BlogContext.Article.Created';
+        return 'Blog.Article.Created';
     }
 
     public function aggregateId(): string
@@ -224,7 +224,7 @@ Application/Operation/Query/[UseCase]/
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Query\GetArticle;
+namespace App\Blog\Application\Operation\Query\GetArticle;
 
 final readonly class Query
 {
@@ -241,9 +241,9 @@ final readonly class Query
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Query\GetArticle;
+namespace App\Blog\Application\Operation\Query\GetArticle;
 
-use App\BlogContext\Domain\Article\{ArticleId, Repository\ArticleRepository};
+use App\Blog\Domain\Article\{ArticleId, Repository\ArticleRepository};
 
 final readonly class Handler
 {
@@ -288,7 +288,7 @@ final readonly class Handler
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Query\GetArticle;
+namespace App\Blog\Application\Operation\Query\GetArticle;
 
 final readonly class View
 {
@@ -330,7 +330,7 @@ final readonly class View
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Operation\Query\ListArticles;
+namespace App\Blog\Application\Operation\Query\ListArticles;
 
 final readonly class Query
 {
@@ -444,7 +444,7 @@ final readonly class ArticleListItem
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Domain\Article\Event;
+namespace App\Blog\Domain\Article\Event;
 
 final readonly class ArticleCreated
 {
@@ -484,9 +484,9 @@ final readonly class ArticleUpdated
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\EventListener;
+namespace App\Blog\Infrastructure\EventListener;
 
-use App\BlogContext\Domain\Article\Event\ArticlePublished;
+use App\Blog\Domain\Article\Event\ArticlePublished;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Psr\Log\LoggerInterface;
 
@@ -538,8 +538,8 @@ framework:
 
         routing:
             # Route commands to async transport for heavy operations
-            'App\BlogContext\Application\Operation\Command\PublishArticle\Command': async
-            'App\BlogContext\Application\Operation\Command\ArchiveArticle\Command': async
+            'App\Blog\Application\Operation\Command\PublishArticle\Command': async
+            'App\Blog\Application\Operation\Command\ArchiveArticle\Command': async
 ```
 
 ### Service Configuration
@@ -560,20 +560,20 @@ services:
             - !tagged_iterator { tag: 'query.middleware' }
 
     # Command Handlers
-    App\BlogContext\Application\Operation\Command\:
-        resource: '../src/BlogContext/Application/Operation/Command/'
+    App\Blog\Application\Operation\Command\:
+        resource: '../src/Blog/Application/Operation/Command/'
         tags:
             - { name: messenger.message_handler, bus: command.bus }
 
     # Query Handlers
-    App\BlogContext\Application\Operation\Query\:
-        resource: '../src/BlogContext/Application/Operation/Query/'
+    App\Blog\Application\Operation\Query\:
+        resource: '../src/Blog/Application/Operation/Query/'
         tags:
             - { name: messenger.message_handler, bus: query.bus }
 
     # Event Listeners
-    App\BlogContext\Infrastructure\EventListener\:
-        resource: '../src/BlogContext/Infrastructure/EventListener/'
+    App\Blog\Infrastructure\EventListener\:
+        resource: '../src/Blog/Infrastructure/EventListener/'
         tags: ['kernel.event_listener']
 ```
 
@@ -606,13 +606,13 @@ interface EventBusInterface
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle\Middleware;
+namespace App\Blog\Application\Gateway\CreateArticle\Middleware;
 
-use App\BlogContext\Application\Gateway\CreateArticle\Request;
-use App\BlogContext\Application\Gateway\CreateArticle\Response;
-use App\BlogContext\Application\Operation\Command\CreateArticle\Command;
-use App\BlogContext\Application\Operation\Command\CreateArticle\Handler;
-use App\BlogContext\Infrastructure\Identity\ArticleIdGenerator;
+use App\Blog\Application\Gateway\CreateArticle\Request;
+use App\Blog\Application\Gateway\CreateArticle\Response;
+use App\Blog\Application\Operation\Command\CreateArticle\Command;
+use App\Blog\Application\Operation\Command\CreateArticle\Handler;
+use App\Blog\Infrastructure\Identity\ArticleIdGenerator;
 
 final readonly class Processor
 {
@@ -660,13 +660,15 @@ final readonly class Processor
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Tests\Unit\Application\Operation\Command\CreateArticle;
+namespace App\Blog\Tests\Unit\Application\Operation\Command\CreateArticle;
 
-use App\BlogContext\Application\Operation\Command\CreateArticle\{Command, Handler, Result};
-use App\BlogContext\Domain\Article\Repository\ArticleRepository;
+use App\Blog\Application\Operation\Command\CreateArticle\{Command, Handler, Result};
+use App\Blog\Domain\Article\Repository\ArticleRepository;
 use App\Shared\Infrastructure\Generator\GeneratorInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+use PHPUnit\Framework\Attributes\{Test, Override};
 
 final class HandlerTest extends TestCase
 {
@@ -675,6 +677,7 @@ final class HandlerTest extends TestCase
     private EventDispatcherInterface $eventDispatcher;
     private Handler $handler;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->repository = $this->createMock(ArticleRepository::class);
@@ -688,7 +691,8 @@ final class HandlerTest extends TestCase
         );
     }
 
-    public function testCreateArticleSuccessfully(): void
+    #[Test]
+    public function create_article_successfully(): void
     {
         // Given
         $command = new Command(
@@ -720,7 +724,8 @@ final class HandlerTest extends TestCase
         $this->assertSame('draft', $result->status);
     }
 
-    public function testCreateArticleWithInvalidTitle(): void
+    #[Test]
+    public function create_article_with_invalid_title_throws_exception(): void
     {
         // Given
         $command = new Command(
@@ -745,24 +750,28 @@ final class HandlerTest extends TestCase
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Tests\Unit\Application\Operation\Query\GetArticle;
+namespace App\Blog\Tests\Unit\Application\Operation\Query\GetArticle;
 
-use App\BlogContext\Application\Operation\Query\GetArticle\{Query, Handler, View};
-use App\BlogContext\Domain\Article\{Article, ArticleId, Repository\ArticleRepository};
+use App\Blog\Application\Operation\Query\GetArticle\{Query, Handler, View};
+use App\Blog\Domain\Article\{Article, ArticleId, Repository\ArticleRepository};
 use PHPUnit\Framework\TestCase;
+
+use PHPUnit\Framework\Attributes\{Test, Override};
 
 final class HandlerTest extends TestCase
 {
     private ArticleRepository $repository;
     private Handler $handler;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->repository = $this->createMock(ArticleRepository::class);
         $this->handler = new Handler($this->repository);
     }
 
-    public function testGetArticleSuccessfully(): void
+    #[Test]
+    public function get_article_successfully(): void
     {
         // Given
         $articleId = '550e8400-e29b-41d4-a716-446655440000';
@@ -785,7 +794,8 @@ final class HandlerTest extends TestCase
         $this->assertSame('Test Article', $view->title);
     }
 
-    public function testGetArticleNotFound(): void
+    #[Test]
+    public function get_article_not_found_throws_exception(): void
     {
         // Given
         $articleId = 'non-existent-id';
@@ -823,9 +833,9 @@ final class HandlerTest extends TestCase
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Infrastructure\Query;
+namespace App\Blog\Infrastructure\Query;
 
-use App\BlogContext\Application\Operation\Query\ListArticles\{Query, View, ArticleListItem};
+use App\Blog\Application\Operation\Query\ListArticles\{Query, View, ArticleListItem};
 use Doctrine\DBAL\Connection;
 
 final readonly class OptimizedArticleQueryHandler
@@ -940,7 +950,7 @@ final readonly class OptimizedArticleQueryHandler
 ## Directory Structure Reference
 
 ```
-src/BlogContext/Application/Operation/
+src/Blog/Application/Operation/
 ├── Command/                     # Write operations
 │   ├── CreateArticle/
 │   │   ├── Command.php          # DTO
@@ -959,7 +969,7 @@ src/BlogContext/Application/Operation/
     ├── SearchArticles/
     └── GetArticleStatistics/
 
-src/BlogContext/Domain/CreateArticle/
+src/Blog/Domain/CreateArticle/
 ├── Creator.php                  # Business logic
 ├── CreatorInterface.php         # Contract
 ├── Model/

@@ -350,7 +350,7 @@ public function testGridHasStatusFilter(): void
 
 ```bash
 # 1. Create grid with TDD approach
-/code:admin:grid BlogContext Category
+/code:admin:grid Blog Category
 
 # This will:
 # - Write grid tests first (RED)
@@ -360,13 +360,13 @@ public function testGridHasStatusFilter(): void
 # - Refactor while keeping tests green
 
 # 2. Add specific features incrementally
-/code:hexagonal:test BlogContext CategoryGrid tree-view
+/code:hexagonal:test Blog CategoryGrid tree-view
 # Implement hierarchical display
 
-/code:hexagonal:test BlogContext CategoryGrid inline-edit
+/code:hexagonal:test Blog CategoryGrid inline-edit
 # Add inline editing for status
 
-/code:hexagonal:test BlogContext CategoryGrid custom-export
+/code:hexagonal:test Blog CategoryGrid custom-export
 # Implement custom export formats
 
 # 3. Each new requirement starts with a failing test

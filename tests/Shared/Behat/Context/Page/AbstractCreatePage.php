@@ -15,9 +15,9 @@ abstract class AbstractCreatePage extends AbstractAdminPage
 {
     final public const CREATE_BUTTON_SELECTOR = 'Create';
 
-    public function __construct(Session $session, \ArrayAccess $minkParameters, RouterInterface $router)
+    public function __construct(Session $session, \ArrayAccess $arrayAccess, RouterInterface $router)
     {
-        parent::__construct($session, $minkParameters, $router);
+        parent::__construct($session, $arrayAccess, $router);
     }
 
     public function create(): void
@@ -46,9 +46,9 @@ abstract class AbstractCreatePage extends AbstractAdminPage
 
     public function getValidationMessage(string $element): string
     {
-        $foundElement = $this->getFieldElement($element);
+        $nodeElement = $this->getFieldElement($element);
 
-        $validationMessage = $foundElement->find('css', '.sylius-validation-error');
+        $validationMessage = $nodeElement->find('css', '.sylius-validation-error');
         if (null === $validationMessage) {
             throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.sylius-validation-error');
         }

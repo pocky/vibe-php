@@ -26,7 +26,7 @@ final class MakeApplicationQuery extends AbstractMaker
         return 'Create a new CQRS Query with Handler';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
             ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g., BlogContext)')
@@ -35,7 +35,7 @@ final class MakeApplicationQuery extends AbstractMaker
         ;
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $queryName = $input->getArgument('query-name');
@@ -46,6 +46,7 @@ final class MakeApplicationQuery extends AbstractMaker
         if (str_ends_with($context, 'Context')) {
             $context = substr($context, 0, -7);
         }
+
         $context .= 'Context';
 
         $queryNamePascal = Str::asCamelCase($queryName);
@@ -53,23 +54,24 @@ final class MakeApplicationQuery extends AbstractMaker
 
         // Extract entity from query name (e.g., GetArticle -> Article, ListArticles -> Article)
         $entity = preg_replace('/^(Get|List|Search|Find)/', '', $queryNamePascal);
-        $entity = preg_replace('/s$/', '', (string) $entity); // Remove plural
+        $entity = preg_replace('/s$/', '', (string) $entity);
+        // Remove plural
         $entitySnake = Str::asSnakeCase($entity);
 
         // Determine if it's a collection query
         $isCollection = str_starts_with($queryNamePascal, 'List') || str_starts_with($queryNamePascal, 'Search');
 
-        // Query namespace
-        $queryNamespace = sprintf('%s\\Application\\Operation\\Query\\%s\\', $context, $queryNamePascal);
+        // Query namespace - new structure Application/Operation/Query/{Entity}/{Query}
+        $queryNamespace = sprintf('%s\\Application\\Operation\\Query\\%s\\%s\\', $context, $entity, $queryNamePascal);
 
         // Generate Query class
-        $queryClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             'Query',
             $queryNamespace
         );
 
         $generator->generateClass(
-            $queryClassDetails->getFullName(),
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/query/Query.tpl.php',
             [
                 'is_collection' => $isCollection,
@@ -124,18 +126,18 @@ final class MakeApplicationQuery extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next steps:',
-            sprintf(' - Define query parameters in <info>%s</info>', $queryClassDetails->getFullName()),
+            sprintf(' - Define query parameters in <info>%s</info>', $classNameDetails->getFullName()),
             sprintf(' - Implement the handler logic in <info>%s</info>', $handlerClassDetails->getFullName()),
             sprintf(' - Customize the View model in <info>%s</info>', $viewClassDetails->getFullName()),
             ' - Register the handler in services configuration if needed',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // No additional dependencies needed
     }

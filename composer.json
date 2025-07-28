@@ -124,6 +124,7 @@
     },
     "require-dev": {
         "behat/mink-browserkit-driver": "^2.2",
+        "dg/bypass-finals": "^1.9",
         "doctrine/doctrine-fixtures-bundle": "^4.1",
         "friends-of-behat/mink-debug-extension": "^2.1",
         "friends-of-behat/mink-extension": "^2.7",

@@ -48,7 +48,7 @@ graph TB
 ### Directory Organization
 
 ```
-src/BlogContext/UI/Web/Admin/
+src/Blog/UI/Web/Admin/
 ├── Resource/
 │   └── ArticleResource.php          # Sylius resource with attributes
 ├── Grid/
@@ -511,7 +511,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('sylius_resource', [
         'mapping' => [
             'paths' => [
-                '%kernel.project_dir%/src/BlogContext/UI/Web/Admin/Resource',
+                '%kernel.project_dir%/src/Blog/UI/Web/Admin/Resource',
             ],
         ],
     ]);
@@ -523,7 +523,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 The admin menu is configured by decorating the menu builder service according to [Sylius Stack documentation](https://stack.sylius.com/cookbook/admin_panel/menu#decorate-the-sidebar-menu):
 
 ```php
-// src/BlogContext/UI/Web/Admin/Menu/MenuBuilder.php
+// src/Blog/UI/Web/Admin/Menu/MenuBuilder.php
 #[AsDecorator(decorates: 'sylius_admin_ui.knp.menu_builder')]
 final readonly class MenuBuilder implements MenuBuilderInterface
 {

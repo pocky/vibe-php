@@ -15,94 +15,94 @@ final class DoctrineRepositoryTest extends TestCase
 {
     public function testClassIsAbstract(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->isAbstract());
+        $this->assertTrue($reflectionClass->isAbstract());
     }
 
     public function testExtendsServiceEntityRepository(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->isSubclassOf(ServiceEntityRepository::class));
+        $this->assertTrue($reflectionClass->isSubclassOf(ServiceEntityRepository::class));
     }
 
     public function testImplementsIteratorAggregate(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->implementsInterface(\IteratorAggregate::class));
+        $this->assertTrue($reflectionClass->implementsInterface(\IteratorAggregate::class));
     }
 
     public function testWithPaginationValidatesPositiveIntegers(): void
     {
-        $repository = $this->createTestRepository();
+        $doctrineRepository = $this->createTestRepository();
 
         $this->expectException(\InvalidArgumentException::class);
-        $repository->withPagination(0, 10);
+        $doctrineRepository->withPagination(0, 10);
     }
 
     public function testWithPaginationValidatesPositiveItemsPerPage(): void
     {
-        $repository = $this->createTestRepository();
+        $doctrineRepository = $this->createTestRepository();
 
         $this->expectException(\InvalidArgumentException::class);
-        $repository->withPagination(1, -5);
+        $doctrineRepository->withPagination(1, -5);
     }
 
     public function testWithPaginationReturnsNewInstance(): void
     {
-        $repository = $this->createTestRepository();
-        $result = $repository->withPagination(2, 15);
+        $doctrineRepository = $this->createTestRepository();
+        $result = $doctrineRepository->withPagination(2, 15);
 
-        $this->assertNotSame($repository, $result);
+        $this->assertNotSame($doctrineRepository, $result);
         $this->assertInstanceOf(DoctrineRepository::class, $result);
     }
 
     public function testWithoutPaginationReturnsNewInstance(): void
     {
-        $repository = $this->createTestRepository();
-        $result = $repository->withoutPagination();
+        $doctrineRepository = $this->createTestRepository();
+        $result = $doctrineRepository->withoutPagination();
 
-        $this->assertNotSame($repository, $result);
+        $this->assertNotSame($doctrineRepository, $result);
         $this->assertInstanceOf(DoctrineRepository::class, $result);
     }
 
     public function testWithPageReturnsNewInstance(): void
     {
-        $repository = $this->createTestRepository();
-        $result = $repository->withPage(3);
+        $doctrineRepository = $this->createTestRepository();
+        $result = $doctrineRepository->withPage(3);
 
-        $this->assertNotSame($repository, $result);
+        $this->assertNotSame($doctrineRepository, $result);
         $this->assertInstanceOf(DoctrineRepository::class, $result);
     }
 
     public function testWithItemsPerPageReturnsNewInstance(): void
     {
-        $repository = $this->createTestRepository();
-        $result = $repository->withItemsPerPage(20);
+        $doctrineRepository = $this->createTestRepository();
+        $result = $doctrineRepository->withItemsPerPage(20);
 
-        $this->assertNotSame($repository, $result);
+        $this->assertNotSame($doctrineRepository, $result);
         $this->assertInstanceOf(DoctrineRepository::class, $result);
     }
 
     public function testFilterReturnsNewInstance(): void
     {
-        $repository = $this->createTestRepository();
-        $filter = function (QueryBuilder $qb): void {
+        $doctrineRepository = $this->createTestRepository();
+        $filter = function (QueryBuilder $queryBuilder): void {
             // Mock filter function
         };
 
-        $result = $repository->callFilter($filter);
+        $result = $doctrineRepository->callFilter($filter);
 
-        $this->assertNotSame($repository, $result);
+        $this->assertNotSame($doctrineRepository, $result);
         $this->assertInstanceOf(DoctrineRepository::class, $result);
     }
 
     public function testHasGenericTemplate(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
-        $docComment = $reflection->getDocComment();
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
+        $docComment = $reflectionClass->getDocComment();
 
         $this->assertIsString($docComment);
         $this->assertStringContainsString('@template T of object', $docComment);
@@ -111,31 +111,32 @@ final class DoctrineRepositoryTest extends TestCase
 
     public function testMethodVisibility(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
         $publicMethods = ['withPagination', 'withoutPagination', 'withPage', 'withItemsPerPage', 'getIterator', 'paginator'];
-        foreach ($publicMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
-            $this->assertTrue($method->isPublic(), "Method {$methodName} should be public");
+        foreach ($publicMethods as $publicMethod) {
+            $method = $reflectionClass->getMethod($publicMethod);
+            $this->assertTrue($method->isPublic(), sprintf('Method %s should be public', $publicMethod));
         }
 
         $protectedMethods = ['filter'];
-        foreach ($protectedMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
-            $this->assertTrue($method->isProtected(), "Method {$methodName} should be protected");
+        foreach ($protectedMethods as $protectedMethod) {
+            $method = $reflectionClass->getMethod($protectedMethod);
+            $this->assertTrue($method->isProtected(), sprintf('Method %s should be protected', $protectedMethod));
         }
     }
 
     public function testConstructorParametersAndTypes(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
-        $constructor = $reflection->getConstructor();
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
+        $constructor = $reflectionClass->getConstructor();
+        $this->assertInstanceOf(\ReflectionMethod::class, $constructor);
         $parameters = $constructor->getParameters();
 
         $this->assertCount(3, $parameters);
 
         $registryParam = $parameters[0];
-        $this->assertSame('registry', $registryParam->getName());
+        $this->assertSame('managerRegistry', $registryParam->getName());
         $this->assertSame(ManagerRegistry::class, $registryParam->getType()->getName());
 
         $entityClassParam = $parameters[1];
@@ -149,58 +150,58 @@ final class DoctrineRepositoryTest extends TestCase
 
     public function testReturnTypeAnnotations(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
         $fluentMethods = ['withPagination', 'withoutPagination', 'withPage', 'withItemsPerPage', 'filter'];
-        foreach ($fluentMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
+        foreach ($fluentMethods as $fluentMethod) {
+            $method = $reflectionClass->getMethod($fluentMethod);
             $returnType = $method->getReturnType();
-            $this->assertNotNull($returnType, "Method {$methodName} should have return type");
-            $this->assertSame('static', $returnType->getName(), "Method {$methodName} should return static");
+            $this->assertInstanceOf(\ReflectionType::class, $returnType, sprintf('Method %s should have return type', $fluentMethod));
+            $this->assertSame('static', $returnType->getName(), sprintf('Method %s should return static', $fluentMethod));
         }
     }
 
     public function testOverrideAttribute(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
-        $getIteratorMethod = $reflection->getMethod('getIterator');
-        $attributes = $getIteratorMethod->getAttributes(\Override::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionMethod = $reflectionClass->getMethod('getIterator');
+        $attributes = $reflectionMethod->getAttributes(\Override::class);
 
         $this->assertCount(1, $attributes);
     }
 
     public function testPaginatorMethodExists(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->hasMethod('paginator'));
+        $this->assertTrue($reflectionClass->hasMethod('paginator'));
 
-        $method = $reflection->getMethod('paginator');
-        $this->assertTrue($method->isPublic());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame(PaginatorInterface::class, $method->getReturnType()->getName());
+        $reflectionMethod = $reflectionClass->getMethod('paginator');
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame(PaginatorInterface::class, $reflectionMethod->getReturnType()->getName());
     }
 
     public function testGetIteratorMethodExists(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->hasMethod('getIterator'));
+        $this->assertTrue($reflectionClass->hasMethod('getIterator'));
 
-        $method = $reflection->getMethod('getIterator');
-        $this->assertTrue($method->isPublic());
-        $this->assertTrue($method->hasReturnType());
-        $this->assertSame('Traversable', $method->getReturnType()->getName());
+        $reflectionMethod = $reflectionClass->getMethod('getIterator');
+        $this->assertTrue($reflectionMethod->isPublic());
+        $this->assertTrue($reflectionMethod->hasReturnType());
+        $this->assertSame('Traversable', $reflectionMethod->getReturnType()->getName());
     }
 
     public function testCloneMethodExists(): void
     {
-        $reflection = new \ReflectionClass(DoctrineRepository::class);
+        $reflectionClass = new \ReflectionClass(DoctrineRepository::class);
 
-        $this->assertTrue($reflection->hasMethod('__clone'));
+        $this->assertTrue($reflectionClass->hasMethod('__clone'));
 
-        $method = $reflection->getMethod('__clone');
-        $this->assertTrue($method->isProtected());
+        $reflectionMethod = $reflectionClass->getMethod('__clone');
+        $this->assertTrue($reflectionMethod->isProtected());
     }
 
     private function createTestRepository(): DoctrineRepository
@@ -210,10 +211,10 @@ final class DoctrineRepositoryTest extends TestCase
 
         return new class($mockRegistry, \stdClass::class, 'e', $mockQueryBuilder) extends DoctrineRepository {
             public function __construct(
-                ManagerRegistry $registry,
+                ManagerRegistry $managerRegistry,
                 string $entityClass,
                 string $alias,
-                private readonly QueryBuilder $mockQueryBuilder
+                private readonly QueryBuilder $mockQueryBuilder,
             ) {
                 // Skip parent constructor to avoid Doctrine setup
                 $this->queryBuilder = $this->mockQueryBuilder;

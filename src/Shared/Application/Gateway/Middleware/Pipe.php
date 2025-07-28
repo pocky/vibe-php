@@ -18,7 +18,7 @@ final readonly class Pipe
     ) {
     }
 
-    public function __invoke(GatewayRequest $request, callable|null $next = null): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest, callable|null $next = null): GatewayResponse
     {
         foreach (array_reverse($this->middlewares) as $middleware) {
             $next = static fn ($request) => $middleware($request, $next);
@@ -27,6 +27,6 @@ final readonly class Pipe
         Assert::notNull($next);
 
         /** @var GatewayResponse */
-        return $next($request);
+        return $next($gatewayRequest);
     }
 }

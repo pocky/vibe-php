@@ -8,12 +8,10 @@ use Psr\Log\LoggerInterface;
 
 class LoggerInstrumentation implements Instrumentation
 {
-    public LoggerInterface $logger {
-        get => $this->loggerInstance;
-    }
-
     public function __construct(
-        private readonly LoggerInterface $loggerInstance
+        public LoggerInterface $logger {
+            get => $this->logger;
+        },
     ) {
     }
 

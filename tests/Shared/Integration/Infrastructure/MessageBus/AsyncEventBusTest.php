@@ -22,8 +22,8 @@ final class AsyncEventBusTest extends TestCase
             ->with($event)
             ->willReturn($envelope);
 
-        $eventBus = new AsyncEventBus($messageBus);
-        $result = $eventBus($event);
+        $asyncEventBus = new AsyncEventBus($messageBus);
+        $result = $asyncEventBus($event);
 
         $this->assertSame($envelope, $result);
     }
@@ -39,8 +39,8 @@ final class AsyncEventBusTest extends TestCase
             ->with($envelope)
             ->willReturn($envelope);
 
-        $eventBus = new AsyncEventBus($messageBus);
-        $result = $eventBus($envelope);
+        $asyncEventBus = new AsyncEventBus($messageBus);
+        $result = $asyncEventBus($envelope);
 
         $this->assertSame($envelope, $result);
     }
@@ -56,8 +56,8 @@ final class AsyncEventBusTest extends TestCase
             ->with($event)
             ->willReturn($envelope);
 
-        $eventBus = new AsyncEventBus($messageBus);
-        $result = $eventBus($event);
+        $asyncEventBus = new AsyncEventBus($messageBus);
+        $result = $asyncEventBus($event);
 
         $this->assertSame($envelope, $result);
     }

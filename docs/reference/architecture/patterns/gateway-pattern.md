@@ -96,7 +96,7 @@ class DefaultGateway
 // Middleware configuration
 $middlewares = [
     new DefaultLogger($instrumentation),
-    new DefaultErrorHandler($instrumentation, 'BlogContext', 'Article', 'create'),
+    new DefaultErrorHandler($instrumentation, 'Blog', 'Article', 'create'),
     new ValidationMiddleware(),
     new ProcessorMiddleware(),
 ];
@@ -417,7 +417,7 @@ use App\Shared\Application\Gateway\Attribute\AsGateway;
 
 // Complete gateway with CQRS integration and attribute
 #[AsGateway(
-    context: 'BlogContext',
+    context: 'Blog',
     domain: 'Article',
     operation: 'Create',
     middlewares: [],
@@ -435,7 +435,7 @@ final class Gateway extends DefaultGateway
 ```
 
 Note: The `AsGateway` attribute requires these parameters:
-- `context`: The bounded context name (e.g., 'BlogContext')
+- `context`: The bounded context name (e.g., 'Blog')
 - `domain`: The domain entity (e.g., 'Article', 'Category')
 - `operation`: The operation name (e.g., 'Create', 'Update', 'Delete')
 - `middlewares`: Array of middleware classes (usually empty as middlewares are injected)
@@ -538,7 +538,7 @@ class ArticleController
 
 **CRITICAL**: Always analyze existing patterns before creating new Gateway Request classes.
 
-#### Existing Request Patterns in BlogContext
+#### Existing Request Patterns in Blog
 
 **Pattern A: Simple Operations** (Get, Delete, Single Parameter)
 - **Model**: `GetArticle/Request.php`
@@ -689,9 +689,12 @@ final class GatewayException extends \Exception
 ## Testing Gateway with CQRS
 
 ```php
+use PHPUnit\Framework\Attributes\Test;
+
 class CreateArticleGatewayTest extends TestCase
 {
-    public function testSuccessfulArticleCreation(): void
+    #[Test]
+    public function successful_article_creation(): void
     {
         // Given
         $mockInstrumentation = $this->createMock(GatewayInstrumentation::class);
@@ -720,7 +723,8 @@ class CreateArticleGatewayTest extends TestCase
         $this->assertSame('draft', $response->status());
     }
     
-    public function testValidationFailure(): void
+    #[Test]
+    public function validation_failure_throws_exception(): void
     {
         // Test validation middleware catches invalid input
         $this->expectException(GatewayException::class);
@@ -753,50 +757,50 @@ services:
             - []
 
     # Command handlers for Blog Context
-    App\BlogContext\Application\Operation\Command\:
-        resource: '../src/BlogContext/Application/Operation/Command/'
+    App\Blog\Application\Operation\Command\:
+        resource: '../src/Blog/Application/Operation/Command/'
         tags:
             - { name: messenger.message_handler, bus: command.bus }
     
     # Query handlers for Blog Context
-    App\BlogContext\Application\Operation\Query\:
-        resource: '../src/BlogContext/Application/Operation/Query/'
+    App\Blog\Application\Operation\Query\:
+        resource: '../src/Blog/Application/Operation/Query/'
         tags:
             - { name: messenger.message_handler, bus: query.bus }
 
     # Gateway components
-    App\BlogContext\Application\Gateway\CreateArticle\Middleware\Validation:
+    App\Blog\Application\Gateway\CreateArticle\Middleware\Validation:
         arguments:
-            $validator: '@App\BlogContext\Domain\Article\ArticleValidator'
+            $validator: '@App\Blog\Domain\Article\ArticleValidator'
 
-    App\BlogContext\Application\Gateway\CreateArticle\Middleware\Processor:
+    App\Blog\Application\Gateway\CreateArticle\Middleware\Processor:
         arguments:
-            $commandHandler: '@App\BlogContext\Application\Operation\Command\CreateArticle\Handler'
+            $commandHandler: '@App\Blog\Application\Operation\Command\CreateArticle\Handler'
 
     # Complete Gateway
-    App\BlogContext\Application\Gateway\CreateArticle\Gateway:
+    App\Blog\Application\Gateway\CreateArticle\Gateway:
         arguments:
             $instrumentation: '@App\Shared\Application\Gateway\Instrumentation\DefaultGatewayInstrumentation'
-            $validation: '@App\BlogContext\Application\Gateway\CreateArticle\Middleware\Validation'
-            $processor: '@App\BlogContext\Application\Gateway\CreateArticle\Middleware\Processor'
+            $validation: '@App\Blog\Application\Gateway\CreateArticle\Middleware\Validation'
+            $processor: '@App\Blog\Application\Gateway\CreateArticle\Middleware\Processor'
 ```
 
 ## Complete Directory Structure Example
 
 ```
-src/BlogContext/Application/Gateway/CreateArticle/
+src/Blog/Application/Gateway/CreateArticle/
 ├── Gateway.php                  # Extends DefaultGateway with AsGateway attribute
 ├── Request.php                  # Implements GatewayRequest, validates input
 ├── Response.php                 # Implements GatewayResponse, formats output
 └── Middleware/
     └── Processor.php            # Creates Command, executes Handler, returns Response
 
-src/BlogContext/Application/Operation/Command/CreateArticle/
+src/Blog/Application/Operation/Command/CreateArticle/
 ├── Command.php                  # CQRS Command DTO
 ├── Handler.php                  # CQRS Command Handler
 └── HandlerInterface.php        # Handler contract
 
-src/BlogContext/Domain/CreateArticle/
+src/Blog/Domain/CreateArticle/
 ├── Creator.php                  # Domain entry point
 ├── CreatorInterface.php         # Creator contract
 ├── Model/
@@ -806,7 +810,7 @@ src/BlogContext/Domain/CreateArticle/
 └── Exception/
     └── ArticleAlreadyExists.php # Domain exception
 
-src/BlogContext/Domain/Shared/
+src/Blog/Domain/Shared/
 ├── Model/
 │   └── Category.php            # Shared domain model
 ├── ValueObject/

@@ -13,8 +13,8 @@ abstract class DefaultGateway
     ) {
     }
 
-    public function __invoke(GatewayRequest $request): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest): GatewayResponse
     {
-        return new Pipe($this->middlewares)($request);
+        return new Pipe($this->middlewares)($gatewayRequest);
     }
 }

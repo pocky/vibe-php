@@ -1,83 +1,73 @@
-# Gateway Template
+# Gateway Snippets
 
-## Gateway Structure
+## Command Gateway
 
-### Main Gateway Class
+### Structure
+```
+Application/Gateway/[UseCase]/
+├── Gateway.php
+├── Request.php
+├── Response.php
+└── Middleware/
+    └── Processor.php
+```
 
+### Gateway.php
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\[UseCase];
-
 use App\Shared\Application\Gateway\Attribute\AsGateway;
 use App\Shared\Application\Gateway\DefaultGateway;
 use App\Shared\Application\Gateway\Middleware\DefaultErrorHandler;
 use App\Shared\Application\Gateway\Middleware\DefaultLogger;
-use App\[Context]Context\Application\Gateway\[UseCase]\Middleware\Processor;
-use App\[Context]Context\Application\Gateway\[UseCase]\Middleware\Validation;
+use App\Shared\Application\Gateway\Middleware\DefaultValidation;
 
-#[AsGateway(name: '[UseCase]')]
+#[AsGateway(
+    context: '[context]',
+    domain: '[entity]',
+    operation: '[use_case]',
+    middlewares: [
+        DefaultLogger::class,
+        DefaultErrorHandler::class,
+        DefaultValidation::class,
+        Processor::class,
+    ],
+)]
 final class Gateway extends DefaultGateway
 {
-    public function __construct(
-        DefaultLogger $logger,
-        DefaultErrorHandler $errorHandler,
-        Validation $validation,
-        Processor $processor,
-    ) {
-        parent::__construct(
-            $logger,
-            $errorHandler,
-            $validation,
-            $processor,
-        );
-    }
+    // Empty constructor - all configuration is in the attribute
 }
 ```
 
-### Request Object
-
+### Request.php
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\[UseCase];
-
 use App\Shared\Application\Gateway\GatewayRequest;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class Request implements GatewayRequest
 {
     public function __construct(
+        #[Assert\NotBlank(message: 'ID is required')]
+        #[Assert\Uuid(message: 'ID must be a valid UUID')]
         public string $id,
+        
+        #[Assert\NotBlank(message: 'Name is required')]
+        #[Assert\Length(
+            min: 3,
+            max: 100,
+            minMessage: 'Name must be at least {{ limit }} characters',
+            maxMessage: 'Name cannot exceed {{ limit }} characters'
+        )]
         public string $name,
-        public ?string $description = null,
+        
+        #[Assert\Length(max: 200)]
+        public string|null $description = null,
     ) {
-        $this->validate();
-    }
-
-    private function validate(): void
-    {
-        if ('' === $this->id) {
-            throw new \InvalidArgumentException('ID is required');
-        }
-        
-        if ('' === $this->name) {
-            throw new \InvalidArgumentException('Name is required');
-        }
-        
-        if (mb_strlen($this->name) < 2 || mb_strlen($this->name) > 100) {
-            throw new \InvalidArgumentException('Name must be between 2 and 100 characters');
-        }
     }
 
     public static function fromData(array $data): self
     {
         return new self(
-            id: $data['id'] ?? '',
-            name: $data['name'] ?? '',
+            id: $data['id'],
+            name: $data['name'],
             description: $data['description'] ?? null,
         );
     }
@@ -93,304 +83,133 @@ final readonly class Request implements GatewayRequest
 }
 ```
 
-### Response Object
-
+### Response.php
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\[UseCase];
-
 use App\Shared\Application\Gateway\GatewayResponse;
 
 final readonly class Response implements GatewayResponse
 {
     public function __construct(
-        public string $id,
-        public string $name,
-        public string $status,
-        public string $createdAt,
-    ) {}
+        public bool $success,
+        public string $message,
+        public string|null $[entity]Id = null,
+        public string|null $slug = null,
+        public array $errors = [],
+    ) {
+    }
 
     public function data(): array
     {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'status' => $this->status,
-            'createdAt' => $this->createdAt,
+        $data = [
+            'success' => $this->success,
+            'message' => $this->message,
         ];
+        
+        if ($this->success) {
+            $data['[entity]Id'] = $this->[entity]Id;
+            $data['slug'] = $this->slug;
+        } else {
+            $data['errors'] = $this->errors;
+        }
+        
+        return $data;
     }
 }
 ```
 
-### Validation Middleware
-
+### Validation.php
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\[UseCase]\Middleware;
-
-use App\Shared\Application\Gateway\GatewayRequest;
-use App\Shared\Application\Gateway\GatewayResponse;
-use App\[Context]Context\Application\Gateway\[UseCase]\Request;
-use App\[Context]Context\Domain\Shared\Repository\[Entity]RepositoryInterface;
-
 final readonly class Validation
 {
-    public function __construct(
-        private [Entity]RepositoryInterface $repository,
-    ) {}
+    public function __construct(private Repository $repository) {}
 
     public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
     {
-        /** @var Request $request */
-        $this->validateBusinessRules($request);
-        
-        return $next($request);
-    }
-
-    private function validateBusinessRules(Request $request): void
-    {
-        // Example: Check uniqueness
-        if ($this->repository->existsByName($request->name)) {
-            throw new \InvalidArgumentException('[Entity] with this name already exists');
+        if ($this->repository->exists($request->id)) {
+            throw new \InvalidArgumentException('Already exists');
         }
-        
-        // Add more business validations here
+        return $next($request);
     }
 }
 ```
 
-### Processor Middleware
-
+### Middleware/Processor.php
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App\[Context]Context\Application\Gateway\[UseCase]\Middleware;
 
-use App\Shared\Application\Gateway\GatewayRequest;
-use App\Shared\Application\Gateway\GatewayResponse;
-use App\Shared\Infrastructure\MessageBus\CommandBusInterface;
 use App\[Context]Context\Application\Gateway\[UseCase]\Request;
 use App\[Context]Context\Application\Gateway\[UseCase]\Response;
 use App\[Context]Context\Application\Operation\Command\[UseCase]\Command;
+use App\[Context]Context\Application\Operation\Command\[UseCase]\HandlerInterface;
+use App\[Context]Context\Domain\Shared\Generator\[Entity]IdGeneratorInterface;
+use App\[Context]Context\Domain\Shared\Service\SlugGeneratorInterface;
+use App\Shared\Application\Gateway\GatewayRequest;
+use App\Shared\Application\Gateway\GatewayResponse;
 
 final readonly class Processor
 {
     public function __construct(
-        private CommandBusInterface $commandBus,
+        private HandlerInterface $handler,
+        private [Entity]IdGeneratorInterface $idGenerator,
+        private SlugGeneratorInterface $slugGenerator,
     ) {}
 
-    public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
+    public function __invoke(GatewayRequest $request): GatewayResponse
     {
         /** @var Request $request */
-        $command = new Command(
-            id: $request->id,
-            name: $request->name,
-            description: $request->description,
-        );
         
-        $this->commandBus->dispatch($command);
-        
-        return new Response(
-            id: $request->id,
-            name: $request->name,
-            status: 'created',
-            createdAt: (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-        );
-    }
-}
-```
-
-## Query Gateway Example
-
-### Query Request
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\Get[Entity];
-
-use App\Shared\Application\Gateway\GatewayRequest;
-
-final readonly class Request implements GatewayRequest
-{
-    public function __construct(
-        public string $id,
-    ) {
-        if ('' === $this->id) {
-            throw new \InvalidArgumentException('ID is required');
+        try {
+            // Generate ID
+            $[entity]Id = $this->idGenerator->nextIdentity();
+            
+            // Generate slug if needed
+            $slug = $request->slug ?? $this->slugGenerator->generateFromName($request->name)->getValue();
+            
+            // Create command with explicit property names
+            $command = new Command(
+                [entity]Id: $[entity]Id->getValue(),
+                name: $request->name,
+                description: $request->description,
+                slug: $slug,
+            );
+            
+            // Execute command through handler
+            ($this->handler)($command);
+            
+            // Return gateway response with success status
+            return new Response(
+                success: true,
+                message: '[Entity] created successfully',
+                [entity]Id: $[entity]Id->getValue(),
+                slug: $slug,
+            );
+        } catch (\Throwable $e) {
+            return new Response(
+                success: false,
+                message: $e->getMessage(),
+            );
         }
     }
-
-    public static function fromData(array $data): self
-    {
-        return new self(
-            id: $data['id'] ?? '',
-        );
-    }
-
-    public function data(): array
-    {
-        return [
-            'id' => $this->id,
-        ];
-    }
 }
 ```
 
-### Query Response
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\Get[Entity];
-
-use App\Shared\Application\Gateway\GatewayResponse;
-
-final readonly class Response implements GatewayResponse
-{
-    public function __construct(
-        public array $[entity],
-    ) {}
-
-    public function data(): array
-    {
-        return [
-            '[entity]' => $this->[entity],
-        ];
-    }
-}
-```
+## Query Gateway
 
 ### Query Processor
-
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\[Context]Context\Application\Gateway\Get[Entity]\Middleware;
-
-use App\Shared\Application\Gateway\GatewayRequest;
-use App\Shared\Application\Gateway\GatewayResponse;
-use App\Shared\Infrastructure\MessageBus\QueryBusInterface;
-use App\[Context]Context\Application\Gateway\Get[Entity]\Request;
-use App\[Context]Context\Application\Gateway\Get[Entity]\Response;
-use App\[Context]Context\Application\Operation\Query\Get[Entity]\Query;
-
 final readonly class Processor
 {
-    public function __construct(
-        private QueryBusInterface $queryBus,
-    ) {}
+    public function __construct(private QueryBusInterface $queryBus) {}
 
     public function __invoke(GatewayRequest $request, callable $next): GatewayResponse
     {
-        /** @var Request $request */
-        $query = new Query(
-            id: $request->id,
-        );
-        
-        $view = $this->queryBus->ask($query);
+        $view = $this->queryBus->ask(new Query($request->id));
         
         if (null === $view) {
-            throw new \RuntimeException('[Entity] not found');
+            throw new \RuntimeException('Not found');
         }
         
-        return new Response(
-            [entity]: [
-                'id' => $view->id,
-                'name' => $view->name,
-                'status' => $view->status,
-                'createdAt' => $view->createdAt,
-                'updatedAt' => $view->updatedAt,
-            ],
-        );
-    }
-}
-```
-
-## PHPUnit Test
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Tests\[Context]Context\Unit\Application\Gateway\[UseCase];
-
-use App\[Context]Context\Application\Gateway\[UseCase]\Gateway;
-use App\[Context]Context\Application\Gateway\[UseCase]\Request;
-use App\[Context]Context\Application\Gateway\[UseCase]\Response;
-use App\Shared\Application\Gateway\Middleware\DefaultErrorHandler;
-use App\Shared\Application\Gateway\Middleware\DefaultLogger;
-use App\[Context]Context\Application\Gateway\[UseCase]\Middleware\Processor;
-use App\[Context]Context\Application\Gateway\[UseCase]\Middleware\Validation;
-use PHPUnit\Framework\TestCase;
-
-final class GatewayTest extends TestCase
-{
-    private Gateway $gateway;
-    
-    protected function setUp(): void
-    {
-        $logger = $this->createMock(DefaultLogger::class);
-        $errorHandler = $this->createMock(DefaultErrorHandler::class);
-        $validation = $this->createMock(Validation::class);
-        $processor = $this->createMock(Processor::class);
-        
-        // Set up processor to return expected response
-        $processor->method('__invoke')
-            ->willReturn(new Response(
-                id: '550e8400-e29b-41d4-a716-446655440000',
-                name: 'Test Entity',
-                status: 'created',
-                createdAt: '2024-01-01T12:00:00+00:00',
-            ));
-        
-        $this->gateway = new Gateway(
-            $logger,
-            $errorHandler,
-            $validation,
-            $processor,
-        );
-    }
-    
-    public function testSuccessfulExecution(): void
-    {
-        $request = Request::fromData([
-            'id' => '550e8400-e29b-41d4-a716-446655440000',
-            'name' => 'Test Entity',
-        ]);
-        
-        $response = ($this->gateway)($request);
-        
-        $this->assertInstanceOf(Response::class, $response);
-        $this->assertEquals('550e8400-e29b-41d4-a716-446655440000', $response->id);
-        $this->assertEquals('Test Entity', $response->name);
-        $this->assertEquals('created', $response->status);
-    }
-    
-    public function testInvalidRequest(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Name is required');
-        
-        Request::fromData([
-            'id' => '550e8400-e29b-41d4-a716-446655440000',
-            'name' => '',
-        ]);
+        return new Response(['entity' => $view->toArray()]);
     }
 }
 ```

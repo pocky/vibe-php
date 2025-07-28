@@ -43,7 +43,7 @@ Define validation rules using Symfony validation attributes directly on public r
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle;
+namespace App\Blog\Application\Gateway\CreateArticle;
 
 use App\Shared\Application\Gateway\GatewayRequest;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -111,7 +111,7 @@ Similarly, Response objects should use public readonly properties:
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle;
+namespace App\Blog\Application\Gateway\CreateArticle;
 
 use App\Shared\Application\Gateway\GatewayResponse;
 
@@ -218,9 +218,9 @@ Use the shared DefaultValidation middleware in your Gateway configuration:
 
 declare(strict_types=1);
 
-namespace App\BlogContext\Application\Gateway\CreateArticle;
+namespace App\Blog\Application\Gateway\CreateArticle;
 
-use App\BlogContext\Application\Gateway\CreateArticle\Middleware\Processor;
+use App\Blog\Application\Gateway\CreateArticle\Middleware\Processor;
 use App\Shared\Application\Gateway\DefaultGateway;
 use App\Shared\Application\Gateway\Instrumentation\GatewayInstrumentation;
 use App\Shared\Application\Gateway\Middleware\DefaultErrorHandler;
@@ -236,7 +236,7 @@ final class Gateway extends DefaultGateway
     ) {
         $middlewares = [
             new DefaultLogger($instrumentation),
-            new DefaultErrorHandler($instrumentation, 'BlogContext', 'Article', 'create'),
+            new DefaultErrorHandler($instrumentation, 'Blog', 'Article', 'create'),
             $validation,                    // Use shared validation middleware
             $processor,
         ];
@@ -614,7 +614,7 @@ public function testGatewayValidationMiddleware(): void
 List all constraints for a class:
 
 ```bash
-docker compose exec app bin/console debug:validator 'App\BlogContext\Application\Gateway\CreateArticle\Request'
+docker compose exec app bin/console debug:validator 'App\Blog\Application\Gateway\CreateArticle\Request'
 ```
 
 ### Validation Groups

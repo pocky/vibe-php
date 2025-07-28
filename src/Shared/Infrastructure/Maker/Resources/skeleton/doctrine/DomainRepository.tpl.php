@@ -1,12 +1,14 @@
-<?php echo "<?php\n"; ?>
+<?php declare(strict_types=1);
+
+echo "<?php\n"; ?>
 
 declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
 
 use App\<?php echo $context; ?>\Domain\Create<?php echo $entity_class_name; ?>\Model\<?php echo $entity_class_name; ?> as Create<?php echo $entity_class_name; ?>;
-use App\<?php echo $context; ?>\Domain\Shared\Repository\<?php echo $entity_class_name; ?>RepositoryInterface;
-use App\<?php echo $context; ?>\Domain\Shared\ValueObject\<?php echo $entity_class_name; ?>Id;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity_class_name; ?>\Shared\Repository\<?php echo $entity_class_name; ?>WriteRepositoryInterface;
+use App\<?php echo $context; ?>\Domain\<?php echo $entity_class_name; ?>\Shared\Identifier\<?php echo $entity_class_name; ?>Id;
 use App\<?php echo $context; ?>\Infrastructure\Persistence\Doctrine\ORM\Entity\<?php echo $entity_class_name; ?> as Doctrine<?php echo $entity_class_name; ?>;
 use App\<?php echo $context; ?>\Infrastructure\Persistence\Mapper\<?php echo $entity_class_name; ?>QueryMapper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -16,7 +18,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * @extends ServiceEntityRepository<Doctrine<?php echo $entity_class_name; ?>>
  */
-final class <?php echo $class_name; ?> extends ServiceEntityRepository implements <?php echo $entity_class_name; ?>RepositoryInterface
+final class <?php echo $class_name; ?> extends ServiceEntityRepository implements <?php echo $entity_class_name; ?>WriteRepositoryInterface
 {
     public function __construct(
         ManagerRegistry $registry,

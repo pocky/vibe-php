@@ -17,11 +17,11 @@ abstract class AbstractIndexPage extends AbstractAdminPage
 
     public function __construct(
         Session $session,
-        \ArrayAccess $minkParameters,
+        \ArrayAccess $arrayAccess,
         RouterInterface $router,
         private readonly TableAccessorInterface $tableAccessor,
     ) {
-        parent::__construct($session, $minkParameters, $router);
+        parent::__construct($session, $arrayAccess, $router);
     }
 
     #[\Override]
@@ -60,10 +60,10 @@ abstract class AbstractIndexPage extends AbstractAdminPage
     public function deleteResourceOnPage(array $parameters): void
     {
         $tableAccessor = $this->getTableAccessor();
-        $table = $this->getElement('table');
+        $nodeElement = $this->getElement('table');
 
-        $deletedRow = $tableAccessor->getRowWithFields($table, $parameters);
-        $actionButtons = $tableAccessor->getFieldFromRow($table, $deletedRow, 'actions');
+        $deletedRow = $tableAccessor->getRowWithFields($nodeElement, $parameters);
+        $actionButtons = $tableAccessor->getFieldFromRow($nodeElement, $deletedRow, 'actions');
 
         $actionButtons->pressButton(self::DELETE_BUTTON_SELECTOR);
     }
@@ -85,7 +85,7 @@ abstract class AbstractIndexPage extends AbstractAdminPage
         }
     }
 
-    public function getColumnFields($columnName): array
+    public function getColumnFields(string $columnName): array
     {
         return $this->tableAccessor->getIndexedColumn($this->getElement('table'), $columnName);
     }
@@ -134,19 +134,19 @@ abstract class AbstractIndexPage extends AbstractAdminPage
     public function getActionsForResource(array $parameters): NodeElement
     {
         $tableAccessor = $this->getTableAccessor();
-        $table = $this->getElement('table');
+        $nodeElement = $this->getElement('table');
 
-        $resourceRow = $tableAccessor->getRowWithFields($table, $parameters);
+        $resourceRow = $tableAccessor->getRowWithFields($nodeElement, $parameters);
 
-        return $tableAccessor->getFieldFromRow($table, $resourceRow, 'actions');
+        return $tableAccessor->getFieldFromRow($nodeElement, $resourceRow, 'actions');
     }
 
     public function checkResourceOnPage(array $parameters): void
     {
         $tableAccessor = $this->getTableAccessor();
-        $table = $this->getElement('table');
+        $nodeElement = $this->getElement('table');
 
-        $resourceRow = $tableAccessor->getRowWithFields($table, $parameters);
+        $resourceRow = $tableAccessor->getRowWithFields($nodeElement, $parameters);
         $bulkCheckbox = $resourceRow->find('css', '.bulk-select-checkbox');
 
         Assert::notNull($bulkCheckbox);
@@ -162,28 +162,5 @@ abstract class AbstractIndexPage extends AbstractAdminPage
     protected function getTableAccessor(): TableAccessorInterface
     {
         return $this->tableAccessor;
-    }
-
-    private function areFiltersVisible(): bool
-    {
-        return !$this->getElement('filters_toggle')->hasClass('collapsed');
-    }
-
-    private function toggleFilters(): void
-    {
-        $filtersToggle = $this->getElement('filters_toggle');
-        $filtersToggle->click();
-        $this->getDocument()->waitFor(1, function () use ($filtersToggle) {
-            $accordionCollapse = $filtersToggle->find('css', '.accordion-collapse');
-
-            return null !== $accordionCollapse && !$accordionCollapse->hasClass('collapsing');
-        });
-    }
-
-    private function waitForFormUpdate(): void
-    {
-        $form = $this->getElement('filters_form');
-        usleep(500000); // we need to sleep, as sometimes the check below is executed faster than the form sets the busy attribute
-        $form->waitFor(1500, fn () => !$form->hasAttribute('busy'));
     }
 }

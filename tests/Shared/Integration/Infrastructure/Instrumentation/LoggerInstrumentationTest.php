@@ -13,17 +13,17 @@ final class LoggerInstrumentationTest extends TestCase
     public function testConstructorSetsLogger(): void
     {
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $instrumentation = new LoggerInstrumentation($mockLogger);
+        $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
-        $this->assertInstanceOf(LoggerInstrumentation::class, $instrumentation);
+        $this->assertInstanceOf(LoggerInstrumentation::class, $loggerInstrumentation);
     }
 
     public function testLoggerPropertyReturnsCorrectLogger(): void
     {
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $instrumentation = new LoggerInstrumentation($mockLogger);
+        $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
-        $result = $instrumentation->logger;
+        $result = $loggerInstrumentation->logger;
 
         $this->assertSame($mockLogger, $result);
     }
@@ -31,10 +31,10 @@ final class LoggerInstrumentationTest extends TestCase
     public function testLoggerPropertyReturnsSameInstanceOnMultipleCalls(): void
     {
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $instrumentation = new LoggerInstrumentation($mockLogger);
+        $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
-        $firstCall = $instrumentation->logger;
-        $secondCall = $instrumentation->logger;
+        $firstCall = $loggerInstrumentation->logger;
+        $secondCall = $loggerInstrumentation->logger;
 
         $this->assertSame($firstCall, $secondCall);
         $this->assertSame($mockLogger, $firstCall);
@@ -44,30 +44,30 @@ final class LoggerInstrumentationTest extends TestCase
     public function testImplementsInstrumentationInterface(): void
     {
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $instrumentation = new LoggerInstrumentation($mockLogger);
+        $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
         $this->assertInstanceOf(
             \App\Shared\Infrastructure\Instrumentation\Instrumentation::class,
-            $instrumentation
+            $loggerInstrumentation
         );
     }
 
     public function testLoggerPropertyHasPropertyHook(): void
     {
         $mockLogger = $this->createMock(LoggerInterface::class);
-        $instrumentation = new LoggerInstrumentation($mockLogger);
+        $loggerInstrumentation = new LoggerInstrumentation($mockLogger);
 
         // Test that the logger property is accessible and has property hook functionality
-        $reflection = new \ReflectionClass($instrumentation);
-        $property = $reflection->getProperty('logger');
+        $reflectionClass = new \ReflectionClass($loggerInstrumentation);
+        $reflectionProperty = $reflectionClass->getProperty('logger');
 
-        $this->assertTrue($property->isPublic());
+        $this->assertTrue($reflectionProperty->isPublic());
 
         // Test direct property access works (using property hook)
-        $this->assertSame($mockLogger, $instrumentation->logger);
+        $this->assertSame($mockLogger, $loggerInstrumentation->logger);
 
         // Test that the backing property is readonly
-        $backingProperty = $reflection->getProperty('loggerInstance');
+        $backingProperty = $reflectionClass->getProperty('loggerInstance');
         $this->assertTrue($backingProperty->isReadOnly());
     }
 }

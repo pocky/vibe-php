@@ -12,20 +12,20 @@ use PHPUnit\Framework\TestCase;
 
 final class DefaultLoggerTest extends TestCase
 {
-    private const string CALLABLE_MIDDLEWARE_CLASS = CallableMiddleware::class;
-    private GatewayInstrumentation $mockInstrumentation;
-    private DefaultLogger $logger;
+    private \PHPUnit\Framework\MockObject\MockObject $mockInstrumentation;
+
+    private DefaultLogger $defaultLogger;
 
     protected function setUp(): void
     {
         $this->mockInstrumentation = $this->createMock(GatewayInstrumentation::class);
-        $this->logger = new DefaultLogger($this->mockInstrumentation);
+        $this->defaultLogger = new DefaultLogger($this->mockInstrumentation);
     }
 
     public function testConstructorSetsInstrumentation(): void
     {
-        $logger = new DefaultLogger($this->mockInstrumentation);
-        $this->assertInstanceOf(DefaultLogger::class, $logger);
+        $defaultLogger = new DefaultLogger($this->mockInstrumentation);
+        $this->assertInstanceOf(DefaultLogger::class, $defaultLogger);
     }
 
     public function testInvokeLogsStartAndSuccess(): void
@@ -33,7 +33,7 @@ final class DefaultLoggerTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $mockResponse = $this->createMock(GatewayResponse::class);
 
-        $next = fn (GatewayRequest $request) => $mockResponse;
+        $next = fn (GatewayRequest $gatewayRequest): \PHPUnit\Framework\MockObject\MockObject => $mockResponse;
 
         // Expect start to be called first
         $this->mockInstrumentation
@@ -47,9 +47,9 @@ final class DefaultLoggerTest extends TestCase
             ->method('success')
             ->with($this->identicalTo($mockResponse));
 
-        $result = ($this->logger)($mockRequest, $next);
+        $gatewayResponse = ($this->defaultLogger)($mockRequest, $next);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeReturnsResponseFromNext(): void
@@ -57,7 +57,7 @@ final class DefaultLoggerTest extends TestCase
         $mockRequest = $this->createMock(GatewayRequest::class);
         $mockResponse = $this->createMock(GatewayResponse::class);
 
-        $next = fn (GatewayRequest $request) => $mockResponse;
+        $next = fn (GatewayRequest $gatewayRequest): \PHPUnit\Framework\MockObject\MockObject => $mockResponse;
 
         $this->mockInstrumentation
             ->method('start');
@@ -65,9 +65,9 @@ final class DefaultLoggerTest extends TestCase
         $this->mockInstrumentation
             ->method('success');
 
-        $result = ($this->logger)($mockRequest, $next);
+        $gatewayResponse = ($this->defaultLogger)($mockRequest, $next);
 
-        $this->assertSame($mockResponse, $result);
+        $this->assertSame($mockResponse, $gatewayResponse);
     }
 
     public function testInvokeCallsInstrumentationInCorrectOrder(): void
@@ -77,7 +77,7 @@ final class DefaultLoggerTest extends TestCase
 
         $callOrder = [];
 
-        $next = function (GatewayRequest $request) use ($mockResponse, &$callOrder) {
+        $next = function (GatewayRequest $gatewayRequest) use ($mockResponse, &$callOrder): \PHPUnit\Framework\MockObject\MockObject {
             $callOrder[] = 'next_called';
 
             return $mockResponse;
@@ -87,7 +87,7 @@ final class DefaultLoggerTest extends TestCase
             ->expects($this->once())
             ->method('start')
             ->with($mockRequest)
-            ->willReturnCallback(function () use (&$callOrder) {
+            ->willReturnCallback(function () use (&$callOrder): void {
                 $callOrder[] = 'start_called';
             });
 
@@ -95,11 +95,11 @@ final class DefaultLoggerTest extends TestCase
             ->expects($this->once())
             ->method('success')
             ->with($mockResponse)
-            ->willReturnCallback(function () use (&$callOrder) {
+            ->willReturnCallback(function () use (&$callOrder): void {
                 $callOrder[] = 'success_called';
             });
 
-        ($this->logger)($mockRequest, $next);
+        ($this->defaultLogger)($mockRequest, $next);
 
         $this->assertSame(['start_called', 'next_called', 'success_called'], $callOrder);
     }
@@ -107,10 +107,10 @@ final class DefaultLoggerTest extends TestCase
     public function testInvokePassesThroughExceptions(): void
     {
         $mockRequest = $this->createMock(GatewayRequest::class);
-        $expectedException = new \RuntimeException('Test exception');
+        $runtimeException = new \RuntimeException('Test exception');
 
-        $next = function (GatewayRequest $request) use ($expectedException) {
-            throw $expectedException;
+        $next = function (GatewayRequest $gatewayRequest) use ($runtimeException): never {
+            throw $runtimeException;
         };
 
         $this->mockInstrumentation
@@ -126,7 +126,7 @@ final class DefaultLoggerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Test exception');
 
-        ($this->logger)($mockRequest, $next);
+        ($this->defaultLogger)($mockRequest, $next);
     }
 
     public function testInvokeWithDifferentRequestAndResponseTypes(): void
@@ -141,23 +141,23 @@ final class DefaultLoggerTest extends TestCase
             'result' => 'success',
         ]);
 
-        $next = fn (GatewayRequest $request) => $mockResponse;
+        $next = fn (GatewayRequest $gatewayRequest): \PHPUnit\Framework\MockObject\MockObject => $mockResponse;
 
         $this->mockInstrumentation
             ->expects($this->once())
             ->method('start')
-            ->with($this->callback(fn (GatewayRequest $request) => $request->data() === [
+            ->with($this->callback(fn (GatewayRequest $gatewayRequest): bool => $gatewayRequest->data() === [
                 'key' => 'value',
             ]));
 
         $this->mockInstrumentation
             ->expects($this->once())
             ->method('success')
-            ->with($this->callback(fn (GatewayResponse $response) => $response->data() === [
+            ->with($this->callback(fn (GatewayResponse $gatewayResponse): bool => $gatewayResponse->data() === [
                 'result' => 'success',
             ]));
 
-        $result = ($this->logger)($mockRequest, $next);
+        $result = ($this->defaultLogger)($mockRequest, $next);
 
         $this->assertSame($mockResponse, $result);
     }

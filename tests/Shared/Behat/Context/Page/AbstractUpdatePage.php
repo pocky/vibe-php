@@ -17,9 +17,9 @@ abstract class AbstractUpdatePage extends AbstractAdminPage
 {
     use SetField;
 
-    public function __construct(Session $session, \ArrayAccess $minkParameters, RouterInterface $router)
+    public function __construct(Session $session, \ArrayAccess $arrayAccess, RouterInterface $router)
     {
-        parent::__construct($session, $minkParameters, $router);
+        parent::__construct($session, $arrayAccess, $router);
     }
 
     #[\Override]
@@ -46,11 +46,11 @@ abstract class AbstractUpdatePage extends AbstractAdminPage
         $this->getDocument()->find('css', '[data-test-update-changes-button]')->click();
     }
 
-    public function getValidationMessage($element): string
+    public function getValidationMessage(string $element): string
     {
-        $foundElement = $this->getFieldElement($element);
+        $nodeElement = $this->getFieldElement($element);
 
-        $validationMessage = $foundElement->find('css', '.sylius-validation-error');
+        $validationMessage = $nodeElement->find('css', '.sylius-validation-error');
         if (null === $validationMessage) {
             throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.sylius-validation-error');
         }

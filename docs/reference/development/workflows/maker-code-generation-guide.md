@@ -121,7 +121,7 @@ src/Shared/Infrastructure/Maker/
 The Maker system uses a consistent pattern for all commands:
 
 ### Common Arguments
-- **package**: The context name (e.g., `BlogContext`, `SecurityContext`, `BillingContext`)
+- **package**: The context name (e.g., `Blog`, `SecurityContext`, `BillingContext`)
 - **name**: The entity/operation name (e.g., `Article`, `User`, `Invoice`)
 
 ### Common Options
@@ -130,17 +130,17 @@ The Maker system uses a consistent pattern for all commands:
 ### Examples
 ```bash
 # Domain operation
-bin/console make:domain:operation BlogContext Article add
+bin/console make:domain:operation Blog Article add
 bin/console make:domain:operation SecurityContext User add
 bin/console make:domain:operation BillingContext Invoice add
 
 # Application gateway
-bin/console make:application:gateway BlogContext CreateArticle --operation=add
+bin/console make:application:gateway Blog CreateArticle --operation=add
 bin/console make:application:gateway SecurityContext AuthenticateUser --operation=add
 bin/console make:application:gateway BillingContext ProcessPayment --operation=add
 
 # Infrastructure entity
-bin/console make:infrastructure:persistence:entity BlogContext Article
+bin/console make:infrastructure:persistence:entity Blog Article
 bin/console make:infrastructure:persistence:entity SecurityContext User
 bin/console make:infrastructure:persistence:entity BillingContext Invoice
 ```
@@ -150,7 +150,7 @@ bin/console make:infrastructure:persistence:entity BillingContext Invoice
 The Maker system is designed to work with ANY context, not just Blog:
 
 ### Package Path Resolution
-- Converts context names to paths: `BlogContext` → `src/BlogContext/`
+- Converts context names to paths: `Blog` → `src/Blog/`
 - Supports any context pattern: `{Name}Context`
 - Examples:
   - `SecurityContext` → `src/SecurityContext/`
@@ -252,7 +252,7 @@ Create high-level makers that generate complete features across all layers:
 
 2. **make:ddd:workflow** - Generates workflow-specific components
    ```bash
-   bin/console make:ddd:workflow BlogContext Article --workflow=review
+   bin/console make:ddd:workflow Blog Article --workflow=review
    ```
 
 3. **make:ddd:api** - Generates complete API layer
@@ -322,7 +322,7 @@ Create high-level makers that generate complete features across all layers:
 
 ```bash
 # Generate review workflow
-bin/console make:ddd:workflow BlogContext Article --workflow=review
+bin/console make:ddd:workflow Blog Article --workflow=review
 
 # Generate approval workflow
 bin/console make:ddd:workflow ExpenseContext Expense --workflow=approval

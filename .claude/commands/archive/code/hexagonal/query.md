@@ -161,7 +161,7 @@ Well-designed queries provide:
 
 ```bash
 # 1. Create query structure
-/code:hexagonal:query BlogContext GetArticlesByAuthor
+/code:hexagonal:query Blog GetArticlesByAuthor
 
 # This will:
 # - Generate query and handler structure

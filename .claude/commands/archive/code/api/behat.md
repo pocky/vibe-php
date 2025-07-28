@@ -94,10 +94,10 @@ Example: `/api:behat Blog article-management`
 
 3. **Create Context Classes**
    ```php
-   namespace App\Tests\BlogContext\Behat\Context;
+   namespace App\Tests\Blog\Behat\Context;
    
    use Behat\Behat\Context\Context;
-   use App\BlogContext\Domain\Shared\ValueObject\ArticleId;
+   use App\Blog\Domain\Shared\ValueObject\ArticleId;
    
    final class ArticleContext implements Context
    {
@@ -229,7 +229,7 @@ When creating Behat tests:
 
 ```bash
 # 1. Create feature file (this command)
-/code/api:behat BlogContext article-management
+/code/api:behat Blog article-management
 
 # 2. Create implementation tasks
 /spec:tasks "Implement article API endpoints"

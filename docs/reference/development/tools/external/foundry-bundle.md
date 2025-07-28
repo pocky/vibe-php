@@ -15,7 +15,7 @@ In our DDD architecture, fixtures are organized by persistence layer within each
 
 ```
 src/
-├── BlogContext/
+├── Blog/
 │   └── Infrastructure/
 │       └── Persistence/
 │           └── Fixture/
@@ -91,7 +91,7 @@ bin/console foundry:load-stories
 Our `BlogArticleFactory` demonstrates best practices for entity factories:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Fixture/Factory/BlogArticleFactory.php
+// src/Blog/Infrastructure/Persistence/Fixture/Factory/BlogArticleFactory.php
 final class BlogArticleFactory extends PersistentProxyObjectFactory
 {
     public static function class(): string
@@ -157,7 +157,7 @@ final class BlogArticleFactory extends PersistentProxyObjectFactory
 Our `BlogContentStory` creates realistic blog scenarios:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Fixture/Story/BlogContentStory.php
+// src/Blog/Infrastructure/Persistence/Fixture/Story/BlogContentStory.php
 final class BlogContentStory extends Story
 {
     public function build(): void
@@ -196,7 +196,7 @@ final class BlogContentStory extends Story
 Integration with Doctrine Fixtures:
 
 ```php
-// src/BlogContext/Infrastructure/Persistence/Fixture/ArticleFixtures.php
+// src/Blog/Infrastructure/Persistence/Fixture/ArticleFixtures.php
 final class ArticleFixtures extends Fixture
 {
     #[\Override]
@@ -317,23 +317,23 @@ Following DDD principles, fixtures are organized within the Infrastructure persi
 
 ```php
 // Factory namespace
-namespace App\BlogContext\Infrastructure\Persistence\Fixture\Factory;
+namespace App\Blog\Infrastructure\Persistence\Fixture\Factory;
 
 // Story namespace  
-namespace App\BlogContext\Infrastructure\Persistence\Fixture\Story;
+namespace App\Blog\Infrastructure\Persistence\Fixture\Story;
 
 // Fixture namespace
-namespace App\BlogContext\Infrastructure\Persistence\Fixture;
+namespace App\Blog\Infrastructure\Persistence\Fixture;
 ```
 
 ### Import Strategy
 
 ```php
 // In BlogContentStory.php
-use App\BlogContext\Infrastructure\Persistence\Fixture\Factory\BlogArticleFactory;
+use App\Blog\Infrastructure\Persistence\Fixture\Factory\BlogArticleFactory;
 
 // In ArticleFixtures.php
-use App\BlogContext\Infrastructure\Persistence\Fixture\Story\BlogContentStory;
+use App\Blog\Infrastructure\Persistence\Fixture\Story\BlogContentStory;
 ```
 
 ### Benefits of This Organization
@@ -350,8 +350,8 @@ use App\BlogContext\Infrastructure\Persistence\Fixture\Story\BlogContentStory;
 **To**: Foundry Factory + Story pattern with dynamic data generation in proper DDD structure
 
 **Directory Migration**:
-- ❌ `src/BlogContext/Infrastructure/DataFixtures/`
-- ✅ `src/BlogContext/Infrastructure/Persistence/Fixture/`
+- ❌ `src/Blog/Infrastructure/DataFixtures/`
+- ✅ `src/Blog/Infrastructure/Persistence/Fixture/`
 
 **Benefits**:
 - ✅ Dynamic test data generation

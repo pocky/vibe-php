@@ -14,8 +14,8 @@ final readonly class CallableMiddleware
     ) {
     }
 
-    public function __invoke(GatewayRequest $request): GatewayResponse
+    public function __invoke(GatewayRequest $gatewayRequest): GatewayResponse
     {
-        return ($this->callback)($request);
+        return ($this->callback)($gatewayRequest);
     }
 }

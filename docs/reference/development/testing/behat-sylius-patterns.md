@@ -35,7 +35,7 @@ After analyzing [Sylius admin features](https://github.com/Sylius/Sylius/tree/2.
 Following DDD principles and Sylius patterns, our contexts are organized by domain:
 
 ```
-tests/BlogContext/Behat/
+tests/Blog/Behat/
 ├── Context/
 │   ├── Api/                              # API testing contexts
 │   └── Ui/Admin/                         # Admin UI testing contexts
@@ -427,7 +427,7 @@ Scenario: View articles list in admin
 
 ```php
 // config/services_test.php
-$services->load('App\\Tests\\BlogContext\\Behat\\', __DIR__.'/../tests/BlogContext/Behat/');
+$services->load('App\\Tests\\Blog\\Behat\\', __DIR__.'/../tests/Blog/Behat/');
 ```
 
 ### Current Test Results

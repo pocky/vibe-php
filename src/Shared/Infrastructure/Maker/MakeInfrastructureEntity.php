@@ -26,15 +26,15 @@ final class MakeInfrastructureEntity extends AbstractMaker
         return 'Create a Doctrine entity in DDD infrastructure layer';
     }
 
-    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+    public function configureCommand(Command $command, InputConfiguration $inputConfiguration): void
     {
         $command
-            ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g. BlogContext)')
+            ->addArgument('context', InputArgument::REQUIRED, 'The context name (e.g. Blog)')
             ->addArgument('name', InputArgument::REQUIRED, sprintf('Entity name (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
             ->setHelp($this->getCustomHelpFileContents('MakeInfrastructureEntity.txt'));
     }
 
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+    public function generate(InputInterface $input, ConsoleStyle $consoleStyle, Generator $generator): void
     {
         $context = $input->getArgument('context');
         $entityClassName = $input->getArgument('name');
@@ -48,20 +48,20 @@ final class MakeInfrastructureEntity extends AbstractMaker
         $repoNamespace = sprintf('%s\\Infrastructure\\Persistence\\Doctrine\\ORM\\', $context);
 
         // Create the entity class details
-        $entityClassDetails = $generator->createClassNameDetails(
+        $classNameDetails = $generator->createClassNameDetails(
             $entityClassName,
             $entityNamespace
         );
 
-        // Create the repository class details
+        // Create the write repository class details
         $repoClassDetails = $generator->createClassNameDetails(
             $entityClassName,
             $repoNamespace,
-            'Repository'
+            'WriteRepository'
         );
 
-        // Prepare the table name (e.g. blog_articles for Article in BlogContext)
-        $contextPrefix = Str::asSnakeCase(str_replace('Context', '', $context));
+        // Prepare the table name (e.g. blog_articles for Article in Blog)
+        $contextPrefix = Str::asSnakeCase($context);
         $entitySnakeCase = Str::asSnakeCase($entityClassName);
         // Simple pluralization
         if (str_ends_with($entitySnakeCase, 'y') && !in_array(substr($entitySnakeCase, -2), ['ay', 'ey', 'iy', 'oy', 'uy'])) {
@@ -69,12 +69,13 @@ final class MakeInfrastructureEntity extends AbstractMaker
         } else {
             $pluralEntity = $entitySnakeCase . 's';
         }
+
         $tableName = sprintf('%s_%s', $contextPrefix, $pluralEntity);
 
-        // Generate the value object ID
+        // Generate the identifier class
         $idClassDetails = $generator->createClassNameDetails(
             $entityClassName . 'Id',
-            sprintf('%s\\Domain\\Shared\\ValueObject\\', $context)
+            sprintf('%s\\Domain\\%s\\Shared\\Identifier\\', $context, $entityClassName)
         );
 
         $generator->generateClass(
@@ -86,25 +87,25 @@ final class MakeInfrastructureEntity extends AbstractMaker
             ]
         );
 
-        // Generate the repository interface
+        // Generate the write repository interface
         $repoInterfaceDetails = $generator->createClassNameDetails(
-            $entityClassName . 'RepositoryInterface',
-            sprintf('%s\\Domain\\Shared\\Repository\\', $context)
+            $entityClassName . 'WriteRepositoryInterface',
+            sprintf('%s\\Domain\\%s\\Shared\\Repository\\', $context, $entityClassName)
         );
 
         $generator->generateClass(
             $repoInterfaceDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/domain/RepositoryInterface.tpl.php',
             [
-                'entity_class_name' => $entityClassDetails->getShortName(),
-                'entity_variable' => lcfirst($entityClassDetails->getShortName()),
+                'entity_class_name' => $classNameDetails->getShortName(),
+                'entity_variable' => lcfirst($classNameDetails->getShortName()),
                 'context' => $context,
             ]
         );
 
         // Generate the entity file
-        $entityPath = $generator->generateClass(
-            $entityClassDetails->getFullName(),
+        $generator->generateClass(
+            $classNameDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/doctrine/Entity.tpl.php',
             [
                 'repository_class_name' => $repoClassDetails->getShortName(),
@@ -115,13 +116,13 @@ final class MakeInfrastructureEntity extends AbstractMaker
         );
 
         // Generate the repository file
-        $repoPath = $generator->generateClass(
+        $generator->generateClass(
             $repoClassDetails->getFullName(),
             __DIR__ . '/Resources/skeleton/doctrine/DomainRepository.tpl.php',
             [
-                'entity_class_name' => $entityClassDetails->getShortName(),
-                'entity_full_class_name' => $entityClassDetails->getFullName(),
-                'entity_variable' => lcfirst($entityClassDetails->getShortName()),
+                'entity_class_name' => $classNameDetails->getShortName(),
+                'entity_full_class_name' => $classNameDetails->getFullName(),
+                'entity_variable' => lcfirst($classNameDetails->getShortName()),
                 'context' => $context,
             ]
         );
@@ -143,18 +144,18 @@ final class MakeInfrastructureEntity extends AbstractMaker
 
         $generator->writeChanges();
 
-        $this->writeSuccessMessage($io);
+        $this->writeSuccessMessage($consoleStyle);
 
-        $io->text([
+        $consoleStyle->text([
             'Next: Add fields to your entity and generate a migration:',
             '',
-            sprintf('  <info>php %s make:entity --regenerate %s</info>', $_SERVER['PHP_SELF'] ?? 'bin/console', $entityClassDetails->getFullName()),
+            sprintf('  <info>php %s make:entity --regenerate %s</info>', $_SERVER['PHP_SELF'] ?? 'bin/console', $classNameDetails->getFullName()),
             sprintf('  <info>php %s make:migration</info>', $_SERVER['PHP_SELF'] ?? 'bin/console'),
             '',
         ]);
     }
 
-    public function configureDependencies(DependencyBuilder $dependencies): void
+    public function configureDependencies(DependencyBuilder $dependencyBuilder): void
     {
         // Dependencies are already satisfied in our project
     }

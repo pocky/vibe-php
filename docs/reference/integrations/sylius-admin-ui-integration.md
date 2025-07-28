@@ -30,7 +30,7 @@ This approach ensures that Sylius is purely a presentation concern and doesn't c
 ### Directory Organization
 
 ```
-src/BlogContext/UI/Web/Admin/
+src/Blog/UI/Web/Admin/
 ├── Form/
 │   ├── ArticleType.php          # Main article form with validation
 │   ├── ApproveArticleType.php  # Editorial approval form
